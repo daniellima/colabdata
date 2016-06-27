@@ -1,0 +1,143 @@
+<div class="toolbar">
+    <div class="container">
+      <div class="toolbar-add">
+        <button class="btn btn-default" ng-click="$ctrl.onClose()">
+          <span class="glyphicon glyphicon-arrow-left"></span>
+          Voltar
+        </button>
+        <button class="btn btn-default" ng-click="$ctrl.addNewBox()">
+          <span class="glyphicon glyphicon-plus"></span>
+            Objeto
+        </button>
+        <button class="btn btn-default" ng-click="$ctrl.addRelation()">
+          <span class="glyphicon glyphicon-plus"></span>
+            Relações
+        </button>
+      </div>
+      <div class="toolbar-show">
+        <button class="btn btn-default" ng-click="$ctrl.showGraphViewer()">
+          <span class="glyphicon glyphicon-eye-open"></span>
+            Ver Grafo
+        </button>
+        <button class="btn btn-default" ng-click="$ctrl.showObjectViewer()">
+          <span class="glyphicon glyphicon-record"></span>
+            Ver Objetos
+        </button>
+        <button class="btn btn-default" ng-click="$ctrl.showRelationList()">
+          <span class="glyphicon glyphicon-random"></span>
+            Ver Relações
+        </button>
+        <div class="btn-group">
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-resize-full"></span>
+            Tamanho
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#" ng-click="$ctrl.resizeImage('original')">Original</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeImage('byWidth')">Ajustar largura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeImage('byHeight')">Ajustar altura</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div
+    class="image-container"
+    ng-show="!$ctrl.showGraph"
+>
+    <div 
+      class="container-for-boxes"
+      ng-mousemove="$ctrl.mousemove($event)"
+      ng-mousedown="$ctrl.mousedown($event)"
+      ng-mouseup="$ctrl.mouseup($event)"
+      ng-mouseleave="$ctrl.mouseleave($event)"
+    >
+      <img 
+        class="image"
+        src="{{ $ctrl.image.url }}"
+        style="width:{{ $ctrl.image.width * $ctrl.multiplier }}px; height:{{ $ctrl.image.height * $ctrl.multiplier }}px"
+      >
+      <div 
+        class="box" 
+        style="position: absolute; 
+               left: {{ $ctrl.x * $ctrl.multiplier}}px; 
+               top: {{ $ctrl.y * $ctrl.multiplier}}px; 
+               width: {{ $ctrl.width * $ctrl.multiplier}}px; 
+               height: {{ $ctrl.height * $ctrl.multiplier}}px;"
+        ng-hide="!$ctrl.show"
+      >
+        <div class="handler handler-top-left" ng-mousedown="$ctrl.handleMousedown($event, 'top-left')"></div>
+        <div class="handler handler-top-right" ng-mousedown="$ctrl.handleMousedown($event, 'top-right')"></div>
+        <div class="handler handler-bottom-left" ng-mousedown="$ctrl.handleMousedown($event, 'bottom-left')"></div>
+        <div class="handler handler-bottom-right" ng-mousedown="$ctrl.handleMousedown($event, 'bottom-right')"></div>
+      </div>
+      <div
+      ng-repeat="block in $ctrl.blocks"
+      class="box"
+      ng-click="$ctrl.onBlockClicked($event, block)"
+      style="position: absolute;
+             left: {{ block.x * $ctrl.multiplier }}px; 
+             top: {{ block.y * $ctrl.multiplier }}px; 
+             width: {{ block.width * $ctrl.multiplier}}px; 
+             height: {{ block.height * $ctrl.multiplier }}px;
+             {{ $ctrl.selectedRelation.blocks[0] == block ? 'border-color:orange;' : '' }}"
+      >
+      </div>
+    </div>
+</div>
+
+<graph-viewer
+  ng-show="$ctrl.showGraph"
+  
+  nodes="$ctrl.image.blocks"
+  edges="$ctrl.relations"
+></graph-viewer>
+
+<object-editor
+    edited-block-image="$ctrl.editedBlockImage"
+    edited-block="$ctrl.editedBlock"
+    ng-show="$ctrl.showEdit"
+    on-close="$ctrl.onObjectEditorClose()"
+    on-save="$ctrl.onObjectEditorSave()"
+    on-edit="$ctrl.onObjectEditorEdit()"
+></object-editor>
+  
+<object-viewer
+    ng-show="$ctrl.showAllObjects"
+    
+    blocks="$ctrl.image.blocks"
+    image="$ctrl.image"
+    action="$ctrl.objectViewerAction"
+    
+    on-close="$ctrl.onObjectViewerClose()"
+    on-block-selected="$ctrl.onObjectViewerBlockSelected(block, action)"
+></object-viewer>
+
+<relation-editor
+  ng-show="$ctrl.relationEditorIsVisible"
+  
+  image="$ctrl.image"
+  relation="$ctrl.selectedRelation"
+  
+  on-save="$ctrl.onRelationEditorSave()"
+  on-close="$ctrl.onRelationEditorClose()"
+  on-block-selected="$ctrl.onRelationEditorBlockSelected(index)"
+></relation-editor>
+
+<relation-list
+  ng-show="$ctrl.isRelationListVisible"
+  
+  image="$ctrl.image"
+  relations="$ctrl.relations"
+  
+  on-relation-selected="$ctrl.onRelationListRelationSelected(relation)"
+  on-close="$ctrl.onRelationListClose()"
+></relation-list>
+
+<!-- background branco transparente -->
+<div
+    ng-show="$ctrl.showEdit || $ctrl.showAllObjects || $ctrl.relationEditorIsVisible || $ctrl.isRelationListVisible"
+    style="position: fixed; background-color: white; opacity: 0.5; width: 100%; height: 100%; top: 0; left: 0; z-index: 10000">
+</div>

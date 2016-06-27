@@ -1,0 +1,40 @@
+<div class="panel edit-panel">
+    <div>
+      <object-thumbnail class="object-image" image="$ctrl.editedBlockImage" block="$ctrl.editedBlock" size="350"></object-thumbnail>
+      <button class="btn btn-default edit-button" ng-click="$ctrl.onEdit()">
+        <span class="glyphicon glyphicon-pencil"></span>
+        Editar marcação
+      </button>
+    </div>
+    <div class="edit-panel-right">
+      <h3 class="edit-panel-title">
+        Editar objeto
+      </h3>
+      <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">
+        <span class="glyphicon glyphicon-remove"></span>
+      </button>
+      
+      <input type="text" class="form-control" ng-model="$ctrl.editedBlock.object.name" placeholder="nome do objeto">
+      
+      <div class="object-attributes container-fluid">
+        <div class="row" ng-repeat="attribute in $ctrl.editedBlock.object.attributes">
+          <div class="col-xs-6">
+            <input type="text" class="form-control" ng-model="attribute.name" placeholder="propriedade é...">
+          </div>
+          <div class="col-xs-6">
+            <input type="text" class="form-control" ng-model="attribute.value" placeholder="esse valor">
+          </div>
+        </div>
+      </div>
+      <div class="container-fluid">
+        <div class="row">
+          <input type="button" value="Adicionar attributo" class="btn-add-attribute btn btn-default btn-block" ng-click="$ctrl.addAttribute()">
+        </div>
+      </div>
+      
+      <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.onSave()">
+        Salvar
+      </button>
+      
+    </div>
+</div>

@@ -1,0 +1,41 @@
+<div class="panel relations-list-panel">
+  <h3 class="edit-panel-title">
+    Relações
+  </h3>
+  
+  <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">
+    <span class="glyphicon glyphicon-remove"></span>
+  </button>
+    
+  <div style="overflow: auto; height: 500px" class="container-fluid">
+    <div ng-repeat="relation in $ctrl.relations">
+      <div class="row" style="margin-top: 1em; margin-bottom: 1em">
+        <div class="col-md-6 text-center">
+          <div class="relation-editor-thumbnail-container" style="cursor: initial">
+            <object-thumbnail class="centered-vh" image="$ctrl.image" block="relation.blocks[0]" size="200"></object-thumbnail>
+          </div>
+        </div>
+        <div class="col-md-6 text-center">
+          <div class="relation-editor-thumbnail-container" style="cursor: initial">
+            <object-thumbnail class="centered-vh" image="$ctrl.image" block="relation.blocks[1]" size="200"></object-thumbnail>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <span style="line-height: 34px;margin-left: 2em;">
+          <span style="font-weight: bold">{{ relation.blocks[0].object.name }}</span>
+          {{ relation.name }} 
+          <span style="font-weight: bold">{{ relation.blocks[1].object.name }}</span>
+        </span>
+        <a class="btn btn-default pull-right"
+          href="javascript:void(0)" 
+          ng-click="$ctrl.onRelationSelected({relation: relation})"
+          >
+          Editar
+        </a>
+        <hr>
+      </div>
+    </div>
+  </div>
+  
+</div>

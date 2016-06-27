@@ -1,0 +1,42 @@
+<div class="panel relation-editor-panel">
+    <div class="container-fluid">
+      <div class="row">
+          <h3 class="edit-panel-title">
+            Editar Relação
+          </h3>
+          <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">
+            <span class="glyphicon glyphicon-remove"></span>
+          </button>
+      </div>
+      <div class="row">
+        <div class="col-md-6 text-center">
+          <div class="relation-editor-thumbnail-container" 
+            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.IsBlocksChoosen()}"
+            ng-click="$ctrl.onBlockSelected({index: 0})"
+            >
+            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.relation.blocks[0]" size="200"></object-thumbnail>
+          </div>
+        </div>
+        <div class="col-md-6 text-center">
+          <div class="relation-editor-thumbnail-container" 
+            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.IsBlocksChoosen()}"
+            ng-click="$ctrl.onBlockSelected({index: 1})"
+            >
+            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.relation.blocks[1]" size="200"></object-thumbnail>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <input type="text" class="form-control text-center" style="margin-top: 1em" ng-model="$ctrl.relation.name" ng-disabled="!$ctrl.IsBlocksChoosen()">
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-block" 
+          style="margin-top: 1em" 
+          ng-disabled="!$ctrl.isRelationComplete()"
+          ng-click="$ctrl.onSave()"
+          >
+          Salvar
+        </button>
+      </div>
+    </div>
+</div>

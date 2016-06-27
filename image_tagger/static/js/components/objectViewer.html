@@ -1,0 +1,25 @@
+<div class="panel all-objects-panel">
+  <h3 class="edit-panel-title">
+    Objetos
+  </h3>
+  
+  <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">
+    <span class="glyphicon glyphicon-remove"></span>
+  </button>
+    
+  <div style="overflow: auto; height: 500px">
+    <div style="float:left; margin: 25px; width: 200px; height: {{200 + 34 + 10}}px;" ng-repeat="block in $ctrl.blocks">
+      <div style="position:relative; height: 200px;">
+        <object-thumbnail class="centered-vh" image="$ctrl.image" block="block" size="200"></object-thumbnail>
+      </div>
+      <a class="btn btn-default btn-block" 
+        style="margin-top: 1em" 
+        href="javascript:void(0)" 
+        ng-click="$ctrl.onBlockSelected({block: block, action: $ctrl.action})"
+        >
+        {{ $ctrl.action }}
+      </a>
+    </div>
+  </div>
+  
+</div>
