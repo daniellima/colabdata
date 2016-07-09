@@ -5,6 +5,8 @@
   <title>COLABDATA</title>
   <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.css" type="text/css" />
   <link rel="stylesheet" href="css/main.css" type="text/css" />
+  <!-- angular está qui para o ng-cloak funcionar -->
+  <script src="libs/angular/angular-1.5.6.js"></script>
 </head>
 <body 
   ng-controller="MainController as $ctrl"
@@ -17,24 +19,40 @@
           COLABDATA
         </a>
       </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a 
+              href="#" 
+              ng-click="$ctrl.onSairButtonClick()" 
+              ng-show="$ctrl.userLogged"
+              >
+              Sair
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
   
+  <login-form
+    ng-show="$ctrl.page == 'login-form'"
+    on-login="$ctrl.onLogin()"
+  ></login-form>
+  
   <image-chooser
     images="$ctrl.images"
-    ng-hide="$ctrl.showTagger"
+    ng-show="$ctrl.page == 'image-chooser'"
     on-choose="$ctrl.onImageChooserChoose(image)"
   ></image-chooser>
   
   <image-tagger
     image="$ctrl.selectedImage"
-    ng-show="$ctrl.showTagger"
+    ng-show="$ctrl.page == 'image-tagger'"
     on-close="$ctrl.onImageTaggerClose()"
   ></image-tagger>
+  
 
-<script src="libs/angular/angular-1.5.6.js"></script>
-<script src="js/node_modules/sigma/build/sigma.min.js"></script>
-<script src="js/node_modules/sigma/build/plugins/sigma.layout.forceAtlas2.min.js"></script>
 <script src="libs/d3/d3.v3.min.js"></script>
 
 <script type="text/javascript" src="js/components/ImageChooser.js"></script>
@@ -45,6 +63,7 @@
 <script type="text/javascript" src="js/components/RelationEditor.js"></script>
 <script type="text/javascript" src="js/components/RelationList.js"></script>
 <script type="text/javascript" src="js/components/GraphViewer.js"></script>
+<script type="text/javascript" src="js/components/LoginForm.js"></script>
 <script type="text/javascript" src="js/MainController.js"></script>
 <script type="text/javascript" src="js/app.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>

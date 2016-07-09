@@ -1,25 +1,53 @@
 var MainController = function($http){
 
-    this.showTagger = false;
+    this.$http = $http;
 
     this.images = [];
     this.selectedImage = null;
     
-    $http({method: 'get', url: 'image/all'})
-    .then(function loadImages(response){
-        this.images = response.data.images;
-    }.bind(this));
+    this.userLogged = false;
+    this.page = 'login-form';
+    
+    if(localStorage.userLogged){
+        this.onLogin();
+    }
 }
 
 MainController.prototype = {
     
     onImageTaggerClose: function(){
-        this.showTagger = false;
+        this.page = 'image-chooser';
     },
     
     onImageChooserChoose: function(image){
-        this.showTagger = true;
+        this.page = 'image-tagger';
         this.selectedImage = image;
     },
+    
+    onLogin: function(){
+        this.userLogged = true;
+        localStorage.userLogged = this.userLogged;
+        this.page = 'image-chooser';
+        
+        this.$http({method: 'get', url: 'image/all'})
+        .then(function loadImages(response){
+            this.images = response.data.images;
+        }.bind(this));
+    },
+    
+    onSairButtonClick: function(){
+        
+        this.$http({
+            method: 'POST',
+            url: 'image/logout'
+        })
+        .then(function(response){
+            this.userLogged = false;
+            localStorage.clear();
+            this.page = 'login-form';
+        }.bind(this), function(){
+            // dar feedback pro usuario
+        }.bind(this))
+    }
 
 }

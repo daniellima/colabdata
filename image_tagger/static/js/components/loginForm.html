@@ -1,0 +1,37 @@
+<div class="panel relations-list-panel">
+  <h3 class="edit-panel-title">
+    Login
+  </h3>
+    
+  <div style="padding-bottom: 15px" class="container-fluid">
+    <div class="row" ng-show="$ctrl.message">
+      <div class="col-md-12">
+        <div class="alert alert-danger">
+          <button type="button" class="close" aria-label="Close" ng-click="$ctrl.onCleanMessageButtonClick()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          {{ $ctrl.message }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <label for="email">Email</label>
+        <input type="text" class="form-control" name="email" ng-model="$ctrl.email">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <label for="senha">Senha</label>
+        <input type="password" class="form-control" name="senha" ng-model="$ctrl.senha">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr class="divider">
+        <button type="btn" class="btn btn-primary btn-block" ng-click="$ctrl.onEnterButtonClick()">Entrar</button>
+      </div>
+    </div>
+  </div>
+  
+</div>

@@ -58,4 +58,6 @@ ColabDataApp.component('relationList', RelationListComponent.definition);
 
 ColabDataApp.component('graphViewer', GraphViewerComponent.definition);
 
+ColabDataApp.component('loginForm', LoginFormComponent.definition);
+
 ColabDataApp.controller('MainController', ['$http', MainController])

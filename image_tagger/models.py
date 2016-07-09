@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
@@ -29,6 +29,7 @@ class Attribute(models.Model):
 class Tag(models.Model):
     image_data = models.ForeignKey(ImageData, related_name='tags')
     object = models.ForeignKey(Objeto, related_name='tags')
+    user = models.ForeignKey(User, related_name='tags')
     x = models.IntegerField()
     y = models.IntegerField()
     width = models.IntegerField()
