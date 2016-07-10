@@ -31,7 +31,8 @@ var ImageTaggerComponent = function($rootScope, $http, $document){
     this.isRelationListVisible = false;
     this.relations = [];
     
-    this.showGraph = false;
+    this.overviewVisible = false;
+    this.attributes = [];
     
     this.ctrlPressed = false;
     
@@ -118,8 +119,20 @@ ImageTaggerComponent.prototype = {
         }
     },
     
-    showGraphViewer: function(){
-        this.showGraph = !this.showGraph;
+    showOverview: function(){
+        this.overviewVisible = !this.overviewVisible;
+        this.refreshAttributes();
+    },
+    
+    refreshAttributes: function(){
+        this.attributes = [];
+        for (var i = 0; i < this.blocks.length; i++) {
+            for (var j = 0; j < this.blocks[i].object.attributes.length; j++) {
+                var attribute = this.blocks[i].object.attributes[j];
+                attribute.block = this.blocks[i];
+                this.attributes.push(attribute);
+            }
+        }
     },
     
     showEditPanel: function(block){
@@ -300,6 +313,7 @@ ImageTaggerComponent.prototype = {
             }
             this.show = false;
             this.showEdit = false;
+            this.refreshAttributes();
         }.bind(this));
     },
     

@@ -56,7 +56,7 @@ ColabDataApp.component('relationEditor', RelationEditorComponent.definition);
 
 ColabDataApp.component('relationList', RelationListComponent.definition);
 
-ColabDataApp.component('graphViewer', GraphViewerComponent.definition);
+ColabDataApp.component('overview', OverviewComponent.definition);
 
 ColabDataApp.component('loginForm', LoginFormComponent.definition);
 
