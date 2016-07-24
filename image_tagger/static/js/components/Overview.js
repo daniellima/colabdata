@@ -9,7 +9,10 @@ component.definition = {
         relations: '<',
         attributes: '<',
         image: '<',
-        multiplier: '<'
+        multiplier: '<',
+        
+        onObjectClick: '&',
+        onRelationClick: '&'
     }
 }
 

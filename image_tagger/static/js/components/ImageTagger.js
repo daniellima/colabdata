@@ -286,6 +286,9 @@ ImageTaggerComponent.prototype = {
             };
         }
         this.showObjectEditor(block);
+        if(this.objectTagEditFromOverview){
+            this.overviewVisible = true;
+        }
     },
     
     handleMousedown: function($event, handle){
@@ -357,6 +360,10 @@ ImageTaggerComponent.prototype = {
         
         this.showEdit = false;
         this.showAllObjects = false;
+        
+        // no caso de abrir da overview
+        this.overviewVisible = false;
+        this.objectTagEditFromOverview = true;
     },
     
     onObjectEditorClose: function(){
@@ -387,9 +394,11 @@ ImageTaggerComponent.prototype = {
     },
     
     onRelationEditorClose: function(){
-        this.selectedRelation.name = this.originalRelation.name;
-        this.selectedRelation.blocks[0] = this.originalRelation.blocks[0];
-        this.selectedRelation.blocks[1] = this.originalRelation.blocks[1];
+        if(this.originalRelation) {
+            this.selectedRelation.name = this.originalRelation.name;
+            this.selectedRelation.blocks[0] = this.originalRelation.blocks[0];
+            this.selectedRelation.blocks[1] = this.originalRelation.blocks[1];
+        }
         
         this.closeRelationEditor();
     },
@@ -431,7 +440,7 @@ ImageTaggerComponent.prototype = {
         this.relationBlockSelected = index;
     },
     
-    onRelationListRelationSelected: function(relation){
+    showRelationEditor: function(relation){
         this.isRelationListVisible = false;
         this.selectedRelation = relation;
         this.originalRelation = {
@@ -439,6 +448,10 @@ ImageTaggerComponent.prototype = {
             name: relation.name
         }
         this.relationEditorIsVisible = true;
+    },
+    
+    onRelationListRelationSelected: function(relation){
+        this.showRelationEditor(relation);
         
         this.openedRelationEditorFromList = true;
     },

@@ -7,7 +7,7 @@
     <div class="col-xs-2">
       <h2>Objetos</h2>
       
-      <div style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="block in $ctrl.blocks" ng-mouseenter="$ctrl.showBlock(block)" ng-mouseleave="$ctrl.hideBlock(block)">
+      <div ng-click="$ctrl.onObjectClick({block: block})" style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="block in $ctrl.blocks" ng-mouseenter="$ctrl.showBlock(block)" ng-mouseleave="$ctrl.hideBlock(block)">
         {{ block.object.name }}
       </div>
       
@@ -15,7 +15,7 @@
     <div class="col-xs-2">
       <h2>Atributos</h2>
       
-      <div style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="attribute in $ctrl.attributes" ng-mouseenter="$ctrl.showBlock(attribute.block)" ng-mouseleave="$ctrl.hideBlock(attribute.block)">
+      <div ng-click="$ctrl.onObjectClick({block: attribute.block})" style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="attribute in $ctrl.attributes" ng-mouseenter="$ctrl.showBlock(attribute.block)" ng-mouseleave="$ctrl.hideBlock(attribute.block)">
         {{ attribute.name }} de {{ attribute.block.object.name }} é {{ attribute.value }}
       </div>
 
@@ -23,7 +23,7 @@
     <div class="col-xs-3">
       <h2>Relações</h2>
       
-      <div style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="relation in $ctrl.relations" ng-mouseenter="$ctrl.showRelation(relation)" ng-mouseleave="$ctrl.hideRelation(relation)">
+      <div ng-click="$ctrl.onRelationClick({relation: relation})" style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="relation in $ctrl.relations" ng-mouseenter="$ctrl.showRelation(relation)" ng-mouseleave="$ctrl.hideRelation(relation)">
           {{ relation.blocks[0].object.name }} {{ relation.name }} {{ relation.blocks[1].object.name }}
       </div>
       

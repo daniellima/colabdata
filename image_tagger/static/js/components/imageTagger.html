@@ -110,6 +110,8 @@
   image='$ctrl.image'
   multiplier='$ctrl.overviewMultiplier'
   ng-show="$ctrl.overviewVisible"
+  on-object-click="$ctrl.showObjectEditor(block)"
+  on-relation-click="$ctrl.showRelationEditor(relation)"
 ></overview>
 
 <object-editor
