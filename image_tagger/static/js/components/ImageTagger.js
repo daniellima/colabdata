@@ -70,6 +70,8 @@ ImageTaggerComponent.prototype = {
             this.relations = this.getRelations();
             this.show = false;
             this.isEditingExistingBlock = false;
+            this.refreshAttributes();
+            this.resizeOverviewImage('byWidth');
         }
     },
     
@@ -87,6 +89,7 @@ ImageTaggerComponent.prototype = {
     
     hidrateRelation: function(dryRelation){
         return {
+            'id': dryRelation.id,
             'name': dryRelation.name,
             'blocks': [this.getBlockFromId(dryRelation.originTagId), this.getBlockFromId(dryRelation.targetTagId)]
         }
@@ -117,10 +120,31 @@ ImageTaggerComponent.prototype = {
             default:
                 this.multiplier = 1;
         }
+        
+        
+    },
+    
+    resizeOverviewImage: function(how){
+        var viewWidth = 390;
+        var viewHeight = window.innerHeight - 98 - 50 - 26; // remove 98 pixels from navbar, scrollbar and overview title
+        
+        switch (how) {
+            case 'byWidth':
+                this.overviewMultiplier = viewWidth/this.image.width;
+                break;
+            case 'byHeight':
+                this.overviewMultiplier = viewHeight/this.image.height;
+                break;
+            default:
+                this.overviewMultiplier = 1;
+        }
+        
+        
     },
     
     showOverview: function(){
         this.overviewVisible = !this.overviewVisible;
+        this.resizeOverviewImage('byWidth');
         this.refreshAttributes();
     },
     
@@ -129,13 +153,14 @@ ImageTaggerComponent.prototype = {
         for (var i = 0; i < this.blocks.length; i++) {
             for (var j = 0; j < this.blocks[i].object.attributes.length; j++) {
                 var attribute = this.blocks[i].object.attributes[j];
+                // é usado na overview para mostrar o nome do objeto que possui o attributo
                 attribute.block = this.blocks[i];
                 this.attributes.push(attribute);
             }
         }
     },
     
-    showEditPanel: function(block){
+    showObjectEditor: function(block){
         this.showEdit = true;
         this.showAllObjects = false;
         this.editedBlockImage = this.image;
@@ -260,7 +285,7 @@ ImageTaggerComponent.prototype = {
                 object: {name: '', attributes: []}
             };
         }
-        this.showEditPanel(block);
+        this.showObjectEditor(block);
     },
     
     handleMousedown: function($event, handle){
@@ -303,7 +328,7 @@ ImageTaggerComponent.prototype = {
             url: 'image/save/tag',
             data: {
                 'imageId': this.editedBlockImage.id, 
-                'tag': this.editedBlock
+                'tag': this.blockToJsonable(this.editedBlock)
             }
         })
         .then(function onTagSaved(response){
@@ -339,13 +364,12 @@ ImageTaggerComponent.prototype = {
         
         if(this.objectViewerAction == ImageTaggerComponent.actions.edit){
             this.showAllObjects = true;
-            this.objectViewerAction = "";
         }
     },
     
     onObjectViewerBlockSelected: function(block, action){
         if(action == ImageTaggerComponent.actions.edit){
-            this.showEditPanel(block);
+            this.showObjectEditor(block);
         }
         if(action == ImageTaggerComponent.actions.select){
             this.selectedRelation.blocks[this.relationBlockSelected] = block;
@@ -363,6 +387,14 @@ ImageTaggerComponent.prototype = {
     },
     
     onRelationEditorClose: function(){
+        this.selectedRelation.name = this.originalRelation.name;
+        this.selectedRelation.blocks[0] = this.originalRelation.blocks[0];
+        this.selectedRelation.blocks[1] = this.originalRelation.blocks[1];
+        
+        this.closeRelationEditor();
+    },
+    
+    closeRelationEditor: function(){
         this.relationEditorIsVisible = false;
         this.selectedRelation = null;
         
@@ -385,8 +417,10 @@ ImageTaggerComponent.prototype = {
         })
         .then(function onRelationSaved(response){
             this.selectedRelation.id = response.data.id;
-            this.relations.push(this.selectedRelation);
-            this.onRelationEditorClose();
+            if(this.relations.indexOf(this.selectedRelation) === -1){
+                this.relations.push(this.selectedRelation);
+            };
+            this.closeRelationEditor();
         }.bind(this));
     },
     
@@ -400,6 +434,10 @@ ImageTaggerComponent.prototype = {
     onRelationListRelationSelected: function(relation){
         this.isRelationListVisible = false;
         this.selectedRelation = relation;
+        this.originalRelation = {
+            blocks: [relation.blocks[0], relation.blocks[1]],
+            name: relation.name
+        }
         this.relationEditorIsVisible = true;
         
         this.openedRelationEditorFromList = true;
@@ -411,5 +449,34 @@ ImageTaggerComponent.prototype = {
     
     onClose: function(){
         // expose event
+    },
+    
+    // esse metodo e os outros Jsonable só quer ignorar o campo 'block' de um attribute,
+    // que gera uma referencia ciclica caso se tente transformar o
+    // block em um JSON diretamente.
+    blockToJsonable: function(block){
+        return {
+            id: block.id,
+            object: this.objectToJsonable(block.object),
+            relations: block.relations,
+            x: block.x,
+            y: block.y,
+            width: block.width,
+            height: block.height,
+        };
+    },
+    
+    objectToJsonable: function(object){
+        return {
+            name: object.name,
+            attributes: object.attributes.map(function(attribute){ return this.attributeToJsonable(attribute); }, this)
+        };
+    },
+    
+    attributeToJsonable: function(attribute){
+        return {
+            name: attribute.name,
+            value: attribute.value,
+        };
     }
 };

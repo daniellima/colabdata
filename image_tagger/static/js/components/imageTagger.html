@@ -43,6 +43,17 @@
             <li><a href="#" ng-click="$ctrl.resizeImage('byHeight')">Ajustar altura</a></li>
           </ul>
         </div>
+        <div class="btn-group" ng-show="$ctrl.overviewVisible">
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-resize-full"></span>
+            Tamanho
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#" ng-click="$ctrl.resizeOverviewImage('byWidth')">Ajustar largura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeOverviewImage('byHeight')">Ajustar altura</a></li>
+          </ul>
+        </div>
       </div>
     </div>
 </div>
@@ -97,6 +108,7 @@
   attributes="$ctrl.attributes"
   relations="$ctrl.relations"
   image='$ctrl.image'
+  multiplier='$ctrl.overviewMultiplier'
   ng-show="$ctrl.overviewVisible"
 ></overview>
 

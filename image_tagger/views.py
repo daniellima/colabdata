@@ -27,7 +27,7 @@ def post_save_tag(request):
     
     sent = json.loads(request.body)
     image_data = ImageData.objects.get(pk=sent['imageId'])
-    
+
     if Tag.objects.filter(pk=sent['tag']['id']).exists():
         Tag.objects.filter(pk=sent['tag']['id']).delete()
     

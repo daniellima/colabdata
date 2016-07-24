@@ -52,4 +52,9 @@ class Relation(models.Model):
     targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations')
     
     def toJSONSerializable(self):
-        return {'name': self.name, 'originTagId': self.originTag.id, 'targetTagId': self.targetTag.id}
+        return {
+            'id': self.id,
+            'name': self.name, 
+            'originTagId': self.originTag.id, 
+            'targetTagId': self.targetTag.id
+        }

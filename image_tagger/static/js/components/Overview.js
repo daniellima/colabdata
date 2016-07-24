@@ -1,30 +1,28 @@
 /* global angular */
-var component = OverviewComponent = function($rootScope, $document){
-    this.$document = $document;
-    this.$rootScope = $rootScope;
-}
+var component = OverviewComponent = function(){}
 
 component.definition = {
-    controller: ['$rootScope', '$document', component],
+    controller: [component],
     templateUrl: "static/js/components/overview.html",
     bindings: {
         blocks: '<',
         relations: '<',
         attributes: '<',
-        image: '<'
+        image: '<',
+        multiplier: '<'
     }
 }
 
 component.prototype = {
     
     $onChanges: function(changes){
-        if(changes.image){
-            if(changes.image.currentValue){
-                this.multiplier = 390 / this.image.width;
-            } else {
-                this.multiplier = 1;
-            }
-        }
+        // if(changes.image){
+        //     if(changes.image.currentValue){
+        //         this.multiplier = 390 / this.image.width;
+        //     } else {
+        //         this.multiplier = 1;
+        //     }
+        // }
     },
     
     showBlock: function(block){

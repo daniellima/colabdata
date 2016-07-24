@@ -16,7 +16,6 @@ component.definition = {
 component.prototype = {
 
     $onChanges: function(changes){
-        
     },
     
     
@@ -30,5 +29,5 @@ component.prototype = {
         if(!this.relation) return false;
         
         return this.relation.blocks[0] && this.relation.blocks[1] && this.relation.name !== "";
-    }
+    },
 };
