@@ -391,6 +391,8 @@ ImageTaggerComponent.prototype = {
         if(this.objectViewerAction == ImageTaggerComponent.actions.select){
             this.relationEditorIsVisible = true;
         }
+        
+        this.objectViewerAction = "";
     },
     
     onRelationEditorClose: function(){
