@@ -29,14 +29,16 @@ MainController.prototype = {
         localStorage.userLogged = this.userLogged;
         this.page = 'image-chooser';
         
+        showLoadingOverlay(true, "Carregando imagens...");
         this.$http({method: 'get', url: 'image/all'})
         .then(function loadImages(response){
             this.images = response.data.images;
+            showLoadingOverlay(false);
         }.bind(this));
     },
     
     onSairButtonClick: function(){
-        
+        showLoadingOverlay(true, "Saindo...")
         this.$http({
             method: 'POST',
             url: 'image/logout'
@@ -45,8 +47,10 @@ MainController.prototype = {
             this.userLogged = false;
             localStorage.clear();
             this.page = 'login-form';
+            
+            showLoadingOverlay(false);
         }.bind(this), function(){
-            // dar feedback pro usuario
+            // TODO dar feedback pro usuario
         }.bind(this))
     }
 

@@ -326,6 +326,7 @@ ImageTaggerComponent.prototype = {
     },
     
     onObjectEditorSave: function(){
+        showLoadingOverlay(true, "Salvando...");
         this.$http({
             method: 'POST',
             url: 'image/save/tag',
@@ -342,6 +343,8 @@ ImageTaggerComponent.prototype = {
             this.show = false;
             this.showEdit = false;
             this.refreshAttributes();
+            
+            showLoadingOverlay(false);
         }.bind(this));
     },
     
@@ -416,6 +419,7 @@ ImageTaggerComponent.prototype = {
     },
     
     onRelationEditorSave: function(){
+        showLoadingOverlay(true, "Salvando...");
         this.$http({
             method: 'POST',
             url: 'image/save/relation',
@@ -432,6 +436,8 @@ ImageTaggerComponent.prototype = {
                 this.relations.push(this.selectedRelation);
             };
             this.closeRelationEditor();
+            
+            showLoadingOverlay(false);
         }.bind(this));
     },
     

@@ -33,6 +33,7 @@ component.prototype = {
             return;
         }
         
+        showLoadingOverlay(true, "Logando...");
         this.$http({
             method: 'POST',
             url: 'image/login',
@@ -44,9 +45,11 @@ component.prototype = {
         .then(function(response){
             this.email = '';
             this.senha = '';
-            this.onLogin()
+            this.onLogin();
+            
+            showLoadingOverlay(false);
         }.bind(this), function(){
             this.message = "Credenciais inválidas!"
-        }.bind(this))
+        }.bind(this));
     }
 };

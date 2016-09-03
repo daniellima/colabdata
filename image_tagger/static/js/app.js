@@ -61,3 +61,15 @@ ColabDataApp.component('overview', OverviewComponent.definition);
 ColabDataApp.component('loginForm', LoginFormComponent.definition);
 
 ColabDataApp.controller('MainController', ['$http', MainController])
+
+
+/* TODO GAMBI PARA MOSTRAR LOADING DE QUALQUER LUGAR */
+showLoadingOverlay = function(show, loadingMessage){
+    if(show){
+        $('.loading-overlay').removeClass('loading-overlay__hidden');
+        $('.loading-overlay_content_text').text(loadingMessage ? loadingMessage : "Carregando...");
+    }
+    else {
+        $('.loading-overlay').addClass('loading-overlay__hidden');
+    }
+}
