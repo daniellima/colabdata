@@ -4,6 +4,9 @@ body {
 .box {
   border: hsl(118, 50%, 50%) solid 2px;
 }
+.navbar-brand {
+  margin-left: 0 !important; /* remove uma margin que o bootstrap adiciona não sei porque */
+}
 .image-container {
   text-align: center;
 }
@@ -76,17 +79,11 @@ body {
 }
 .edit-panel {
   width: 700px;
-  height: 400px;
   z-index: 10003;
 }
-.edit-panel > div {
-  float: left;
-  width: 50%;
-  height: 100%;
-  position: relative;
-}
-.edit-panel-right {
-  padding: 0.5em;
+.edit-panel label {
+  display: block;
+  text-align: center;
 }
 .object-image {
   position: absolute;
@@ -98,37 +95,26 @@ body {
   margin: 0.5em;
   text-align: center;
 }
-.object-attributes {
-  margin-top: 1em;
+.object-image-column {
+  height: 350px;
 }
-.object-attributes .col-xs-6 {
-  padding: 0;
+.actions-row {
+  padding: 0.5em 0;
 }
 .close-button {
   position: absolute;
   right: 0;
   top: 0;
 }
-.save-button {
-  position: absolute;
-  bottom: 0.2em;
-  left: 0;
-}
-.edit-button {
-  position: absolute;
-  top: 0.5em;
-  right: 0.5em;
-  opacity: 0.5;
-}
-.edit-button:hover {
-  opacity: 1;
-}
 .object-attributes {
   overflow: auto;
-  height: 200px;
+  height: 232px;
 }
-.btn-add-attribute {
-  margin-top: 1em;
+.object-attributes .col-md-6.left {
+  padding-right: 0;
+}
+.object-attributes .col-md-6.right {
+  padding-left: 0;
 }
 .all-objects-panel {
   width: 769px; /* 250 * 3 (thumbs) + 2 (border) + 17 (scrollbar) */
