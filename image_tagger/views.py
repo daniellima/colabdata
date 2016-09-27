@@ -6,6 +6,10 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import json
+from PIL import Image
+import os
+from os import listdir
+from os.path import isfile, join
 
 # Create your views here.
 
@@ -72,6 +76,32 @@ def add_users(request):
     User.objects.create_user('Fabrício', 'fabricio@colabdata.com', '1234')
     User.objects.create_user('Gabriel', 'gabriel@colabdata.com', '1234')
     return HttpResponse('Usuarios criados!')
+
+def add_images(request):
+    path = os.path.dirname(__file__)+"/static/tagged_images"
+    files = [f for f in listdir(path) if isfile(join(path, f))]
+    
+    response = []
+    for file in files:
+        im = Image.open(join(path, file))
+        width, height = im.size
+        try:
+            image_data = ImageData.objects.get(address=file)
+            image_data.width = width
+            image_data.height = height
+            image_data.save()
+        except ImageData.DoesNotExist:
+            ImageData.objects.create(address = file, width = width, height = height)
+        
+        #response.append((file, width, height))
+    
+    for image_data in ImageData.objects.all():
+        if not image_data.address in files:
+            image_data.delete()
+            #response.append(image_data.address)
+       
+    return HttpResponse("Imagens sincronizadas")
+    #return HttpResponse(response)
 
 def post_login(request):
     sent = json.loads(request.body)
