@@ -49,7 +49,8 @@ component.prototype = {
             
             showLoadingOverlay(false);
         }.bind(this), function(){
-            this.message = "Credenciais inválidas!"
+            this.message = "Credenciais inválidas!";
+            showLoadingOverlay(false);
         }.bind(this));
     }
 };
