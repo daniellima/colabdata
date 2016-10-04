@@ -8,7 +8,7 @@ var MainController = function($http){
     this.userLogged = false;
     this.page = 'login-form';
     
-    if(localStorage.userLogged){
+    if(localStorage.userLogged == "true"){
         this.onLogin();
     }
 }
@@ -33,6 +33,8 @@ MainController.prototype = {
         this.$http({method: 'get', url: 'image/all'})
         .then(function loadImages(response){
             this.images = response.data.images;
+            showLoadingOverlay(false);
+        }.bind(this), function(){
             showLoadingOverlay(false);
         }.bind(this));
     },

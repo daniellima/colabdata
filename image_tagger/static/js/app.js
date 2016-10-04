@@ -13,6 +13,15 @@ ColabDataApp.config(['$httpProvider', function($httpProvider){
                 // se a URL do site mudar, então tem que mudar aqui também!
                 config.url = 'https://colabdata-tnik.c9users.io/' + config.url;
                 return config || $q.when(config); // TODO não sei que $q é esse
+            },
+            'responseError': function(rejection) {
+                // do something on error
+                if (rejection.status == 401) {
+                    localStorage.userLogged = false;
+                    location.reload();
+                }
+                
+                return $q.reject(rejection);
             }
         }
     });

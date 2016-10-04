@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.decorators import login_required
 from models import ImageData, Tag, Objeto, Attribute, Relation
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib.auth.models import User
@@ -11,8 +12,20 @@ import os
 from os import listdir
 from os.path import isfile, join
 
+def login_required_for_api(f):
+    
+    def decoration(request):
+        print(request.user.is_authenticated())
+        if request.user.is_authenticated():
+            return f(request)
+        else:
+            return HttpResponse(status=401)
+            
+    return decoration
+
 # Create your views here.
 
+@login_required_for_api
 def get_all(request):
     
     images = ImageData.objects.all()
@@ -27,6 +40,7 @@ def get_all(request):
     
     return JsonResponse({'images': data})
 
+@login_required_for_api
 def post_save_tag(request):
     
     sent = json.loads(request.body)
@@ -52,6 +66,7 @@ def post_save_tag(request):
     
     return JsonResponse({'id': tag.id})
     
+@login_required_for_api
 def post_save_relation(request):
     
     sent = json.loads(request.body)
@@ -101,7 +116,6 @@ def add_images(request):
             #response.append(image_data.address)
        
     return HttpResponse("Imagens sincronizadas")
-    #return HttpResponse(response)
 
 def post_login(request):
     sent = json.loads(request.body)
@@ -117,7 +131,8 @@ def post_login(request):
         return HttpResponse()
     else:
         return HttpResponse(status=400)
-        
+
+@login_required_for_api        
 def post_logout(request):
     logout(request)
     
