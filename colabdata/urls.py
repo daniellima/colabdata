@@ -21,6 +21,6 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.get_index),
-    #url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls),
     url(r'^image/', include('image_tagger.urls'))
 ]

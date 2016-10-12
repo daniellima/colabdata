@@ -32,9 +32,9 @@ def get_all(request):
 
     data = map(lambda image: {
         'id': image.id,
-        'url': static('tagged_images/' + image.address),
-        'width': image.width,
-        'height': image.height,
+        'url': image.file.url,
+        'width': image.file.width,
+        'height': image.file.height,
         'blocks': [tag.toJSONSerializable() for tag in image.tags.filter(user=request.user)]
     }, images)
     

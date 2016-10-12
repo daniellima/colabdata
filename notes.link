@@ -9,3 +9,9 @@ sudo service apache2 start
 depois vai em "url":8081/phpliteadmin
 
 senha = admin
+
+# Para acessar a area administrativa
+
+admin
+admin@colabdata.com
+whyyoudontletmein

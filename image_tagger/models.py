@@ -5,9 +5,7 @@ from django.db import models
 # Create your models here.
 
 class ImageData(models.Model):
-    address = models.CharField(max_length = 255)
-    width = models.IntegerField(default=0)
-    height = models.IntegerField(default=0)
+    file = models.ImageField()
 
 class Objeto(models.Model):
     name = models.CharField(max_length=255)
