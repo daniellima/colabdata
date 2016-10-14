@@ -1,11 +1,24 @@
 from __future__ import unicode_literals
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import models
 
 # Create your models here.
 
 class ImageData(models.Model):
     file = models.ImageField()
+
+class Dataset(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(max_length=5000)
+    users = models.ManyToManyField(User, related_name='datasets', through='DatasetMembership')
+
+class DatasetMembership(models.Model):
+    user = models.ForeignKey(User)
+    dataset = models.ForeignKey(Dataset)
+    group = models.ForeignKey(Group)
+    
+    class Meta:
+        unique_together = ('user', 'dataset',)
 
 class Objeto(models.Model):
     name = models.CharField(max_length=255)

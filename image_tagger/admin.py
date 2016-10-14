@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ImageData
+from .models import ImageData, Dataset, DatasetMembership
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
@@ -8,6 +8,15 @@ from django.db.models import Q
 # Register your models here.
 
 #admin.site.register(ImageData)
+
+class DatasetMembershipInline(admin.StackedInline):
+    model = DatasetMembership
+    extra = 0
+
+class DatasetAdmin(admin.ModelAdmin):
+    inlines = (DatasetMembershipInline,)
+
+admin.site.register(Dataset, DatasetAdmin)
 
 def define_staff_status(sender, **kwargs):
 
