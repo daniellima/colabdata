@@ -4,24 +4,34 @@ from django.db import models
 
 # Create your models here.
 
-class ImageData(models.Model):
-    file = models.ImageField()
-
 class Dataset(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(max_length=5000)
     users = models.ManyToManyField(User, related_name='datasets', through='DatasetMembership')
+
+class ImageData(models.Model):
+    file = models.ImageField()
+    dataset = models.ForeignKey(Dataset, related_name="images")
 
 class DatasetMembership(models.Model):
     user = models.ForeignKey(User)
     dataset = models.ForeignKey(Dataset)
     group = models.ForeignKey(Group)
     
-    class Meta:
-        unique_together = ('user', 'dataset',)
+    def save(self, *args, **kwargs):
+        super(DatasetMembership, self).save(*args, **kwargs)
+        
+        if self.group.name == "Administrador":
+            self.user.is_staff = True
+            self.user.save()
+        else:
+            if not self.user.datasets.filter(datasetmembership__group__name="Administrador").exists():
+                self.user.is_staff = False
+                self.user.save()
 
 class Objeto(models.Model):
     name = models.CharField(max_length=255)
+    dataset = models.ForeignKey(Dataset, related_name="objetos")
     
     def toJSONSerializable(self):
         return {
@@ -32,6 +42,7 @@ class Objeto(models.Model):
 class Attribute(models.Model):
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
+    dataset = models.ForeignKey(Dataset, related_name="attributes")
     object = models.ForeignKey(Objeto, related_name='attributes')
     
     def toJSONSerializable(self):
@@ -59,6 +70,7 @@ class Tag(models.Model):
 
 class Relation(models.Model):
     name = models.CharField(max_length=255)
+    dataset = models.ForeignKey(Dataset, related_name="relations")
     originTag = models.ForeignKey(Tag, related_name='relatedToRelations')
     targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations')
     
