@@ -1,5 +1,5 @@
 # encoding: utf-8
-from models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType
+from models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -34,21 +34,29 @@ def get_all(request):
     for dataset in datasets:
         images = dataset.images.annotate(number_of_contributors=Count('tags__user', distinct=True))
         
-        images_with_less_than_3_contributors = images.filter(number_of_contributors__lt=3).order_by('-number_of_contributors')
-        images_with_3_or_more_contributors = images.filter(number_of_contributors__gt=2).order_by('number_of_contributors')
+        if is_curator(user, dataset):
+            ordered_images = images.order_by('-number_of_contributors')
+        else:
+            images_with_less_than_3_contributors = images.filter(number_of_contributors__lt=3).order_by('-number_of_contributors')
+            images_with_3_or_more_contributors = images.filter(number_of_contributors__gt=2).order_by('number_of_contributors')
+            
+            ordered_images = list(images_with_less_than_3_contributors) + list(images_with_3_or_more_contributors)
         
-        ordered_images = list(images_with_less_than_3_contributors) + list(images_with_3_or_more_contributors)
-        
+        images_for_response = []
         for image in ordered_images:
-            print(image.file.name, image.number_of_contributors)
+            if is_curator(user, dataset):
+                tags = image.tags.all()
+            else:
+                tags = image.tags.filter(user=user)
+            
+            images_for_response.append({
+                'id': image.id,
+                'url': image.file.url,
+                'width': image.file.width,
+                'height': image.file.height,
+                'tags': [tag.toJSONSerializable() for tag in tags]
+            })    
         
-        images_for_response = map(lambda image: {
-            'id': image.id,
-            'url': image.file.url,
-            'width': image.file.width,
-            'height': image.file.height,
-            'tags': [tag.toJSONSerializable() for tag in image.tags.filter(user=user)]
-        }, ordered_images)
         
         dataset_for_response = {
             'name': dataset.name,
@@ -59,13 +67,18 @@ def get_all(request):
     
     return JsonResponse({'datasets': datasets_for_response})
 
+def is_curator(user, dataset):
+    return DatasetMembership.objects.filter(user=user, dataset=dataset, group__name="Curador").exists()
+
 @login_required_for_api
 def post_save_tag(request):
     
     sent = json.loads(request.body)
     image = Image.objects.get(pk=sent['imageId'])
 
+    previous_user = None
     if Tag.objects.filter(pk=sent['tag']['id']).exists():
+        previous_user = Tag.objects.get(pk=sent['tag']['id']).user
         Tag.objects.filter(pk=sent['tag']['id']).delete()
     
     object_type, _ = ObjectType.objects.get_or_create(name = sent['tag']['object']['name'], dataset=image.dataset)
@@ -80,7 +93,11 @@ def post_save_tag(request):
         attributes_to_save.append(Attribute(value=attribute_type_value))
     
     tag = Tag()
-    tag.user = request.user
+    if previous_user is not None:
+        # evita que o curador "tome posse" da tag
+        tag.user = previous_user
+    else:
+        tag.user = request.user
     tag.x = sent['tag']['x']
     tag.y = sent['tag']['y']
     tag.width = sent['tag']['width']

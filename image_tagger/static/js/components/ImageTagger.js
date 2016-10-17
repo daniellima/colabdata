@@ -68,13 +68,29 @@ ImageTaggerComponent.prototype = {
             this.resizeImage('byHeight');
             
             /* gambiarra para compatibilizar as diferenças de modelo entre o servidor e o cliente */
-            for(var i = 0; i < this.image.tags.length; i++){
-                var tag = this.image.tags[i];
-                var block = tag;
-                block.object = {'name': tag.object, 'attributes': tag.attributes}
-                this.blocks.push(block);
+            console.log(this.image)
+            console.log(this.image.blocks)
+            console.log(this.blocks)
+            
+            if(this.image.blocks !== undefined && this.image.blocks.length) {
+                this.blocks = this.image.blocks;
+            } else {
+                this.blocks = []
+                for(var i = 0; i < this.image.tags.length; i++){
+                    var tag = this.image.tags[i];
+                    var block = {
+                        'id': tag.id,
+                        'x': tag.x,
+                        'y': tag.y,
+                        'width': tag.width,
+                        'height': tag.height,
+                        'relations': tag.relations
+                    }
+                    block.object = {'name': tag.object, 'attributes': tag.attributes}
+                    this.blocks.push(block);
+                }
+                this.image.blocks = this.blocks;
             }
-            this.image.blocks = this.blocks;
             /* fim da gambiarra */
             
             this.relations = this.getRelations();
