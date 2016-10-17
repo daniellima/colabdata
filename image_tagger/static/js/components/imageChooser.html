@@ -1,15 +1,20 @@
 <div class="container">
-  <div class="row">
-    <div class="col-sm-4" ng-repeat="image in $ctrl.images" ng-hide="$ctrl.images.length == 0">
-      <div 
-        class="image-thumb" 
-        style="background-image: url({{ image.url }});"
-        ng-click="$ctrl.onChoose({image: image})"
-      >
+    <div class="row" ng-repeat-start="dataset in $ctrl.datasets">
+      <div class="col-xs-12">
+        <h2>{{ dataset.name }}</h2>
       </div>
     </div>
-    <div ng-hide="$ctrl.images.length != 0">
-      Carregando imagens...
+    <div class="row" ng-repeat-end>
+      <div class="col-sm-4" ng-repeat="image in dataset.images">
+        <div 
+          class="image-thumb" 
+          style="background-image: url({{ image.url }});"
+          ng-click="$ctrl.onChoose({image: image})">
+        </div>
+      </div>
+      <div class="col-sm-12" ng-show="dataset.images.length == 0">
+        Nenhuma imagem nesse dataset...
+      </div>
     </div>
-  </div>
+  </ng-repeat>
 </div>

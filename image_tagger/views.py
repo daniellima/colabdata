@@ -1,13 +1,14 @@
 # encoding: utf-8
-
+from models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType
+from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
-from models import ImageData, Tag, Objeto, Attribute, Relation
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Count
 import json
-from PIL import Image
+from PIL import Image as PILImage
 import os
 from os import listdir
 from os.path import isfile, join
@@ -15,7 +16,6 @@ from os.path import isfile, join
 def login_required_for_api(f):
     
     def decoration(request):
-        print(request.user.is_authenticated())
         if request.user.is_authenticated():
             return f(request)
         else:
@@ -27,32 +27,57 @@ def login_required_for_api(f):
 
 @login_required_for_api
 def get_all(request):
+    user = request.user
+    datasets = user.datasets.filter(datasetmembership__group__name__in=["Curador", "Colaborador"]).distinct()
+    datasets_for_response = []
     
-    images = ImageData.objects.all()
-
-    data = map(lambda image: {
-        'id': image.id,
-        'url': image.file.url,
-        'width': image.file.width,
-        'height': image.file.height,
-        'blocks': [tag.toJSONSerializable() for tag in image.tags.filter(user=request.user)]
-    }, images)
+    for dataset in datasets:
+        images = dataset.images.annotate(number_of_contributors=Count('tags__user', distinct=True))
+        
+        images_with_less_than_3_contributors = images.filter(number_of_contributors__lt=3).order_by('-number_of_contributors')
+        images_with_3_or_more_contributors = images.filter(number_of_contributors__gt=2).order_by('number_of_contributors')
+        
+        ordered_images = list(images_with_less_than_3_contributors) + list(images_with_3_or_more_contributors)
+        
+        for image in ordered_images:
+            print(image.file.name, image.number_of_contributors)
+        
+        images_for_response = map(lambda image: {
+            'id': image.id,
+            'url': image.file.url,
+            'width': image.file.width,
+            'height': image.file.height,
+            'tags': [tag.toJSONSerializable() for tag in image.tags.filter(user=user)]
+        }, ordered_images)
+        
+        dataset_for_response = {
+            'name': dataset.name,
+            'images': images_for_response,
+        }
+        
+        datasets_for_response.append(dataset_for_response)
     
-    return JsonResponse({'images': data})
+    return JsonResponse({'datasets': datasets_for_response})
 
 @login_required_for_api
 def post_save_tag(request):
     
     sent = json.loads(request.body)
-    image_data = ImageData.objects.get(pk=sent['imageId'])
+    image = Image.objects.get(pk=sent['imageId'])
 
     if Tag.objects.filter(pk=sent['tag']['id']).exists():
         Tag.objects.filter(pk=sent['tag']['id']).delete()
     
-    object = Objeto.objects.create(name = sent['tag']['object']['name'])
+    object_type, _ = ObjectType.objects.get_or_create(name = sent['tag']['object']['name'], dataset=image.dataset)
     
+    attributes_to_save = []
     for attribute in sent['tag']['object']['attributes']:
-        Attribute.objects.create(name=attribute['name'], value=attribute['value'], object=object)
+        attribute_type, _ = AttributeType.objects.get_or_create(name=attribute['name'], dataset=image.dataset)
+        attribute_type_value, _ = AttributeTypeValue.objects.get_or_create(
+            name=attribute['value'], 
+            attribute_type=attribute_type
+        )
+        attributes_to_save.append(Attribute(value=attribute_type_value))
     
     tag = Tag()
     tag.user = request.user
@@ -60,72 +85,77 @@ def post_save_tag(request):
     tag.y = sent['tag']['y']
     tag.width = sent['tag']['width']
     tag.height = sent['tag']['height']
-    tag.image_data = image_data
-    tag.object = object
+    tag.image = image
+    tag.object_type = object_type
+    tag.date = timezone.now()
     tag.save()
+    tag.attributes.add(*attributes_to_save, bulk=False)
     
     return JsonResponse({'id': tag.id})
-    
+
 @login_required_for_api
 def post_save_relation(request):
+    #deveriar copiar a tag inteira...
     
     sent = json.loads(request.body)
     
-    print(sent)
-        
-    relation, created = Relation.objects.update_or_create(
+    relation_type, _ = RelationType.objects.get_or_create(
+        name=sent['name'], 
+        dataset=Tag.objects.get(pk=sent['originTagId']).image.dataset
+    )
+    
+    relation, _ = Relation.objects.update_or_create(
         id=sent['id'],
         defaults={
-            'name': sent['name'],
+            'relation_type': relation_type,
             'originTag': Tag.objects.get(pk=sent['originTagId']),
             'targetTag': Tag.objects.get(pk=sent['targetTagId'])
         })
     
     return JsonResponse({'id': relation.id})
     
-def add_users(request):
-    User.objects.all().delete()
+# def add_users(request):
+#     User.objects.all().delete()
     
-    User.objects.create_user('Daniel', 'daniel@colabdata.com', '1234')
-    User.objects.create_user('João', 'joaocarlos@colabdata.com', '1234')
-    User.objects.create_user('Fabrício', 'fabricio@colabdata.com', '1234')
-    User.objects.create_user('Gabriel', 'gabriel@colabdata.com', '1234')
-    return HttpResponse('Usuarios criados!')
+#     User.objects.create_user('Daniel', 'daniel@colabdata.com', '1234')
+#     User.objects.create_user('João', 'joaocarlos@colabdata.com', '1234')
+#     User.objects.create_user('Fabrício', 'fabricio@colabdata.com', '1234')
+#     User.objects.create_user('Gabriel', 'gabriel@colabdata.com', '1234')
+#     return HttpResponse('Usuarios criados!')
 
-def add_images(request):
-    path = os.path.dirname(__file__)+"/static/tagged_images"
-    files = [f for f in listdir(path) if isfile(join(path, f))]
+# def add_images(request):
+#     path = os.path.dirname(__file__)+"/static/tagged_images"
+#     files = [f for f in listdir(path) if isfile(join(path, f))]
     
-    response = []
-    for file in files:
-        im = Image.open(join(path, file))
-        width, height = im.size
-        try:
-            image_data = ImageData.objects.get(address=file)
-            image_data.width = width
-            image_data.height = height
-            image_data.save()
-        except ImageData.DoesNotExist:
-            ImageData.objects.create(address = file, width = width, height = height)
+#     response = []
+#     for file in files:
+#         im = PILImage.open(join(path, file))
+#         width, height = im.size
+#         try:
+#             image_data = ImageData.objects.get(address=file)
+#             image_data.width = width
+#             image_data.height = height
+#             image_data.save()
+#         except ImageData.DoesNotExist:
+#             ImageData.objects.create(address = file, width = width, height = height)
         
-        #response.append((file, width, height))
+#         #response.append((file, width, height))
     
-    for image_data in ImageData.objects.all():
-        if not image_data.address in files:
-            image_data.delete()
-            #response.append(image_data.address)
+#     for image_data in ImageData.objects.all():
+#         if not image_data.address in files:
+#             image_data.delete()
+#             #response.append(image_data.address)
        
-    return HttpResponse("Imagens sincronizadas")
+#     return HttpResponse("Imagens sincronizadas")
 
 def post_login(request):
     sent = json.loads(request.body)
     
     username = sent['email']
     password = sent['senha']
-    print(username)
-    print(password)
+
     user = authenticate(username=username, password=password)
-    print(user)
+    
     if user is not None:
         login(request, user)
         return HttpResponse()

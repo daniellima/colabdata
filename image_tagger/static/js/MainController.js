@@ -31,10 +31,12 @@ MainController.prototype = {
         
         showLoadingOverlay(true, "Carregando imagens...");
         this.$http({method: 'get', url: 'image/all'})
-        .then(function loadImages(response){
-            this.images = response.data.images;
+        .then(function (response){
+            this.datasets = response.data.datasets;
+            
             showLoadingOverlay(false);
         }.bind(this), function(){
+            
             showLoadingOverlay(false);
         }.bind(this));
     },

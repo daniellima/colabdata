@@ -1,13 +1,13 @@
 /* global angular */
 var ImageChooserComponent = function(){
-    this.images = [];
+    this.datasets = [];
 }
 
 ImageChooserComponent.prototype = {
     $onChanges: function(keys){
         angular.forEach(keys, function(value, key){
             switch(key){
-                case "images":
+                case "datasets":
                     
                     break;
             }

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ImageData, Dataset, DatasetMembership, Objeto, Attribute, Relation
+from .models import Image, Dataset, DatasetMembership
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
@@ -61,8 +61,6 @@ class DatasetAdmin(admin.ModelAdmin):
         #     return super(DatasetMembershipInline, self).has_delete_permission(request, obj)
         
         return DatasetMembership.objects.filter(user=request.user, group__name="Administrador", dataset=obj)
-
-admin.site.register(Dataset, DatasetAdmin)
 
 def define_staff_status(sender, **kwargs):
 
@@ -182,10 +180,8 @@ class RelationAdmin(admin.ModelAdmin):
         else:
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
+admin.site.unregister(Group)
+admin.site.register(Dataset, DatasetAdmin)
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(ImageData, ImageDataAdmin)
-admin.site.register(Objeto, ObjetoAdmin)
-admin.site.register(Attribute, AttributeAdmin)
-admin.site.register(Relation, RelationAdmin)
-admin.site.unregister(Group)
+admin.site.register(Image, ImageDataAdmin)

@@ -45,7 +45,7 @@ ColabDataApp.component('imageChooser', {
     controller: ImageChooserComponent,
     templateUrl: "static/js/components/imageChooser.html",
     bindings: {
-        images: '<',
+        datasets: '<',
         onChoose: '&'
     }
 });

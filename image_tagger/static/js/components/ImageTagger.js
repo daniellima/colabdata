@@ -66,7 +66,17 @@ ImageTaggerComponent.prototype = {
     $onChanges: function(changes){
         if(changes.image && changes.image.currentValue){
             this.resizeImage('byHeight');
-            this.blocks = this.image.blocks;
+            
+            /* gambiarra para compatibilizar as diferenças de modelo entre o servidor e o cliente */
+            for(var i = 0; i < this.image.tags.length; i++){
+                var tag = this.image.tags[i];
+                var block = tag;
+                block.object = {'name': tag.object, 'attributes': tag.attributes}
+                this.blocks.push(block);
+            }
+            this.image.blocks = this.blocks;
+            /* fim da gambiarra */
+            
             this.relations = this.getRelations();
             this.show = false;
             this.isEditingExistingBlock = false;
@@ -77,8 +87,8 @@ ImageTaggerComponent.prototype = {
     
     getRelations: function(){
         var relations = []
-        for (var i = this.image.blocks.length; i--; ) {
-            var block = this.image.blocks[i];
+        for (var i = this.blocks.length; i--; ) {
+            var block = this.blocks[i];
             var dryRelations = block.relations;
             for (var j = dryRelations.length; j--; ) {
                 relations.push(this.hidrateRelation(dryRelations[j]));
