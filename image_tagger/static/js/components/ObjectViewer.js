@@ -1,8 +1,10 @@
 /* global angular */
-var component = ObjectViewerComponent = function(){}
+var component = ObjectViewerComponent = function($http){
+    this.$http = $http;
+}
 
 component.definition = {
-    controller: component,
+    controller: ['$http', component],
     templateUrl: "static/js/components/objectViewer.html",
     bindings: {
         blocks: '<',
@@ -10,10 +12,13 @@ component.definition = {
         action: '<',
         
         onClose: '&',
-        onBlockSelected: '&'
+        onBlockSelected: '&',
+        
     }
 }
 
 component.prototype = {
+    
+    
     
 };

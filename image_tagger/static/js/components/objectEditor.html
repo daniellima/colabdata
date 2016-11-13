@@ -1,43 +1,3 @@
-<!--<div class="panel edit-panel">-->
-<!--    <div>-->
-<!--      <object-thumbnail class="object-image" image="$ctrl.editedBlockImage" block="$ctrl.editedBlock" size="350"></object-thumbnail>-->
-<!--      <button class="btn btn-default edit-button" ng-click="$ctrl.onEdit()">-->
-<!--        <span class="glyphicon glyphicon-pencil"></span>-->
-<!--        Editar marcação-->
-<!--      </button>-->
-<!--    </div>-->
-<!--    <div class="edit-panel-right">-->
-<!--      <h3 class="edit-panel-title">-->
-<!--        Editar objeto-->
-<!--      </h3>-->
-<!--      <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">-->
-<!--        <span class="glyphicon glyphicon-remove"></span>-->
-<!--      </button>-->
-      
-<!--      <input type="text" class="form-control" ng-model="$ctrl.editedBlock.object.name" placeholder="nome do objeto">-->
-      
-<!--      <div class="object-attributes container-fluid">-->
-<!--        <div class="row" ng-repeat="attribute in $ctrl.editedBlock.object.attributes">-->
-<!--          <div class="col-xs-6">-->
-<!--            <input type="text" class="form-control" ng-model="attribute.name" placeholder="propriedade é...">-->
-<!--          </div>-->
-<!--          <div class="col-xs-6">-->
-<!--            <input type="text" class="form-control" ng-model="attribute.value" placeholder="esse valor">-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--      <div class="container-fluid">-->
-<!--        <div class="row">-->
-<!--          <input type="button" value="Adicionar attributo" class="btn-add-attribute btn btn-default btn-block" ng-click="$ctrl.addAttribute()">-->
-<!--        </div>-->
-<!--      </div>-->
-      
-<!--      <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.onSave()">-->
-<!--        Salvar-->
-<!--      </button>-->
-      
-<!--    </div>-->
-<!--</div>-->
 <div class="panel edit-panel">
   
     <div class="container-fluid">
@@ -62,13 +22,33 @@
             </div>
           </div>
           <div class="row object-attributes">
+            <!--<div class="col-md-12">-->
+            <!--  <div class="row" ng-repeat="attribute in $ctrl.editedBlock.object.attributes">-->
+            <!--    <div class="col-md-5 left">-->
+            <!--      <input type="text" class="form-control" ng-model="attribute.name" placeholder="propriedade é...">-->
+            <!--    </div>-->
+            <!--    <div class="col-md-5 right">-->
+            <!--      <input type="text" class="form-control" ng-model="attribute.value" placeholder="esse valor">-->
+            <!--    </div>-->
+            <!--    <div class="col-md-1 right">-->
+            <!--      <input type="button" class="form-control" ng-click="$ctrl.removeAttribute(attribute)" value="x"/>-->
+            <!--    </div>-->
+            <!--  </div>-->
+            <!--</div>-->
             <div class="col-md-12">
-              <div class="row" ng-repeat="attribute in $ctrl.editedBlock.object.attributes">
-                <div class="col-md-6 left">
-                  <input type="text" class="form-control" ng-model="attribute.name" placeholder="propriedade é...">
-                </div>
-                <div class="col-md-6 right">
-                  <input type="text" class="form-control" ng-model="attribute.value" placeholder="esse valor">
+              <div style="display: table;">
+                <div style="display: table-row;" ng-repeat="attribute in $ctrl.editedBlock.object.attributes">
+                  <div style="display: table-cell;">
+                    <input type="text" class="form-control attribute-name" ng-model="attribute.name" placeholder="propriedade é...">
+                  </div>
+                  <div style="display: table-cell;">
+                    <input type="text" class="form-control" ng-model="attribute.value" placeholder="esse valor">
+                  </div>
+                  <div style="display: table-cell;">
+                    <button class="btn btn-danger button-remove" ng-click="$ctrl.removeAttribute(attribute)">
+                      <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -91,9 +71,18 @@
           </button>
         </div>
         <div class="col-md-6">
-          <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.onSave()">
-            Salvar
-          </button>
+          <div style="display: table; width: 100%;">
+            <div style="display: table-cell">
+              <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.onSave()">
+                Salvar
+              </button>
+            </div>
+            <div style="display: table-cell; width: 40px;" ng-show="$ctrl.editedBlock.id != -1">
+              <button class="btn btn-danger" ng-click="$ctrl.deleteBlock()">
+                <span class="glyphicon glyphicon-trash"></span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

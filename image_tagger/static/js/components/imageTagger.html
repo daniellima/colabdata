@@ -117,6 +117,8 @@
 <object-editor
     edited-block-image="$ctrl.editedBlockImage"
     edited-block="$ctrl.editedBlock"
+    blocks="$ctrl.image.blocks"
+    block-deleted="$ctrl.onBlockDeleted()"
     ng-show="$ctrl.showEdit"
     on-close="$ctrl.onObjectEditorClose()"
     on-save="$ctrl.onObjectEditorSave()"

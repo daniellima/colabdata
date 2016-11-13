@@ -6,7 +6,7 @@ Para acessar o banco de dados:
 
 sudo service apache2 start
 
-depois vai em "url":8081/phpliteadmin
+depois vai em "url":8081/phpliteadmin.php
 
 senha = admin
 

@@ -129,6 +129,17 @@ ImageTaggerComponent.prototype = {
         throw "Block not found";
     },
     
+    onBlockDeleted: function() {
+        this.showEdit = false;
+        this.refreshAttributes();
+        for (var i = this.relations.length-1; i >= 0; i--) {
+            var relation = this.relations[i];
+            if(relation.blocks[0].id == this.editedBlock.id || relation.blocks[1].id == this.editedBlock.id) {
+                this.relations.splice(this.relations.indexOf(relation), 1);
+            }
+        }
+    },
+    
     resizeImage: function(how){
         var viewWidth = window.innerWidth - 50; // remove 50 pixels to avoid an eventual scrollbar
         var viewHeight = window.innerHeight - 98 - 50; // remove 98 pixels from navbar and scrollbar

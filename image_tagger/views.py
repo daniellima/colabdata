@@ -76,10 +76,12 @@ def post_save_tag(request):
     sent = json.loads(request.body)
     image = Image.objects.get(pk=sent['imageId'])
 
-    previous_user = None
     if Tag.objects.filter(pk=sent['tag']['id']).exists():
-        previous_user = Tag.objects.get(pk=sent['tag']['id']).user
-        Tag.objects.filter(pk=sent['tag']['id']).delete()
+        tag = Tag.objects.get(pk=sent['tag']['id'])
+        tag.attributes.all().delete()
+    else:
+        tag = Tag()
+        tag.user = request.user
     
     object_type, _ = ObjectType.objects.get_or_create(name = sent['tag']['object']['name'], dataset=image.dataset)
     
@@ -92,12 +94,6 @@ def post_save_tag(request):
         )
         attributes_to_save.append(Attribute(value=attribute_type_value))
     
-    tag = Tag()
-    if previous_user is not None:
-        # evita que o curador "tome posse" da tag
-        tag.user = previous_user
-    else:
-        tag.user = request.user
     tag.x = sent['tag']['x']
     tag.y = sent['tag']['y']
     tag.width = sent['tag']['width']
@@ -178,6 +174,37 @@ def post_login(request):
         return HttpResponse()
     else:
         return HttpResponse(status=400)
+        
+def post_delete_tag(request):
+    sent = json.loads(request.body)
+    
+    id = sent['id']
+
+    tag = Tag.objects.get(pk=id)
+    
+    # relations = []
+    # relations.extend(tag.relatedToRelations.all())
+    # relations.extend(tag.relatedFromRelations.all())
+    # print(relations)
+    # print(tag)
+    # if not relations:
+    #     return HttpResponse(400, "Não é possivel deletar uma tag que possua relações")
+    
+    tag.attributes.all().delete()
+    tag.delete()
+    
+    return HttpResponse()
+    
+def post_delete_relation(request):
+    sent = json.loads(request.body)
+    
+    id = sent['id']
+
+    relation = Relation.objects.get(pk=id)
+    
+    relation.delete()
+    
+    return HttpResponse()
 
 @login_required_for_api        
 def post_logout(request):

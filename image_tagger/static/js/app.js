@@ -33,6 +33,8 @@ ColabDataApp.component('objectEditor', {
     bindings: {
         editedBlock: '<',
         editedBlockImage: '<',
+        blocks: '<',
+        blockDeleted: '&',
         onClose: '&',
         onSave: '&',
         onEdit: '&'

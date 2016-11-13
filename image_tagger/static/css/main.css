@@ -110,11 +110,18 @@ body {
   overflow: auto;
   height: 232px;
 }
-.object-attributes .col-md-6.left {
-  padding-right: 0;
+.object-attributes .form-control, .object-attributes .btn {
+  border-radius: 0;
 }
-.object-attributes .col-md-6.right {
-  padding-left: 0;
+.object-attributes .attribute-name {
+  border-radius: 4px 0 0 4px;
+}
+.object-attributes .button-remove {
+  border-radius: 0 4px 4px 0;
+  position: relative;
+  top: -1px;
+  left: 0;
+  padding: 6px;
 }
 .all-objects-panel {
   width: 769px; /* 250 * 3 (thumbs) + 2 (border) + 17 (scrollbar) */
