@@ -7,18 +7,6 @@ var ObjectEditorComponent = function($http){
 }
 
 ObjectEditorComponent.prototype = {
-    // getAttributes: function(){
-    //     if(this.editedBlock == null) return [];
-        
-    //     var attributes = [];
-    //     for (var i = 0; i < this.editedBlock.object.attributes.length; i++) {
-    //         var attribute = this.editedBlock.object.attributes[i];
-    //         if(this.removedAttributes.indexOf(attribute) == -1) {
-    //             attributes.push(attribute);
-    //         }
-    //     }
-    //     return attributes;
-    // },
     addAttribute: function(){
         this.editedBlock.object.attributes.push({'name': '', 'value': ''});
     },
@@ -46,14 +34,5 @@ ObjectEditorComponent.prototype = {
                 showLoadingOverlay(false);
             }.bind(this)
         );
-    },
-    saveBlock: function() {
-        
-    },
-    onClose: function(){
-        // exposed event
-    },
-    onSave: function(){
-        // exposed event
     }
 };

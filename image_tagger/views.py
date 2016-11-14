@@ -23,8 +23,6 @@ def login_required_for_api(f):
             
     return decoration
 
-# Create your views here.
-
 @login_required_for_api
 def get_all(request):
     user = request.user
@@ -108,7 +106,6 @@ def post_save_tag(request):
 
 @login_required_for_api
 def post_save_relation(request):
-    #deveriar copiar a tag inteira...
     
     sent = json.loads(request.body)
     
@@ -126,40 +123,6 @@ def post_save_relation(request):
         })
     
     return JsonResponse({'id': relation.id})
-    
-# def add_users(request):
-#     User.objects.all().delete()
-    
-#     User.objects.create_user('Daniel', 'daniel@colabdata.com', '1234')
-#     User.objects.create_user('João', 'joaocarlos@colabdata.com', '1234')
-#     User.objects.create_user('Fabrício', 'fabricio@colabdata.com', '1234')
-#     User.objects.create_user('Gabriel', 'gabriel@colabdata.com', '1234')
-#     return HttpResponse('Usuarios criados!')
-
-# def add_images(request):
-#     path = os.path.dirname(__file__)+"/static/tagged_images"
-#     files = [f for f in listdir(path) if isfile(join(path, f))]
-    
-#     response = []
-#     for file in files:
-#         im = PILImage.open(join(path, file))
-#         width, height = im.size
-#         try:
-#             image_data = ImageData.objects.get(address=file)
-#             image_data.width = width
-#             image_data.height = height
-#             image_data.save()
-#         except ImageData.DoesNotExist:
-#             ImageData.objects.create(address = file, width = width, height = height)
-        
-#         #response.append((file, width, height))
-    
-#     for image_data in ImageData.objects.all():
-#         if not image_data.address in files:
-#             image_data.delete()
-#             #response.append(image_data.address)
-       
-#     return HttpResponse("Imagens sincronizadas")
 
 def post_login(request):
     sent = json.loads(request.body)
@@ -181,14 +144,6 @@ def post_delete_tag(request):
     id = sent['id']
 
     tag = Tag.objects.get(pk=id)
-    
-    # relations = []
-    # relations.extend(tag.relatedToRelations.all())
-    # relations.extend(tag.relatedFromRelations.all())
-    # print(relations)
-    # print(tag)
-    # if not relations:
-    #     return HttpResponse(400, "Não é possivel deletar uma tag que possua relações")
     
     tag.attributes.all().delete()
     tag.delete()
