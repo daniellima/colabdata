@@ -1,5 +1,5 @@
 # encoding: utf-8
-from models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership
+from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count
 import json
-from PIL import Image as PILImage
 import os
 from os import listdir
 from os.path import isfile, join
@@ -16,12 +15,18 @@ from os.path import isfile, join
 def login_required_for_api(f):
     
     def decoration(request):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return f(request)
         else:
             return HttpResponse(status=401)
             
     return decoration
+
+def get_json(request):
+    return json.loads(request.body.decode('utf-8'))
+
+def is_curator(user, dataset):
+    return DatasetMembership.objects.filter(user=user, dataset=dataset, group__name="Curador").exists()
 
 @login_required_for_api
 def get_all(request):
@@ -65,13 +70,10 @@ def get_all(request):
     
     return JsonResponse({'datasets': datasets_for_response})
 
-def is_curator(user, dataset):
-    return DatasetMembership.objects.filter(user=user, dataset=dataset, group__name="Curador").exists()
-
 @login_required_for_api
 def post_save_tag(request):
     
-    sent = json.loads(request.body)
+    sent = get_json(request)
     image = Image.objects.get(pk=sent['imageId'])
 
     if Tag.objects.filter(pk=sent['tag']['id']).exists():
@@ -106,8 +108,7 @@ def post_save_tag(request):
 
 @login_required_for_api
 def post_save_relation(request):
-    
-    sent = json.loads(request.body)
+    sent = get_json(request)
     
     relation_type, _ = RelationType.objects.get_or_create(
         name=sent['name'], 
@@ -125,7 +126,7 @@ def post_save_relation(request):
     return JsonResponse({'id': relation.id})
 
 def post_login(request):
-    sent = json.loads(request.body)
+    sent = get_json(request)
     
     username = sent['email']
     password = sent['senha']
@@ -139,7 +140,7 @@ def post_login(request):
         return HttpResponse(status=400)
         
 def post_delete_tag(request):
-    sent = json.loads(request.body)
+    sent = get_json(request)
     
     id = sent['id']
 

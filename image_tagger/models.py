@@ -13,9 +13,9 @@ class Dataset(models.Model):
         return self.name
 
 class DatasetMembership(models.Model):
-    user = models.ForeignKey(User)
-    dataset = models.ForeignKey(Dataset)
-    group = models.ForeignKey(Group)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
     
     def save(self, *args, **kwargs):
         super(DatasetMembership, self).save(*args, **kwargs)
@@ -31,35 +31,35 @@ class DatasetMembership(models.Model):
 
 class ObjectType(models.Model):
     name = models.CharField(max_length=255)
-    dataset = models.ForeignKey(Dataset, related_name="objects")
+    dataset = models.ForeignKey(Dataset, related_name="objects", on_delete=models.CASCADE)
     
 class AttributeType(models.Model):
     name = models.CharField(max_length=255)
-    dataset = models.ForeignKey(Dataset, related_name="attributes")
+    dataset = models.ForeignKey(Dataset, related_name="attributes", on_delete=models.CASCADE)
     
     def toJSONSerializable(self):
         return {'name': self.name, 'value': self.value}
 
 class AttributeTypeValue(models.Model):
     name = models.CharField(max_length=255)
-    attribute_type = models.ForeignKey(AttributeType, related_name="values")
+    attribute_type = models.ForeignKey(AttributeType, related_name="values", on_delete=models.CASCADE)
 
 class RelationType(models.Model):
     name = models.CharField(max_length=255)
-    dataset = models.ForeignKey(Dataset, related_name="relations")
+    dataset = models.ForeignKey(Dataset, related_name="relations", on_delete=models.CASCADE)
 
 class Image(models.Model):
     file = models.ImageField()
-    dataset = models.ForeignKey(Dataset, related_name="images")
+    dataset = models.ForeignKey(Dataset, related_name="images", on_delete=models.CASCADE)
 
 class Tag(models.Model):
-    object_type = models.ForeignKey(ObjectType, related_name="tags")
+    object_type = models.ForeignKey(ObjectType, related_name="tags", on_delete=models.CASCADE)
     x = models.IntegerField()
     y = models.IntegerField()
     width = models.IntegerField()
     height = models.IntegerField()
-    user = models.ForeignKey(User, related_name="tags")
-    image = models.ForeignKey(Image, related_name="tags")
+    user = models.ForeignKey(User, related_name="tags", on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, related_name="tags", on_delete=models.CASCADE)
     date = models.DateTimeField()
     
     def toJSONSerializable(self):
@@ -75,16 +75,16 @@ class Tag(models.Model):
         }
 
 class Attribute(models.Model):
-    value = models.ForeignKey(AttributeTypeValue, related_name="attributes")
-    tag = models.ForeignKey(Tag, related_name="attributes")
+    value = models.ForeignKey(AttributeTypeValue, related_name="attributes", on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, related_name="attributes", on_delete=models.CASCADE)
     
     def toJSONSerializable(self):
         return {'name': self.value.attribute_type.name, 'value': self.value.name}
 
 class Relation(models.Model):
-    relation_type = models.ForeignKey(RelationType, related_name="relations")
-    originTag = models.ForeignKey(Tag, related_name='relatedToRelations')
-    targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations')
+    relation_type = models.ForeignKey(RelationType, related_name="relations", on_delete=models.CASCADE)
+    originTag = models.ForeignKey(Tag, related_name='relatedToRelations', on_delete=models.CASCADE)
+    targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations', on_delete=models.CASCADE)
     
     def toJSONSerializable(self):
         return {
@@ -93,4 +93,3 @@ class Relation(models.Model):
             'originTagId': self.originTag.id, 
             'targetTagId': self.targetTag.id
         }
-
