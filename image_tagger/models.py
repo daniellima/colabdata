@@ -93,3 +93,9 @@ class Relation(models.Model):
             'originTagId': self.originTag.id, 
             'targetTagId': self.targetTag.id
         }
+
+class Publication(models.Model):
+    export_date = models.DateTimeField()
+    name = models.CharField(max_length=255)
+    description = models.TextField(max_length=2000)
+    # file = models.FileField()
