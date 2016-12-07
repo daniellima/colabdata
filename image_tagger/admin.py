@@ -83,16 +83,36 @@ class DatasetAdmin(admin.ModelAdmin):
         return request.user.datasets.filter(datasetmembership__group__name="Administrador")
     
     def save_model(self, request, obj, form, change):
+        super(DatasetAdmin, self).save_model(request, obj, form, change)
+        print(obj.id)
         if not change:
             import_file = form.cleaned_data['import_file']
             if import_file is not None:
                 # with open(settings.MEDIA_ROOT + import_file.name, 'wb+') as destination:
                 #     for chunk in import_file.chunks():
                 #         destination.write(chunk)
-                obj.name = import_file.name
-                obj.description = str(import_file.read())
-        super(DatasetAdmin, self).save_model(request, obj, form, change)
-        
+                try:
+                    with tarfile.open(fileobj=import_file.file) as tar:
+                        self.extract_images(tar, obj)
+                except (tarfile.TarError):
+                    # exploded. Do clean_up
+                    raise
+                
+    def extract_images(self, tar, obj):
+        for member in tar.getmembers():
+            if member.name.startswith("image") and member.isfile():
+                image = Image()
+                image.file.name = ""
+                image.dataset = obj
+                image.save() # get an id for the image
+                
+                image_extension = os.path.splitext(member.name)[1]
+                image.file.name = str(obj.id) + "_" + str(image.id) + image_extension # make it unique
+                image.save()
+                
+                member.name = image.file.name
+                extraction_path = settings.MEDIA_ROOT
+                tar.extract(member, path=extraction_path)
     
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
