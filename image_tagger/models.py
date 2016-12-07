@@ -1,7 +1,11 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User, Group
 from django.db import models
-
+import shutil
+import json
+import os
+from collections import OrderedDict
+import tarfile
 # Create your models here.
 
 class Dataset(models.Model):
@@ -28,14 +32,25 @@ class DatasetMembership(models.Model):
                 self.user.is_staff = False
                 self.user.save()
 
-
 class ObjectType(models.Model):
     name = models.CharField(max_length=255)
-    dataset = models.ForeignKey(Dataset, related_name="objects", on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, related_name="object_types", on_delete=models.CASCADE)
     
+    def to_publication_json(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
+        
 class AttributeType(models.Model):
     name = models.CharField(max_length=255)
-    dataset = models.ForeignKey(Dataset, related_name="attributes", on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, related_name="attribute_types", on_delete=models.CASCADE)
+    
+    def to_publication_json(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
     
     def toJSONSerializable(self):
         return {'name': self.name, 'value': self.value}
@@ -44,14 +59,32 @@ class AttributeTypeValue(models.Model):
     name = models.CharField(max_length=255)
     attribute_type = models.ForeignKey(AttributeType, related_name="values", on_delete=models.CASCADE)
 
+    def to_publication_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'attribute_type_id': self.attribute_type.id
+        }
+    
 class RelationType(models.Model):
     name = models.CharField(max_length=255)
-    dataset = models.ForeignKey(Dataset, related_name="relations", on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, related_name="relation_types", on_delete=models.CASCADE)
+
+    def to_publication_json(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
 
 class Image(models.Model):
     file = models.ImageField()
     dataset = models.ForeignKey(Dataset, related_name="images", on_delete=models.CASCADE)
 
+    def get_publication_name(self):
+        id = self.id
+        extension = os.path.splitext(self.file.name)[1]
+        return "{0}{1}".format(id, extension)
+        
 class Tag(models.Model):
     object_type = models.ForeignKey(ObjectType, related_name="tags", on_delete=models.CASCADE)
     x = models.IntegerField()
@@ -61,6 +94,17 @@ class Tag(models.Model):
     user = models.ForeignKey(User, related_name="tags", on_delete=models.CASCADE)
     image = models.ForeignKey(Image, related_name="tags", on_delete=models.CASCADE)
     date = models.DateTimeField()
+    
+    def to_publication_json(self):
+        return {
+            'id': self.id,
+            'image_id': self.image.id,
+            'object_type_id': self.object_type.id,
+            'x': self.x,
+            'y': self.y,
+            'width': self.width,
+            'height': self.height,
+        }
     
     def toJSONSerializable(self):
         return {
@@ -78,6 +122,13 @@ class Attribute(models.Model):
     value = models.ForeignKey(AttributeTypeValue, related_name="attributes", on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, related_name="attributes", on_delete=models.CASCADE)
     
+    def to_publication_json(self):
+        return {
+            'id': self.id,
+            'attribute_type_value_id': self.value.id,
+            'tag_id': self.tag.id
+        }
+    
     def toJSONSerializable(self):
         return {'name': self.value.attribute_type.name, 'value': self.value.name}
 
@@ -86,16 +137,76 @@ class Relation(models.Model):
     originTag = models.ForeignKey(Tag, related_name='relatedToRelations', on_delete=models.CASCADE)
     targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations', on_delete=models.CASCADE)
     
-    def toJSONSerializable(self):
+    def to_publication_json(self):
         return {
+            'id': self.id,
+            'relation_type_id': self.relation_type_id,
+            'tag1': self.originTag.id,
+            'tag2': self.targetTag.id
+        }
+    
+    def toJSONSerializable(self):
+        return OrderedDict({
             'id': self.id,
             'name': self.relation_type.name,
             'originTagId': self.originTag.id, 
             'targetTagId': self.targetTag.id
-        }
+        })
 
 class Publication(models.Model):
-    export_date = models.DateTimeField()
+    dataset = models.ForeignKey(Dataset, related_name="publications", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=2000)
+    export_date = models.DateTimeField()
     # file = models.FileField()
+    
+    def publish(self, temp_directory, publication_directory):
+        self.export_to_json(temp_directory+"tags.jsonl", Tag.objects.filter(image__in=self.dataset.images.all()).all())
+        self.export_to_json(temp_directory+"object_types.jsonl", self.dataset.object_types.all())
+        self.export_to_json(temp_directory+"relation_types.jsonl", self.dataset.relation_types.all())
+        self.export_to_json(temp_directory+"relations.jsonl", Relation.objects.filter(relation_type__in=self.dataset.relation_types.all()).all())
+        self.export_to_json(temp_directory+"attribute_types.jsonl", self.dataset.attribute_types.all())
+        self.export_to_json(temp_directory+"attribute_type_values.jsonl", AttributeTypeValue.objects.filter(attribute_type__in=self.dataset.attribute_types.all()).all())
+        self.export_to_json(temp_directory+"attributes.jsonl", Attribute.objects.filter(tag__image__in=self.dataset.images.all()).all())
+        self.create_compressed_file(temp_directory, publication_directory)
+    
+    def add_images_to_tar(self, tar):
+        images_query = self.dataset.images.all()
+        image_buffer_size = 10 # pega images de 10 em 10
+        
+        for i in range(0, images_query.count(), image_buffer_size):
+            images = images_query[i:i+image_buffer_size]
+            for image in images:
+                tar.add(image.file.path, "image/{0}".format(image.get_publication_name()))
+    
+    def export_to_json(self, file, query):
+        buffer_size = 10
+        
+        with open(file, 'w+', encoding='utf-8') as file_handler:
+            for i in range(0, query.count(), buffer_size):
+                objects = query[i:i+buffer_size]
+                for object in objects:
+                    json.dump(object.to_publication_json(), file_handler)
+                    file_handler.write('\n')
+
+    def create_compressed_file(self, temp_directory, publication_directory):
+        def clean(tarinfo):
+            # remove directory prefix from name.
+            # temp_directory[1:] is used because the tarinfo name does not begin with "/" on it
+            tarinfo.name = tarinfo.name.replace(temp_directory[1:], "") 
+            
+            # remove info about the environment where the file has been created
+            tarinfo.uid = tarinfo.gid = 0
+            tarinfo.uname = tarinfo.gname = "user"
+            
+            return tarinfo
+        
+        file_path = publication_directory + self.get_file_name()
+        with tarfile.open(file_path, "w:gz") as tar:
+            for entry in os.listdir(temp_directory):
+                tar.add(temp_directory+entry, filter=clean)
+                
+            self.add_images_to_tar(tar)
+    
+    def get_file_name(self):
+        return "published_dataset_{0}.tar.gz".format(self.id)

@@ -9,6 +9,8 @@ from django.db.models import Q
 from django.conf import settings
 import tarfile
 import os
+import shutil
+import datetime
 # Register your models here.
 
 def define_staff_status(sender, **kwargs):
@@ -207,27 +209,53 @@ class RelationAdmin(admin.ModelAdmin):
 
 class PublicationAdmin(admin.ModelAdmin):
     
+    readonly_fields = ('export_date',)
+    
+    publication_directory = "{0}publications/".format(settings.MEDIA_ROOT)
+    
     # see here http://stackoverflow.com/questions/1471909/django-model-delete-not-triggered?noredirect=1&lq=1
     # def get_actions(self, request):
     #     actions = super(PublicationAdmin, self).get_actions(request)
     #     del actions['delete_selected']
     #     return actions
     
+    def get_fields(self, request, obj=None):
+        fields = super(PublicationAdmin, self).get_fields(request, obj)
+        
+        if obj is None:
+            fields.remove("export_date")
+
+        return fields
+        
+    def get_readonly_fields(self, request, obj=None):
+        fields = super(PublicationAdmin, self).get_readonly_fields(request, obj)
+        
+        if obj is not None:
+            return fields + ("dataset",)
+
+        return fields
+    
     def save_model(self, request, obj, form, change):
+        if not change:
+            obj.export_date = datetime.datetime.now()
+            
         super(PublicationAdmin, self).save_model(request, obj, form, change)
         
-        file_name = settings.MEDIA_ROOT + "publications/" + "{0}_publication.txt".format(obj.id)
-        with open(file_name, 'w+', encoding='utf-8') as file:
-            file.write(obj.description)
-        
-        # tar_file_name = file_name + ".tar.gz"
-        # #with open("publications/" + tar_file_name, 'w+') as tar:
-        # with tarfile.open(tar_file_name, "w:gz") as tar2:
-        #     tar2.add(file_name, hbolhbljhbjhbkj)
+        if not change:
+            try:
+                temp_directory = "{0}publications/temp_{1}/".format(settings.MEDIA_ROOT, obj.id)
+                os.mkdir(temp_directory)
+                
+                obj.publish(temp_directory, self.publication_directory)
+            except:
+                # show message to user that something exploded
+                raise
+            finally:
+                shutil.rmtree(temp_directory)
         
     def delete_model(self, request, obj):
-        file_name = settings.MEDIA_ROOT + "publications/" + "{0}_publication.txt".format(obj.id)
-        os.remove(file_name)
+        file_path = self.publication_directory + obj.get_file_name()
+        os.remove(file_path)
         
         super(PublicationAdmin, self).delete_model(request, obj)
         
