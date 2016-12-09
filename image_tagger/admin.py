@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Image, Dataset, DatasetMembership, Publication
+from .models import Image, Dataset, DatasetMembership, Publication, AttributeType, AttributeTypeValue, Attribute, ObjectType, Tag, RelationType, Relation
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
@@ -11,6 +11,8 @@ import tarfile
 import os
 import shutil
 import datetime
+import json
+import io
 # Register your models here.
 
 def define_staff_status(sender, **kwargs):
@@ -84,7 +86,7 @@ class DatasetAdmin(admin.ModelAdmin):
     
     def save_model(self, request, obj, form, change):
         super(DatasetAdmin, self).save_model(request, obj, form, change)
-        print(obj.id)
+        
         if not change:
             import_file = form.cleaned_data['import_file']
             if import_file is not None:
@@ -93,12 +95,31 @@ class DatasetAdmin(admin.ModelAdmin):
                 #         destination.write(chunk)
                 try:
                     with tarfile.open(fileobj=import_file.file) as tar:
-                        self.extract_images(tar, obj)
+                        new_id_by_old_id = self.import_images(tar, obj, {})
+                        new_id_by_old_id = self.import_model(tar, obj, "attribute_types.jsonl", AttributeType, new_id_by_old_id, request.user)
+                        new_id_by_old_id = self.import_model(tar, obj, "attribute_type_values.jsonl", AttributeTypeValue, new_id_by_old_id, request.user)
+                        new_id_by_old_id = self.import_model(tar, obj, "object_types.jsonl", ObjectType, new_id_by_old_id, request.user)
+                        new_id_by_old_id = self.import_model(tar, obj, "tags.jsonl", Tag, new_id_by_old_id, request.user)
+                        new_id_by_old_id = self.import_model(tar, obj, "attributes.jsonl", Attribute, new_id_by_old_id, request.user)
+                        new_id_by_old_id = self.import_model(tar, obj, "relation_types.jsonl", RelationType, new_id_by_old_id, request.user)
+                        self.import_model(tar, obj, "relations.jsonl", Relation, new_id_by_old_id, request.user)
                 except (tarfile.TarError):
                     # exploded. Do clean_up
                     raise
-                
-    def extract_images(self, tar, obj):
+    
+    def import_model(self, tar, obj, file_name, Model, new_id_by_old_id, user):
+        file = tar.extractfile(file_name)
+        if file is None: pass #explode
+        file = io.TextIOWrapper(file) # extractfile returns a byte reader
+        for line in file:
+            model_json = json.loads(line)
+            model = Model.from_publication_json(model_json, obj, new_id_by_old_id, user)
+            model.save()
+            new_id_by_old_id[Model.__name__+str(model_json['id'])] = model.id
+            
+        return new_id_by_old_id
+    
+    def import_images(self, tar, obj, new_id_by_old_id):
         for member in tar.getmembers():
             if member.name.startswith("image") and member.isfile():
                 image = Image()
@@ -106,13 +127,17 @@ class DatasetAdmin(admin.ModelAdmin):
                 image.dataset = obj
                 image.save() # get an id for the image
                 
-                image_extension = os.path.splitext(member.name)[1]
+                image_id, image_extension = os.path.splitext(os.path.basename(member.name))
                 image.file.name = str(obj.id) + "_" + str(image.id) + image_extension # make it unique
                 image.save()
+                
+                new_id_by_old_id['Image'+str(image_id)] = image.id
                 
                 member.name = image.file.name
                 extraction_path = settings.MEDIA_ROOT
                 tar.extract(member, path=extraction_path)
+        
+        return new_id_by_old_id                
     
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
@@ -279,6 +304,10 @@ class PublicationAdmin(admin.ModelAdmin):
         
         super(PublicationAdmin, self).delete_model(request, obj)
         
+admin.site.site_header = 'Colabdata Administration'
+admin.site.site_title = 'Colabdata Admin'
+admin.site.index_title = ''
+admin.site.index_template = 'admin/clean_index.html'
 
 admin.site.unregister(Group)
 admin.site.register(Dataset, DatasetAdmin)

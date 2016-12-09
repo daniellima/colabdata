@@ -4,6 +4,7 @@ from django.db import models
 import shutil
 import json
 import os
+import datetime
 from collections import OrderedDict
 import tarfile
 # Create your models here.
@@ -36,6 +37,10 @@ class ObjectType(models.Model):
     name = models.CharField(max_length=255)
     dataset = models.ForeignKey(Dataset, related_name="object_types", on_delete=models.CASCADE)
     
+    @staticmethod
+    def from_publication_json(json, dataset, new_id_by_old_id, user):
+        return ObjectType(name=json['name'], dataset=dataset)
+    
     def to_publication_json(self):
         return {
             'id': self.id,
@@ -52,12 +57,21 @@ class AttributeType(models.Model):
             'name': self.name
         }
     
+    @staticmethod
+    def from_publication_json(json, dataset, new_id_by_old_id, user):
+        return AttributeType(name=json['name'], dataset=dataset)
+    
     def toJSONSerializable(self):
         return {'name': self.name, 'value': self.value}
 
 class AttributeTypeValue(models.Model):
     name = models.CharField(max_length=255)
     attribute_type = models.ForeignKey(AttributeType, related_name="values", on_delete=models.CASCADE)
+
+    @staticmethod
+    def from_publication_json(json, dataset, new_id_by_old_id, user):
+        atid = new_id_by_old_id["AttributeType"+str(json['attribute_type_id'])]
+        return AttributeTypeValue(name=json['name'], attribute_type_id=atid)
 
     def to_publication_json(self):
         return {
@@ -69,6 +83,10 @@ class AttributeTypeValue(models.Model):
 class RelationType(models.Model):
     name = models.CharField(max_length=255)
     dataset = models.ForeignKey(Dataset, related_name="relation_types", on_delete=models.CASCADE)
+
+    @staticmethod
+    def from_publication_json(json, dataset, new_id_by_old_id, user):
+        return RelationType(name=json['name'], dataset=dataset)
 
     def to_publication_json(self):
         return {
@@ -94,6 +112,19 @@ class Tag(models.Model):
     user = models.ForeignKey(User, related_name="tags", on_delete=models.CASCADE)
     image = models.ForeignKey(Image, related_name="tags", on_delete=models.CASCADE)
     date = models.DateTimeField()
+    
+    @staticmethod
+    def from_publication_json(json, dataset, new_id_by_old_id, user):
+        return Tag(
+            image_id=new_id_by_old_id['Image'+str(json['image_id'])],
+            object_type_id=new_id_by_old_id['ObjectType'+str(json['object_type_id'])],
+            x=json['x'],
+            y=json['y'],
+            width=json['width'],
+            height=json['height'],
+            date=datetime.datetime.now(),
+            user=user
+            )
     
     def to_publication_json(self):
         return {
@@ -122,6 +153,13 @@ class Attribute(models.Model):
     value = models.ForeignKey(AttributeTypeValue, related_name="attributes", on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, related_name="attributes", on_delete=models.CASCADE)
     
+    @staticmethod
+    def from_publication_json(json, dataset, new_id_by_old_id, user):
+        return Attribute(
+            tag_id=new_id_by_old_id['Tag'+str(json['tag_id'])],
+            value_id=new_id_by_old_id['AttributeTypeValue'+str(json['attribute_type_value_id'])]
+            )
+    
     def to_publication_json(self):
         return {
             'id': self.id,
@@ -136,6 +174,14 @@ class Relation(models.Model):
     relation_type = models.ForeignKey(RelationType, related_name="relations", on_delete=models.CASCADE)
     originTag = models.ForeignKey(Tag, related_name='relatedToRelations', on_delete=models.CASCADE)
     targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations', on_delete=models.CASCADE)
+    
+    @staticmethod
+    def from_publication_json(json, dataset, new_id_by_old_id, user):
+        return Relation(
+            relation_type_id=new_id_by_old_id['RelationType'+str(json['relation_type_id'])],
+            originTag_id=new_id_by_old_id['Tag'+str(json['tag1'])],
+            targetTag_id=new_id_by_old_id['Tag'+str(json['tag2'])]
+            )
     
     def to_publication_json(self):
         return {

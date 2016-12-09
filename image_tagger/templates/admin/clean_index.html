@@ -1,0 +1,44 @@
+{% extends "admin/index.html" %}
+{% load i18n admin_static %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+{% if app_list %}
+    <div class="module">
+        <table>
+        <caption>
+            <span class="section" title="Escolha o que quer editar">Escolha o que quer editar</span>
+        </caption>
+        {% for app in app_list %}
+            {% for model in app.models %}
+                <tr class="model-{{ model.object_name|lower }}">
+                {% if model.admin_url %}
+                    <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                {% else %}
+                    <th scope="row">{{ model.name }}</th>
+                {% endif %}
+    
+                {% if model.add_url %}
+                    <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+                {% else %}
+                    <td>&nbsp;</td>
+                {% endif %}
+    
+                {% if model.admin_url %}
+                    <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                {% else %}
+                    <td>&nbsp;</td>
+                {% endif %}
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </table>
+    </div>
+{% else %}
+    <p>{% trans "You don't have permission to edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
