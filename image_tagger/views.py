@@ -2,25 +2,16 @@
 from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET, require_POST
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
+from .decorators import ajax_aware_login_required
 from django.db.models import Count
 import json
 import os
 from os import listdir
 from os.path import isfile, join
-
-def login_required_for_api(f):
-    
-    def decoration(request):
-        if request.user.is_authenticated:
-            return f(request)
-        else:
-            return HttpResponse(status=401)
-            
-    return decoration
 
 def get_json(request):
     return json.loads(request.body.decode('utf-8'))
@@ -28,8 +19,24 @@ def get_json(request):
 def is_curator(user, dataset):
     return DatasetMembership.objects.filter(user=user, dataset=dataset, group__name="Curador").exists()
 
-@login_required_for_api
-def get_all(request):
+@require_POST
+def login(request):
+    sent = get_json(request)
+    
+    username = sent['email']
+    password = sent['senha']
+
+    user = auth.authenticate(username=username, password=password)
+    
+    if user is not None:
+        auth.login(request, user)
+        return HttpResponse()
+    else:
+        return HttpResponse(status=400)
+
+@require_GET
+@ajax_aware_login_required
+def all(request):
     user = request.user
     datasets = user.datasets.filter(datasetmembership__group__name__in=["Curador", "Colaborador"]).distinct()
     datasets_for_response = []
@@ -70,8 +77,9 @@ def get_all(request):
     
     return JsonResponse({'datasets': datasets_for_response})
 
-@login_required_for_api
-def post_save_tag(request):
+@require_POST
+@ajax_aware_login_required
+def save_tag(request):
     
     sent = get_json(request)
     image = Image.objects.get(pk=sent['imageId'])
@@ -106,8 +114,9 @@ def post_save_tag(request):
     
     return JsonResponse({'id': tag.id})
 
-@login_required_for_api
-def post_save_relation(request):
+@require_POST
+@ajax_aware_login_required
+def save_relation(request):
     sent = get_json(request)
     
     relation_type, _ = RelationType.objects.get_or_create(
@@ -124,22 +133,10 @@ def post_save_relation(request):
         })
     
     return JsonResponse({'id': relation.id})
-
-def post_login(request):
-    sent = get_json(request)
-    
-    username = sent['email']
-    password = sent['senha']
-
-    user = authenticate(username=username, password=password)
-    
-    if user is not None:
-        login(request, user)
-        return HttpResponse()
-    else:
-        return HttpResponse(status=400)
-        
-def post_delete_tag(request):
+  
+@require_POST
+@ajax_aware_login_required     
+def delete_tag(request):
     sent = get_json(request)
     
     id = sent['id']
@@ -150,8 +147,10 @@ def post_delete_tag(request):
     tag.delete()
     
     return HttpResponse()
-    
-def post_delete_relation(request):
+
+@require_POST
+@ajax_aware_login_required
+def delete_relation(request):
     sent = json.loads(request.body)
     
     id = sent['id']
@@ -162,8 +161,9 @@ def post_delete_relation(request):
     
     return HttpResponse()
 
-@login_required_for_api        
-def post_logout(request):
-    logout(request)
+@require_POST
+@ajax_aware_login_required        
+def logout(request):
+    auth.logout(request)
     
     return HttpResponse()
