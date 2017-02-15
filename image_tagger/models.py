@@ -21,17 +21,6 @@ class DatasetMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    
-    def save(self, *args, **kwargs):
-        super(DatasetMembership, self).save(*args, **kwargs)
-        
-        if self.group.name == "Administrador":
-            self.user.is_staff = True
-            self.user.save()
-        else:
-            if not self.user.datasets.filter(datasetmembership__group__name="Administrador").exists():
-                self.user.is_staff = False
-                self.user.save()
 
 class ObjectType(models.Model):
     name = models.CharField(max_length=255)
@@ -79,7 +68,7 @@ class AttributeTypeValue(models.Model):
             'name': self.name,
             'attribute_type_id': self.attribute_type.id
         }
-    
+
 class RelationType(models.Model):
     name = models.CharField(max_length=255)
     dataset = models.ForeignKey(Dataset, related_name="relation_types", on_delete=models.CASCADE)

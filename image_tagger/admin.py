@@ -4,7 +4,6 @@ from .models import Image, Dataset, DatasetMembership, Publication, AttributeTyp
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from django.db.models.signals import post_save
 from django.db.models import Q
 from django.conf import settings
 import tarfile
@@ -15,18 +14,6 @@ import json
 import io
 # Register your models here.
 
-def define_staff_status(sender, **kwargs):
-
-    if(kwargs['created']):
-        saved_user = kwargs['instance']
-        # preciso fazer manualmente porque chamar save vai chamar o signal novamente...
-        User.objects.filter(id=saved_user.id).update(is_staff=False)
-        saved_user.user_permissions.add(Permission.objects.get(codename='change_dataset'));
-        group = Group.objects.get(name="Colaborador")
-        saved_user.groups.add(group)
-
-post_save.connect(define_staff_status, weak=False, sender=User, dispatch_uid="9879879789")
-
 class DatasetMembershipInline(admin.StackedInline):
     model = DatasetMembership
     extra = 0
@@ -34,8 +21,8 @@ class DatasetMembershipInline(admin.StackedInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         formfield = super(DatasetMembershipInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
         
-        if db_field.name == "group" and request.user.groups.filter(name="Administrador").exists() and not request.user.is_superuser:
-             formfield.queryset = Group.objects.exclude(name="Administrador")
+        if db_field.name == "group" and not request.user.is_superuser:
+            formfield.queryset = Group.objects.exclude(name="Administrador")
              
         return formfield
     
@@ -46,25 +33,13 @@ class DatasetMembershipInline(admin.StackedInline):
         return qs.exclude(group__name="Administrador")
     
     def has_change_permission(self, request, obj=None):
-        if obj == None or request.user.is_superuser:
-            return True
-        #     return super(DatasetMembershipInline, self).has_change_permission(request, obj)
-
-        return DatasetMembership.objects.filter(user=request.user, group__name="Administrador", dataset=obj.dataset)
+        return True
         
     def has_add_permission(self, request, obj=None):
-        if obj == None or request.user.is_superuser:
-            return True
-        #     return super(DatasetMembershipInline, self).has_add_permission(request, obj)
-        
-        return DatasetMembership.objects.filter(user=request.user, group__name="Administrador", dataset=obj.dataset)
+        return True
         
     def has_delete_permission(self, request, obj=None):
-        if obj == None or request.user.is_superuser:
-            return True
-        #     return super(DatasetMembershipInline, self).has_delete_permission(request, obj)
-        
-        return DatasetMembership.objects.filter(user=request.user, group__name="Administrador", dataset=obj)
+        return True
 
 class DatasetAddForm(forms.ModelForm):
     import_file = forms.FileField(required=False, help_text="Um arquivo no formato tar.gz. O dataset será criado com os dados desse arquivo.")
@@ -77,12 +52,6 @@ class DatasetAdmin(admin.ModelAdmin):
             kwargs['form'] = DatasetAddForm
             
         return super(DatasetAdmin, self).get_form(request, obj, **kwargs)
-    
-    def get_queryset(self, request):
-        qs = super(DatasetAdmin, self).get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        return request.user.datasets.filter(datasetmembership__group__name="Administrador")
     
     def save_model(self, request, obj, form, change):
         super(DatasetAdmin, self).save_model(request, obj, form, change)
@@ -104,12 +73,13 @@ class DatasetAdmin(admin.ModelAdmin):
                         new_id_by_old_id = self.import_model(tar, obj, "relation_types.jsonl", RelationType, new_id_by_old_id, request.user)
                         self.import_model(tar, obj, "relations.jsonl", Relation, new_id_by_old_id, request.user)
                 except (tarfile.TarError):
-                    # exploded. Do clean_up
+                    # TODO exploded. Do clean_up
                     raise
-    
+
+    # TODO mudar o nome de Model para modelClass
     def import_model(self, tar, obj, file_name, Model, new_id_by_old_id, user):
         file = tar.extractfile(file_name)
-        if file is None: pass #explode
+        if file is None: pass # TODO explode
         file = io.TextIOWrapper(file) # extractfile returns a byte reader
         for line in file:
             model_json = json.loads(line)
@@ -139,12 +109,32 @@ class DatasetAdmin(admin.ModelAdmin):
         
         return new_id_by_old_id                
     
+    def get_queryset(self, request):
+        qs = super(DatasetAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return request.user.datasets.filter(datasetmembership__group__name="Administrador")
+    
+    def has_module_permission(self, request):
+        return True
+    
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
             return True
-        #     return super(DatasetMembershipInline, self).has_delete_permission(request, obj)
         
         return DatasetMembership.objects.filter(user=request.user, group__name="Administrador", dataset=obj)
+    
+    def has_add_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+            
+        return False
+        
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        
+        return False
 
 class CustomUserAdmin(UserAdmin):
     
@@ -164,30 +154,57 @@ class CustomUserAdmin(UserAdmin):
         qs = super(CustomUserAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
-        return qs.filter(is_superuser=False).filter(~Q(groups__name="Administrador") | Q(id=request.user.id))
+        
+        return qs.filter(is_superuser=False)
+    
+    def has_module_permission(self, request):
+        return True
     
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
             return True
-        else:
-            if request.user.id == obj.id:
-                return True
-            
-            can_change = (obj.is_superuser == False and not obj.groups.filter(name="Administrador").exists())
-            return can_change
-
-class ImageDataAdmin(admin.ModelAdmin):
-    def get_queryset(self, request):
-        qs = super(ImageDataAdmin, self).get_queryset(request)
+        if obj.id == request.user.id: # is editing itself
+            return True
+        
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return True
+        
+    def has_delete_permission(self, request, obj=None):
         if request.user.is_superuser:
-            return qs
-        return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
+            return True
+        
+        return False
+    
+class ImageDataAdmin(admin.ModelAdmin):
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "dataset" and not request.user.is_superuser:
             kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
             
         return super(ImageDataAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def get_queryset(self, request):
+        qs = super(ImageDataAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
+    
+    def has_module_permission(self, request):
+        return True
+    
+    def has_add_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
+        
+    def has_delete_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
     
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
@@ -208,6 +225,21 @@ class ObjetoAdmin(admin.ModelAdmin):
             
         return super(ObjetoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
+    def has_module_permission(self, request):
+        return True
+    
+    def has_add_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
+        
+    def has_delete_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
+    
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
             return True
@@ -227,6 +259,21 @@ class AttributeAdmin(admin.ModelAdmin):
             
         return super(AttributeAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
+    def has_module_permission(self, request):
+        return True
+    
+    def has_add_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
+        
+    def has_delete_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
+    
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
             return True
@@ -245,6 +292,21 @@ class RelationAdmin(admin.ModelAdmin):
             kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
             
         return super(RelationAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def has_module_permission(self, request):
+        return True
+    
+    def has_add_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
+        
+    def has_delete_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
     
     def has_change_permission(self, request, obj=None):
         if obj == None or request.user.is_superuser:
@@ -303,15 +365,59 @@ class PublicationAdmin(admin.ModelAdmin):
         os.remove(file_path)
         
         super(PublicationAdmin, self).delete_model(request, obj)
+    
+    def get_queryset(self, request):
+        qs = super(PublicationAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "dataset" and not request.user.is_superuser:
+            kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
+            
+        return super(PublicationAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def has_module_permission(self, request):
+        return True
+    
+    def has_add_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
         
-admin.site.site_header = 'Colabdata Administration'
-admin.site.site_title = 'Colabdata Admin'
-admin.site.index_title = ''
-admin.site.index_template = 'admin/clean_index.html'
+    def has_delete_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
+    
+    def has_change_permission(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return True
+        else:
+            return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
-admin.site.unregister(Group)
-admin.site.register(Dataset, DatasetAdmin)
-admin.site.register(Publication, PublicationAdmin)
-admin.site.unregister(User)
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(Image, ImageDataAdmin)
+class CustomAdminSite(admin.AdminSite):
+    site_header = 'Colabdata Administration'
+    site_title = 'Colabdata Admin'
+    index_title = ''
+    index_template = 'admin/clean_index.html'
+    
+    def has_permission(self, request):
+        if request.user.is_superuser: 
+            return True
+        if not request.user.is_active:
+            return False
+        return request.user.datasets.filter(datasetmembership__group__name="Administrador").exists()
+
+custom_admin_site = CustomAdminSite(name="custom_admin")
+
+custom_admin_site.register(User, CustomUserAdmin)
+custom_admin_site.register(Dataset, DatasetAdmin)
+custom_admin_site.register(Publication, PublicationAdmin)
+custom_admin_site.register(Image, ImageDataAdmin)
+custom_admin_site.register(ObjectType, ObjetoAdmin)
+custom_admin_site.register(RelationType, RelationAdmin)
+custom_admin_site.register(AttributeType, AttributeAdmin)
