@@ -21,9 +21,15 @@ class DatasetMembership(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('user', 'dataset')
+        
 class ObjectType(models.Model):
     name = models.CharField(max_length=255)
     dataset = models.ForeignKey(Dataset, related_name="object_types", on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('name', 'dataset')
     
     @staticmethod
     def from_publication_json(json, dataset, new_id_by_old_id, user):
@@ -38,6 +44,9 @@ class ObjectType(models.Model):
 class AttributeType(models.Model):
     name = models.CharField(max_length=255)
     dataset = models.ForeignKey(Dataset, related_name="attribute_types", on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('name', 'dataset')
     
     def to_publication_json(self):
         return {
@@ -56,6 +65,9 @@ class AttributeTypeValue(models.Model):
     name = models.CharField(max_length=255)
     attribute_type = models.ForeignKey(AttributeType, related_name="values", on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('name', 'attribute_type')
+
     @staticmethod
     def from_publication_json(json, dataset, new_id_by_old_id, user):
         atid = new_id_by_old_id["AttributeType"+str(json['attribute_type_id'])]
@@ -71,6 +83,9 @@ class AttributeTypeValue(models.Model):
 class RelationType(models.Model):
     name = models.CharField(max_length=255)
     dataset = models.ForeignKey(Dataset, related_name="relation_types", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('name', 'dataset')
 
     @staticmethod
     def from_publication_json(json, dataset, new_id_by_old_id, user):
@@ -141,6 +156,9 @@ class Attribute(models.Model):
     value = models.ForeignKey(AttributeTypeValue, related_name="attributes", on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, related_name="attributes", on_delete=models.CASCADE)
     
+    class Meta:
+        unique_together = ('value', 'tag')
+    
     @staticmethod
     def from_publication_json(json, dataset, new_id_by_old_id, user):
         return Attribute(
@@ -162,6 +180,9 @@ class Relation(models.Model):
     relation_type = models.ForeignKey(RelationType, related_name="relations", on_delete=models.CASCADE)
     originTag = models.ForeignKey(Tag, related_name='relatedToRelations', on_delete=models.CASCADE)
     targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations', on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('relation_type', 'originTag', 'targetTag')
     
     @staticmethod
     def from_publication_json(json, dataset, new_id_by_old_id, user):

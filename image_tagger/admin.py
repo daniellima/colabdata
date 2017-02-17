@@ -142,9 +142,9 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('is_active',) # 'groups')
     
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
+        (None, {'fields': ('username', 'password', 'is_active')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
-        ('Permissions', {'fields': ('is_active', 'user_permissions', 'groups')}), 
+        #('Permissions', {'fields': ('is_active', 'user_permissions', 'groups')}), 
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     

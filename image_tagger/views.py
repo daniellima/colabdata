@@ -86,6 +86,7 @@ def save_tag(request):
 
     if Tag.objects.filter(pk=sent['tag']['id']).exists():
         tag = Tag.objects.get(pk=sent['tag']['id'])
+        # TODO não precisar deletar tudo antes
         tag.attributes.all().delete()
     else:
         tag = Tag()
@@ -123,9 +124,9 @@ def save_relation(request):
         name=sent['name'], 
         dataset=Tag.objects.get(pk=sent['originTagId']).image.dataset
     )
-    
+
     relation, _ = Relation.objects.update_or_create(
-        id=sent['id'],
+        id=sent['id'], # id será None quando uma nova Relation for criada
         defaults={
             'relation_type': relation_type,
             'originTag': Tag.objects.get(pk=sent['originTagId']),
