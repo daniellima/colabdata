@@ -359,12 +359,6 @@ class PublicationAdmin(admin.ModelAdmin):
                 raise
             finally:
                 shutil.rmtree(temp_directory)
-        
-    def delete_model(self, request, obj):
-        file_path = self.publication_directory + obj.get_file_name()
-        os.remove(file_path)
-        
-        super(PublicationAdmin, self).delete_model(request, obj)
     
     def get_queryset(self, request):
         qs = super(PublicationAdmin, self).get_queryset(request)

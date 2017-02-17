@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from django.contrib.auth.models import User, Group
 from django.db import models
 import shutil
@@ -35,7 +34,7 @@ class ObjectType(models.Model):
             'id': self.id,
             'name': self.name
         }
-        
+
 class AttributeType(models.Model):
     name = models.CharField(max_length=255)
     dataset = models.ForeignKey(Dataset, related_name="attribute_types", on_delete=models.CASCADE)
@@ -91,7 +90,7 @@ class Image(models.Model):
         id = self.id
         extension = os.path.splitext(self.file.name)[1]
         return "{0}{1}".format(id, extension)
-        
+ 
 class Tag(models.Model):
     object_type = models.ForeignKey(ObjectType, related_name="tags", on_delete=models.CASCADE)
     x = models.IntegerField()
@@ -193,7 +192,6 @@ class Publication(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=2000)
     export_date = models.DateTimeField()
-    # file = models.FileField()
     
     def publish(self, temp_directory, publication_directory):
         self.export_to_json(temp_directory+"tags.jsonl", Tag.objects.filter(image__in=self.dataset.images.all()).all())
@@ -245,3 +243,5 @@ class Publication(models.Model):
     
     def get_file_name(self):
         return "published_dataset_{0}.tar.gz".format(self.id)
+
+from . import signals
