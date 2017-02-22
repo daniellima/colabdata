@@ -152,7 +152,7 @@ def delete_tag(request):
 @require_POST
 @ajax_aware_login_required
 def delete_relation(request):
-    sent = json.loads(request.body)
+    sent = get_json(request)
     
     id = sent['id']
 
