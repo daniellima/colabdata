@@ -41,11 +41,26 @@ class DatasetMembershipInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return True
 
+class AttributeValueInline(admin.StackedInline):
+    model = AttributeTypeValue
+    extra = 0
+    
+    def has_change_permission(self, request, obj=None):
+        return True
+        
+    def has_add_permission(self, request, obj=None):
+        return True
+        
+    def has_delete_permission(self, request, obj=None):
+        return True
+
 class DatasetAddForm(forms.ModelForm):
     import_file = forms.FileField(required=False, help_text="Um arquivo no formato tar.gz. O dataset será criado com os dados desse arquivo.")
 
 class DatasetAdmin(admin.ModelAdmin):
+    
     inlines = (DatasetMembershipInline,)
+    actions = None
     
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
@@ -139,7 +154,8 @@ class DatasetAdmin(admin.ModelAdmin):
 class CustomUserAdmin(UserAdmin):
     
     list_display = ('username', 'email', 'first_name', 'last_name') #, 'is_staff')
-    list_filter = ('is_active',) # 'groups')
+    list_filter = ('datasetmembership__group', 'datasetmembership__dataset', 'is_active')
+    actions = None
     
     fieldsets = (
         (None, {'fields': ('username', 'password', 'is_active')}),
@@ -179,6 +195,9 @@ class CustomUserAdmin(UserAdmin):
     
 class ImageDataAdmin(admin.ModelAdmin):
     
+    list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
+    actions = None
+    
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "dataset" and not request.user.is_superuser:
             kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
@@ -213,6 +232,11 @@ class ImageDataAdmin(admin.ModelAdmin):
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
 class ObjetoAdmin(admin.ModelAdmin):
+    
+    list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
+    actions = None
+    readonly_fields = ['dataset']
+    
     def get_queryset(self, request):
         qs = super(ObjetoAdmin, self).get_queryset(request)
         if request.user.is_superuser:
@@ -247,6 +271,13 @@ class ObjetoAdmin(admin.ModelAdmin):
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
 class AttributeAdmin(admin.ModelAdmin):
+    
+    inlines = [AttributeValueInline]
+    list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
+    
+    readonly_fields = ['dataset']
+    actions = None
+    
     def get_queryset(self, request):
         qs = super(AttributeAdmin, self).get_queryset(request)
         if request.user.is_superuser:
@@ -281,6 +312,11 @@ class AttributeAdmin(admin.ModelAdmin):
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
 class RelationAdmin(admin.ModelAdmin):
+    
+    list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
+    readonly_fields = ['dataset']
+    actions = None
+    
     def get_queryset(self, request):
         qs = super(RelationAdmin, self).get_queryset(request)
         if request.user.is_superuser:
@@ -316,7 +352,19 @@ class RelationAdmin(admin.ModelAdmin):
 
 class PublicationAdmin(admin.ModelAdmin):
     
+    list_display = ['name', 'get_short_description', 'export_date']
+    list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
+    actions = None
+    
     readonly_fields = ('export_date',)
+    
+    def get_short_description(self, obj):
+        words = obj.description.split(' ')
+        short_description = ' '.join(words[:10])
+        if len(words) > 10:
+            short_description += '...'
+        return  short_description
+    get_short_description.short_description = 'Description'
     
     publication_directory = "{0}publications/".format(settings.MEDIA_ROOT)
     

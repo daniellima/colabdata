@@ -13,6 +13,12 @@ class Dataset(models.Model):
     description = models.TextField(max_length=5000)
     users = models.ManyToManyField(User, related_name='datasets', through='DatasetMembership')
     
+    def get_admin_url(self):
+        """the url to the Django admin interface for the model instance"""
+        from django.core.urlresolvers import reverse
+        info = (self._meta.app_label, self._meta.model_name)
+        return reverse('admin:%s_%s_change' % info, args=(self.pk,))
+    
     def __str__(self):
         return self.name
 
@@ -40,6 +46,9 @@ class ObjectType(models.Model):
             'id': self.id,
             'name': self.name
         }
+        
+    def __str__(self):
+        return self.name
 
 class AttributeType(models.Model):
     name = models.CharField(max_length=255)
@@ -60,6 +69,9 @@ class AttributeType(models.Model):
     
     def toJSONSerializable(self):
         return {'name': self.name, 'value': self.value}
+        
+    def __str__(self):
+        return self.name
 
 class AttributeTypeValue(models.Model):
     name = models.CharField(max_length=255)
@@ -79,6 +91,9 @@ class AttributeTypeValue(models.Model):
             'name': self.name,
             'attribute_type_id': self.attribute_type.id
         }
+        
+    def __str__(self):
+        return self.name
 
 class RelationType(models.Model):
     name = models.CharField(max_length=255)
@@ -96,6 +111,9 @@ class RelationType(models.Model):
             'id': self.id,
             'name': self.name
         }
+    
+    def __str__(self):
+        return self.name
 
 class Image(models.Model):
     file = models.ImageField()
@@ -105,6 +123,9 @@ class Image(models.Model):
         id = self.id
         extension = os.path.splitext(self.file.name)[1]
         return "{0}{1}".format(id, extension)
+        
+    def __str__(self):
+        return self.file.name
  
 class Tag(models.Model):
     object_type = models.ForeignKey(ObjectType, related_name="tags", on_delete=models.CASCADE)
@@ -264,5 +285,8 @@ class Publication(models.Model):
     
     def get_file_name(self):
         return "published_dataset_{0}.tar.gz".format(self.id)
+
+    def __str__(self):
+        return self.name
 
 from . import signals

@@ -17,7 +17,7 @@ def get_json(request):
     return json.loads(request.body.decode('utf-8'))
 
 def is_curator(user, dataset):
-    return DatasetMembership.objects.filter(user=user, dataset=dataset, group__name="Curador").exists()
+    return DatasetMembership.objects.filter(user=user, dataset=dataset, group__name__in=["Curador","Administrador"]).exists()
 
 @require_POST
 def login(request):
@@ -38,7 +38,7 @@ def login(request):
 @ajax_aware_login_required
 def all(request):
     user = request.user
-    datasets = user.datasets.filter(datasetmembership__group__name__in=["Curador", "Colaborador"]).distinct()
+    datasets = user.datasets.all()
     datasets_for_response = []
     
     for dataset in datasets:
