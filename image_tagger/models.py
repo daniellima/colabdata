@@ -6,6 +6,7 @@ import os
 import datetime
 from collections import OrderedDict
 import tarfile
+from django.db.models import Count
 # Create your models here.
 
 class Dataset(models.Model):
@@ -13,11 +14,18 @@ class Dataset(models.Model):
     description = models.TextField(max_length=5000)
     users = models.ManyToManyField(User, related_name='datasets', through='DatasetMembership')
     
+    @staticmethod
+    def objects_with_publications():
+        return Dataset.objects.annotate(number_of_publications=Count('publications')).filter(number_of_publications__gt=0)
+    
     def get_admin_url(self):
         """the url to the Django admin interface for the model instance"""
         from django.core.urlresolvers import reverse
         info = (self._meta.app_label, self._meta.model_name)
         return reverse('admin:%s_%s_change' % info, args=(self.pk,))
+    
+    def has_no_publications(self):
+        return len(self.publications.all()) == 0
     
     def __str__(self):
         return self.name

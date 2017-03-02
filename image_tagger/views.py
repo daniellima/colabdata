@@ -1,17 +1,20 @@
 # encoding: utf-8
-from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership
+from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership, Dataset
 from django.utils import timezone
+from django.http import Http404
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from .decorators import ajax_aware_login_required
 from django.db.models import Count
 import json
 import os
 from os import listdir
 from os.path import isfile, join
+from django.core.exceptions import ObjectDoesNotExist
 
 def get_json(request):
     return json.loads(request.body.decode('utf-8'))
@@ -168,3 +171,18 @@ def logout(request):
     auth.logout(request)
     
     return HttpResponse()
+    
+@require_GET
+def dataset_publications(request, dataset_id):
+    try:
+        dataset = Dataset.objects_with_publications().get(pk=dataset_id)
+        publications = dataset.publications.order_by('-export_date')
+    except ObjectDoesNotExist:
+        raise Http404("Dataset does not exist or has no publications.")
+        
+    return render(request, 'image_tagger/dataset_publications.html', {'dataset':dataset, 'publications':publications})
+    
+@require_GET
+def datasets(request):
+    datasets = Dataset.objects_with_publications().order_by('name')
+    return render(request, 'image_tagger/datasets.html', {'datasets': datasets})

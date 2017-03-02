@@ -1,0 +1,52 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Datasets | COLABDATA</title>
+  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a href="#" class="navbar-brand">
+          COLABDATA
+        </a>
+      </div>
+    </div>
+    </nav>
+    
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Datasets</h1>
+            <p>Below is a list of all publicly datasets available.</p>
+            <p>Click on 'view more' to see the list of publications in each dataset and download it.</p>
+        </div>
+        <div class="row">
+        {% for dataset in datasets %}
+          <div class="col-xs-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">{{ dataset.name }}</h3>
+              </div>
+              <div class="panel-body">
+                <p>{{ dataset.description|linebreaks }}</p>
+                <p><a 
+                    href="{% url 'dataset-publications' dataset.id %}"
+                    class="btn btn-default" 
+                    title="Click to view a list of this dataset publications"
+                    >
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        view more
+                    </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

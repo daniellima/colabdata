@@ -6,6 +6,8 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.db.models import Q
 from django.conf import settings
+from django.utils.safestring import mark_safe
+from django.urls import reverse
 import tarfile
 import os
 import shutil
@@ -61,6 +63,17 @@ class DatasetAdmin(admin.ModelAdmin):
     
     inlines = (DatasetMembershipInline,)
     actions = None
+    
+    readonly_fields = ['link']
+    
+    def link(self, dataset):
+        if dataset.has_no_publications():
+            return "(não possui link pois não possui publicações)"
+            
+        link = reverse('dataset-publications', args=(dataset.id,))
+        return mark_safe('<a href="{0}">{0}</a>'.format(link))
+        
+    link.short_description = "Link para publicações"
     
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
