@@ -1,0 +1,90 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>COLABDATA</title>
+  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a href="#" class="navbar-brand">
+          COLABDATA
+        </a>
+      </div>
+    </div>
+    </nav>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-8">
+                <div class="jumbotron">
+                  <h1>COLABDATA</h1>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ut felis dolor. Sed ut nibh eget nunc fermentum malesuada vitae rutrum ligula. Mauris ex diam, molestie laoreet tempus nec, ultricies vel quam. Nunc sed fermentum mauris. Donec sed tortor orci.
+                  </p>
+                  <p>
+                    Nullam tempus et odio quis facilisis. Nunc vel porta libero. Ut quis velit lorem. Vivamus laoreet sollicitudin justo ac consequat. Suspendisse potenti. Nullam sed efficitur quam. Curabitur gravida tortor sed nisi cursus, id tincidunt ipsum scelerisque.
+                  </p>
+                  <a class="btn btn-primary" href="{% url 'datasets' %}">
+                      See all public datasets
+                      <span class="glyphicon glyphicon-chevron-right"></span>
+                  </a>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="row">
+                    {% if not request.user.is_authenticated %}
+                        <div class="col-xs-12">
+                            
+                            <div class="page-header">
+                                <h2 style="text-transform: uppercase; text-align: center;">Login</h2>
+                            </div>
+                            
+                            <form method="POST" action="{% url 'index' %}">
+                                {% csrf_token %}
+                                
+                                {% if form.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        {{ form.non_field_errors }}
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="form-group {% if form.username.errors %}has-error{% endif %}">
+                                    <label class="control-label" for="username">Username</label>
+                                    {% if form.username.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.username.errors }}
+                                        </div>
+                                    {% endif %}
+                                    <input type="text" class="form-control" name="username" id="username" value="{{ request.POST.username }}">
+                                </div>
+                                <div class="form-group {% if form.password.errors %}has-error{% endif %}">
+                                    <label class="control-label" for="password">Password</label>
+                                    {% if form.password.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.password.errors }}
+                                        </div>
+                                    {% endif %}
+                                    <input type="password" class="form-control" name="password" id="password">
+                                </div>
+                                
+                                <button type="btn" class="btn btn-primary btn-block">Login</button>
+                            </form>
+                            
+                            <p style="text-align: center; margin-top: 1em">
+                                <a title="Forgot your password?" href="{% url 'admin_password_reset' %}">Forgot your password?</a>
+                            </p>
+                        </div>
+                    {% else %}
+                        You are already logged in. Have fun!
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,11 +3,12 @@ from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribut
 from django.utils import timezone
 from django.http import Http404
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django import forms
 from .decorators import ajax_aware_login_required
 from django.db.models import Count
 import json
@@ -166,7 +167,7 @@ def delete_relation(request):
     return HttpResponse()
 
 @require_POST
-@ajax_aware_login_required        
+@ajax_aware_login_required
 def logout(request):
     auth.logout(request)
     
@@ -186,3 +187,26 @@ def dataset_publications(request, dataset_id):
 def datasets(request):
     datasets = Dataset.objects_with_publications().order_by('name')
     return render(request, 'image_tagger/datasets.html', {'datasets': datasets})
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField()
+
+@require_http_methods(['GET', 'POST', 'HEAD'])
+def index(request):
+    
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        
+        if form.is_valid():
+            
+            user = auth.authenticate(username=request.POST['username'], password=request.POST['password'])
+            if user is not None:
+                auth.login(request, user)
+                return redirect('index')
+            
+            form.add_error(None, "Your credentials are not valid.")
+    else:
+        form = LoginForm()
+        
+    return render(request, 'image_tagger/index.html', {'form' : form})
