@@ -80,7 +80,30 @@
                             </p>
                         </div>
                     {% else %}
-                        You are already logged in. Have fun!
+                        <div class="col-xs-12">
+                            
+                            <div class="page-header">
+                                <h2 style="text-align: center;">Hello, {{ request.user.username }}!</h2>
+                            </div>
+                            
+                            <p>What you want to do?</p>
+                            
+                            <p>
+                                <a class="btn btn-primary btn-block" href="{% url 'private-datasets' %}" title="My private datasets">
+                                    Contribute
+                                    <span class="glyphicon glyphicon-thumbs-up"></span>
+                                </a>
+                            </p>
+                            
+                            <p>
+                                <form method="POST" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-block">
+                                        Logout
+                                    </button>
+                                </form>
+                            </p>
+                        </div>
                     {% endif %}
                 </div>
             </div>

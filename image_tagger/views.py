@@ -181,7 +181,11 @@ def dataset_publications(request, dataset_id):
     except ObjectDoesNotExist:
         raise Http404("Dataset does not exist or has no publications.")
         
-    return render(request, 'image_tagger/dataset_publications.html', {'dataset':dataset, 'publications':publications})
+    return render(request, 'image_tagger/dataset_publications.html', {
+        'dataset':dataset, 
+        'publications':publications,
+        'should_go_back_to_private_datasets': 'from_private' in request.GET
+    })
     
 @require_GET
 def datasets(request):
@@ -210,3 +214,17 @@ def index(request):
         form = LoginForm()
         
     return render(request, 'image_tagger/index.html', {'form' : form})
+
+@require_POST
+@login_required
+def logout(request):
+    auth.logout(request)
+    
+    return redirect('index')
+    
+@require_GET
+@login_required
+def private_datasets(request):
+    datasets = Dataset.objects.filter(datasetmembership__user=request.user).order_by('name')
+    datasets_with_images = [(dataset, dataset.get_example_images(3)) for dataset in datasets]
+    return render(request, 'image_tagger/private_datasets.html', {'datasets_with_images': datasets_with_images})

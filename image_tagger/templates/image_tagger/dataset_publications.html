@@ -20,10 +20,17 @@
     
     <div class="container">
         <p>
+          {% if should_go_back_to_private_datasets %}
+            <a href="{% url 'private-datasets' %}">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+                Back to your datasets
+            </a>
+          {% else %}
             <a href="{% url 'datasets' %}">
                 <span class="glyphicon glyphicon-chevron-left"></span>
                 See all datasets
             </a>
+          {% endif %}
         </p>
         <div class="jumbotron">
             <h1>{{ dataset.name }}</h1>

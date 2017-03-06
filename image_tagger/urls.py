@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^login$', views.login, name='login'),
     url(r'^logout$', views.logout, name='logout'),
     url(r'^dataset/([0-9]+)/publications/$', views.dataset_publications, name="dataset-publications"),
-    url(r'datasets', views.datasets, name='datasets'),
-    url(r'', views.index, name='index')
+    url(r'^datasets$', views.datasets, name='datasets'),
+    url(r'^$', views.index, name='index'),
+    url(r'^private_datasets$', views.private_datasets, name='private-datasets'),
+    url(r'^logout$', views.logout, name='logout')
 ]

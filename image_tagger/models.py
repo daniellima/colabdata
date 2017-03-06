@@ -27,6 +27,9 @@ class Dataset(models.Model):
     def has_no_publications(self):
         return len(self.publications.all()) == 0
     
+    def get_example_images(self, how_many):
+        return self.images.order_by('id').all()[:how_many] # order by id only to avoid having an undetermined order
+    
     def __str__(self):
         return self.name
 
