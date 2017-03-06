@@ -1,5 +1,5 @@
 /* global angular */
-var ImageTaggerComponent = function($rootScope, $http, $document){
+var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.$http = $http;
     
     this.initialX = 0;
@@ -57,12 +57,21 @@ var ImageTaggerComponent = function($rootScope, $http, $document){
     }.bind(this))
 };
 
-ImageTaggerComponent.actions = {
+component.definition = {
+    controller: ['$rootScope', '$http', '$document', component],
+    templateUrl: "static/js/components/imageTagger.html",
+    bindings: {
+        image: '<',
+        onClose: '&'
+    }
+}
+
+component.actions = {
     edit: "Editar",
     select: "Escolher"
 }
 
-ImageTaggerComponent.prototype = {
+component.prototype = {
     $onChanges: function(changes){
         if(changes.image && changes.image.currentValue){
             this.resizeImage('byHeight');

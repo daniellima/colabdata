@@ -1,4 +1,4 @@
-var MainController = function($http){
+var MainComponent = function($http){
 
     this.$http = $http;
 
@@ -13,7 +13,12 @@ var MainController = function($http){
     }
 }
 
-MainController.prototype = {
+MainComponent.definition = {
+    controller: ['$http', MainComponent],
+    templateUrl: 'static/js/components/main.html'
+}
+
+MainComponent.prototype = {
     
     onImageTaggerClose: function(){
         this.page = 'image-chooser';

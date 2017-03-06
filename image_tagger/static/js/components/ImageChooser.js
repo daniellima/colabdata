@@ -1,9 +1,18 @@
 /* global angular */
-var ImageChooserComponent = function(){
+var component = ImageChooserComponent = function(){
     this.datasets = [];
 }
 
-ImageChooserComponent.prototype = {
+component.definition = {
+    controller: component,
+    templateUrl: "static/js/components/imageChooser.html",
+    bindings: {
+        datasets: '<',
+        onChoose: '&'
+    }
+}
+
+component.prototype = {
     $onChanges: function(keys){
         angular.forEach(keys, function(value, key){
             switch(key){

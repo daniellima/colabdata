@@ -2,7 +2,7 @@
 var component = OverviewComponent = function(){}
 
 component.definition = {
-    controller: [component],
+    controller: component,
     templateUrl: "static/js/components/overview.html",
     bindings: {
         blocks: '<',

@@ -1,0 +1,40 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="#" class="navbar-brand">
+                COLABDATA
+            </a>
+        </div>
+        
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a 
+                    href="#" 
+                    ng-click="$ctrl.onSairButtonClick()" 
+                    ng-show="$ctrl.userLogged"
+                    >
+                        Sair
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+  
+<login-form
+    ng-show="$ctrl.page == 'login-form'"
+    on-login="$ctrl.onLogin()"
+></login-form>
+
+<image-chooser
+    datasets="$ctrl.datasets"
+    ng-show="$ctrl.page == 'image-chooser'"
+    on-choose="$ctrl.onImageChooserChoose(image)"
+></image-chooser>
+
+<image-tagger
+    image="$ctrl.selectedImage"
+    ng-show="$ctrl.page == 'image-tagger'"
+    on-close="$ctrl.onImageTaggerClose()"
+></image-tagger>

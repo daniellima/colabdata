@@ -1,12 +1,26 @@
 /* global angular */
-var ObjectEditorComponent = function($http){
+var component = ObjectEditorComponent = function($http){
     this.editedBlock = null;
     this.editedBlockImage = null;
     this.$http = $http;
     this.removedAttributes = [];
 }
 
-ObjectEditorComponent.prototype = {
+component.definition = {
+    controller: ['$http', component],
+    templateUrl: "static/js/components/objectEditor.html",
+    bindings: {
+        editedBlock: '<',
+        editedBlockImage: '<',
+        blocks: '<',
+        blockDeleted: '&',
+        onClose: '&',
+        onSave: '&',
+        onEdit: '&'
+    }
+}
+
+component.prototype = {
     addAttribute: function(){
         this.editedBlock.object.attributes.push({'name': '', 'value': ''});
     },
