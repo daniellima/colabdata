@@ -20,7 +20,6 @@ def delete_file_from_image(sender, **kwargs):
 def delete_file_from_publication(sender, **kwargs):
     instance = kwargs['instance']
     try:
-        raise Exception('oi')
         # TODO remove this hardcoded reference
         publication_directory = "{0}publications/".format(settings.MEDIA_ROOT)
         file_path = publication_directory + instance.get_file_name()
