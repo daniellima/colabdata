@@ -13,7 +13,7 @@ component.definition = {
         editedBlock: '<',
         editedBlockImage: '<',
         blocks: '<',
-        blockDeleted: '&',
+        onBlockDeleted: '&',
         onClose: '&',
         onSave: '&',
         onEdit: '&'
@@ -40,7 +40,7 @@ component.prototype = {
         }).then(
             function(){
                 this.blocks.splice(this.blocks.indexOf(this.editedBlock), 1);
-                this.blockDeleted();
+                this.onBlockDeleted();
                 showLoadingOverlay(false);
             }.bind(this),
             function(){
