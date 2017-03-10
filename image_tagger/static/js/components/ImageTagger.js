@@ -1,6 +1,10 @@
 /* global angular */
+(function(){
 var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.$http = $http;
+    
+    this.pages = {IMAGE: 1, OVERVIEW: 2}
+    this.currentPage = this.pages.IMAGE;
     
     this.initialX = 0;
     this.initialY = 0;
@@ -31,7 +35,6 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.isRelationListVisible = false;
     this.relations = [];
     
-    this.overviewVisible = false;
     this.attributes = [];
     
     this.ctrlPressed = false;
@@ -39,6 +42,7 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.openedRelationEditorFromList = false;
     
     $document.on('keypress', function(event){
+        // Porque não funciona como o keyup e keydown?
         $rootScope.$apply(function(){
             this.addBox(event);
         }.bind(this));
@@ -67,8 +71,8 @@ component.definition = {
 }
 
 component.actions = {
-    edit: "Editar",
-    select: "Escolher"
+    EDIT: "Editar",
+    SELECT: "Selecionar"
 }
 
 component.prototype = {
@@ -77,9 +81,6 @@ component.prototype = {
             this.resizeImage('byHeight');
             
             /* gambiarra para compatibilizar as diferenças de modelo entre o servidor e o cliente */
-            console.log(this.image)
-            console.log(this.image.blocks)
-            console.log(this.blocks)
             
             if(this.image.blocks !== undefined && this.image.blocks.length) {
                 this.blocks = this.image.blocks;
@@ -111,6 +112,7 @@ component.prototype = {
     },
     
     getRelations: function(){
+        // não deveria ser uma 'computed property'?
         var relations = []
         for (var i = this.blocks.length; i--; ) {
             var block = this.blocks[i];
@@ -189,12 +191,13 @@ component.prototype = {
     },
     
     showOverview: function(){
-        this.overviewVisible = !this.overviewVisible;
+        this.currentPage = this.currentPage == this.pages.IMAGE ? this.pages.OVERVIEW : this.pages.IMAGE;
         this.resizeOverviewImage('byWidth');
         this.refreshAttributes();
     },
     
     refreshAttributes: function(){
+        // não deveria ser uma 'computed property'?
         this.attributes = [];
         for (var i = 0; i < this.blocks.length; i++) {
             for (var j = 0; j < this.blocks[i].object.attributes.length; j++) {
@@ -215,7 +218,7 @@ component.prototype = {
     
     showObjectViewer: function(){
         this.showAllObjects = true;
-        this.objectViewerAction = ImageTaggerComponent.actions.edit;
+        this.objectViewerAction = component.actions.EDIT;
     },
     
     showRelationList: function(){
@@ -223,6 +226,7 @@ component.prototype = {
     },
     
     addRelation: function(){
+        // não é redundante com o onBlockClicked?
         this.selectedRelation = {blocks: [], name:""};
         this.relationEditorIsVisible = true;
     },
@@ -333,7 +337,8 @@ component.prototype = {
         }
         this.showObjectEditor(block);
         if(this.objectTagEditFromOverview){
-            this.overviewVisible = true;
+            this.objectTagEditFromOverview = false;
+            this.currentPage = this.pages.OVERVIEW;
         }
     },
     
@@ -411,23 +416,26 @@ component.prototype = {
         this.showAllObjects = false;
         
         // no caso de abrir da overview
-        this.overviewVisible = false;
-        this.objectTagEditFromOverview = true;
+        if(this.currentPage == this.pages.OVERVIEW) {
+            this.objectTagEditFromOverview = true;
+        }
+        
+        this.currentPage = this.pages.IMAGE;
     },
     
     onObjectEditorClose: function(){
         this.showEdit = false;
         
-        if(this.objectViewerAction == ImageTaggerComponent.actions.edit){
+        if(this.objectViewerAction == component.actions.EDIT){
             this.showAllObjects = true;
         }
     },
     
     onObjectViewerBlockSelected: function(block, action){
-        if(action == ImageTaggerComponent.actions.edit){
+        if(action == component.actions.EDIT){
             this.showObjectEditor(block);
         }
-        if(action == ImageTaggerComponent.actions.select){
+        if(action == component.actions.SELECT){
             this.selectedRelation.blocks[this.relationBlockSelected] = block;
             this.showAllObjects = false;
             this.relationEditorIsVisible = true;
@@ -437,7 +445,7 @@ component.prototype = {
     onObjectViewerClose: function(){
         this.showAllObjects = false;
         
-        if(this.objectViewerAction == ImageTaggerComponent.actions.select){
+        if(this.objectViewerAction == component.actions.SELECT){
             this.relationEditorIsVisible = true;
         }
         
@@ -490,7 +498,7 @@ component.prototype = {
     onRelationEditorBlockSelected: function(index){
         this.relationEditorIsVisible = false;
         this.showAllObjects = true;
-        this.objectViewerAction = ImageTaggerComponent.actions.select;
+        this.objectViewerAction = component.actions.SELECT;
         this.relationBlockSelected = index;
     },
     
@@ -512,10 +520,6 @@ component.prototype = {
     
     onRelationListClose: function(){
         this.isRelationListVisible = false;
-    },
-    
-    onClose: function(){
-        // expose event
     },
     
     // esse metodo e os outros Jsonable só quer ignorar o campo 'block' de um attribute,
@@ -547,3 +551,4 @@ component.prototype = {
         };
     }
 };
+})();

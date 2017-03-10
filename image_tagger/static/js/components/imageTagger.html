@@ -5,33 +5,33 @@
           <span class="glyphicon glyphicon-arrow-left"></span>
           Voltar
         </button>
-        <button class="btn btn-default" ng-click="$ctrl.addNewBox()" ng-show="!$ctrl.overviewVisible">
+        <button class="btn btn-default" ng-click="$ctrl.addNewBox()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-plus"></span>
             Objeto
         </button>
-        <button class="btn btn-default" ng-click="$ctrl.addRelation()" ng-show="!$ctrl.overviewVisible">
+        <button class="btn btn-default" ng-click="$ctrl.addRelation()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-plus"></span>
             Relações
         </button>
       </div>
       <div class="toolbar-show">
-        <button class="btn btn-default" ng-click="$ctrl.showOverview()" ng-show="!$ctrl.overviewVisible">
+        <button class="btn btn-default" ng-click="$ctrl.showOverview()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-eye-open"></span>
             Overview
         </button>
-        <button class="btn btn-default" ng-click="$ctrl.showOverview()" ng-show="$ctrl.overviewVisible">
+        <button class="btn btn-default" ng-click="$ctrl.showOverview()" ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-eye-open"></span>
             Imagem
         </button>
-        <button class="btn btn-default" ng-click="$ctrl.showObjectViewer()" ng-show="!$ctrl.overviewVisible">
+        <button class="btn btn-default" ng-click="$ctrl.showObjectViewer()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-record"></span>
             Ver Objetos
         </button>
-        <button class="btn btn-default" ng-click="$ctrl.showRelationList()" ng-show="!$ctrl.overviewVisible">
+        <button class="btn btn-default" ng-click="$ctrl.showRelationList()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-random"></span>
             Ver Relações
         </button>
-        <div class="btn-group"ng-show="!$ctrl.overviewVisible">
+        <div class="btn-group"ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
             <span class="glyphicon glyphicon-resize-full"></span>
             Tamanho
@@ -43,7 +43,7 @@
             <li><a href="#" ng-click="$ctrl.resizeImage('byHeight')">Ajustar altura</a></li>
           </ul>
         </div>
-        <div class="btn-group" ng-show="$ctrl.overviewVisible">
+        <div class="btn-group" ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
             <span class="glyphicon glyphicon-resize-full"></span>
             Tamanho
@@ -60,7 +60,7 @@
 
 <div
     class="image-container"
-    ng-show="!$ctrl.overviewVisible"
+    ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW"
 >
     <div 
       class="container-for-boxes"
@@ -89,37 +89,41 @@
         <div class="handler handler-bottom-right" ng-mousedown="$ctrl.handleMousedown($event, 'bottom-right')"></div>
       </div>
       <div
-      ng-repeat="block in $ctrl.blocks"
-      class="box"
-      ng-click="$ctrl.onBlockClicked($event, block)"
-      style="position: absolute;
-             left: {{ block.x * $ctrl.multiplier }}px; 
-             top: {{ block.y * $ctrl.multiplier }}px; 
-             width: {{ block.width * $ctrl.multiplier}}px; 
-             height: {{ block.height * $ctrl.multiplier }}px;
-             {{ $ctrl.selectedRelation.blocks[0] == block ? 'border-color:orange;' : '' }}"
+        ng-repeat="block in $ctrl.blocks"
+        class="box"
+        ng-click="$ctrl.onBlockClicked($event, block)"
+        style="position: absolute;
+               left: {{ block.x * $ctrl.multiplier }}px; 
+               top: {{ block.y * $ctrl.multiplier }}px; 
+               width: {{ block.width * $ctrl.multiplier}}px; 
+               height: {{ block.height * $ctrl.multiplier }}px;
+               {{ $ctrl.selectedRelation.blocks[0] == block ? 'border-color:orange;' : '' }}"
       >
       </div>
     </div>
 </div>
 
 <overview
+  ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW"
+  
   blocks="$ctrl.blocks"
   attributes="$ctrl.attributes"
   relations="$ctrl.relations"
   image='$ctrl.image'
   multiplier='$ctrl.overviewMultiplier'
-  ng-show="$ctrl.overviewVisible"
+  
   on-object-click="$ctrl.showObjectEditor(block)"
   on-relation-click="$ctrl.showRelationEditor(relation)"
 ></overview>
 
 <object-editor
+    ng-show="$ctrl.showEdit"
+    
     edited-block-image="$ctrl.editedBlockImage"
     edited-block="$ctrl.editedBlock"
     blocks="$ctrl.image.blocks"
     block-deleted="$ctrl.onBlockDeleted()"
-    ng-show="$ctrl.showEdit"
+    
     on-close="$ctrl.onObjectEditorClose()"
     on-save="$ctrl.onObjectEditorSave()"
     on-edit="$ctrl.onObjectEditorEdit()"
