@@ -1,14 +1,27 @@
 /* global angular */
-var component = OverviewComponent = function(){}
+var component = OverviewComponent = function(){
+    /* TODO deveria ser uma computed property */
+    this.visibleTags = [];
+    
+    this.attributes = function(){
+        return store.getAllAttributes();
+    },
+    
+    this.relations = function() {
+        return store.getAllRelations();
+    },
+    
+    this.image = function() {
+        return store.getImage();
+    }
+    
+}
 
 component.definition = {
     controller: component,
     templateUrl: "static/js/components/overview.html",
     bindings: {
-        blocks: '<',
-        relations: '<',
-        attributes: '<',
-        image: '<',
+        // TODO receber via eventos
         multiplier: '<',
         
         onObjectClick: '&',
@@ -19,33 +32,23 @@ component.definition = {
 component.prototype = {
     
     $onChanges: function(changes){},
-    
-    idToTag: function(id){
-        if(!this.image || !this.image.blocks) return null;
-        
-        for (var i = 0; i < this.image.blocks.length; i++) {
-            var block = this.image.blocks[i];
-            if(block.id == id) return block;
-        }
-        return null;
-    },
-    
-    showBlock: function(block){
-        block.visible = true;
+    // TODO criar handlers
+    showTag: function(tag){
+        this.visibleTags.push(tag);
     },
     
     showRelation: function(relation){
-        this.showBlock(this.idToTag(relation.originTagId));
-        this.showBlock(this.idToTag(relation.targetTagId));
+        this.showTag(relation.originTag);
+        this.showTag(relation.targetTag);
     },
     
-    hideBlock: function(block){
-        block.visible = false;
+    hideTag: function(tag){
+        this.visibleTags.splice(this.visibleTags.indexOf(tag), 1);
     },
     
     hideRelation: function(relation){
-        this.hideBlock(this.idToTag(relation.originTagId));
-        this.hideBlock(this.idToTag(relation.targetTagId));
+        this.hideTag(relation.originTag);
+        this.hideTag(relation.targetTag);
     },
     
 };

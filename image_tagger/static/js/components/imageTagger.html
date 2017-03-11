@@ -106,10 +106,6 @@
 <overview
   ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW"
   
-  blocks="$ctrl.blocks"
-  attributes="$ctrl.attributes()"
-  relations="$ctrl.relations()"
-  image='$ctrl.image'
   multiplier='$ctrl.overviewMultiplier()'
   
   on-object-click="$ctrl.overviewOnObjectClickHandler(block)"
@@ -154,9 +150,6 @@
 
 <relation-list
   ng-show="$ctrl.isRelationListVisible"
-  
-  image="$ctrl.image"
-  relations="$ctrl.relations()"
   
   on-relation-selected="$ctrl.relationListOnRelationSelectedHandler(relation)"
   on-close="$ctrl.relationListOnCloseHandler()"

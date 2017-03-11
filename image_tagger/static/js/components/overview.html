@@ -7,24 +7,39 @@
     <div class="col-xs-2">
       <h2>Objetos</h2>
       
-      <div ng-click="$ctrl.onObjectClick({block: block})" style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="block in $ctrl.blocks" ng-mouseenter="$ctrl.showBlock(block)" ng-mouseleave="$ctrl.hideBlock(block)">
-        {{ block.object.name }}
+      <div 
+        ng-click="$ctrl.onObjectClick({block: block})" 
+        style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
+        ng-repeat="tag in $ctrl.image().tags" 
+        ng-mouseenter="$ctrl.showTag(tag)" 
+        ng-mouseleave="$ctrl.hideTag(tag)">
+        {{ tag.object }}
       </div>
       
     </div>
     <div class="col-xs-2">
       <h2>Atributos</h2>
       
-      <div ng-click="$ctrl.onObjectClick({block: attribute.block})" style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="attribute in $ctrl.attributes" ng-mouseenter="$ctrl.showBlock(attribute.block)" ng-mouseleave="$ctrl.hideBlock(attribute.block)">
-        {{ attribute.name }} de {{ attribute.block.object.name }} é {{ attribute.value }}
+      <div 
+        ng-click="$ctrl.onObjectClick({block: attribute.tag})" 
+        style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
+        ng-repeat="attribute in $ctrl.attributes()" 
+        ng-mouseenter="$ctrl.showTag(attribute.tag)" 
+        ng-mouseleave="$ctrl.hideTag(attribute.tag)">
+        {{ attribute.name }} de {{ attribute.tag.object }} é {{ attribute.value }}
       </div>
 
     </div>
     <div class="col-xs-3">
       <h2>Relações</h2>
       
-      <div ng-click="$ctrl.onRelationClick({relation: relation})" style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="relation in $ctrl.relations" ng-mouseenter="$ctrl.showRelation(relation)" ng-mouseleave="$ctrl.hideRelation(relation)">
-          {{ $ctrl.idToTag(relation.originTagId).object.name }} {{ relation.name }} {{ $ctrl.idToTag(relation.targetTagId).object.name }}
+      <div 
+        ng-click="$ctrl.onRelationClick({relation: relation})" 
+        style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
+        ng-repeat="relation in $ctrl.relations()" 
+        ng-mouseenter="$ctrl.showRelation(relation)" 
+        ng-mouseleave="$ctrl.hideRelation(relation)">
+          {{ relation.originTag.object }} {{ relation.name }} {{ relation.targetTag.object }}
       </div>
       
     </div>
@@ -37,19 +52,18 @@
           >
             <img 
               class="image"
-              src="{{ $ctrl.image.url }}"
-              style="width:{{ $ctrl.image.width * $ctrl.multiplier }}px; height:{{ $ctrl.image.height * $ctrl.multiplier }}px"
+              src="{{ $ctrl.image().url }}"
+              style="width:{{ $ctrl.image().width * $ctrl.multiplier }}px; height:{{ $ctrl.image().height * $ctrl.multiplier }}px"
             >
             <div
-            ng-repeat="block in $ctrl.blocks"
+            ng-repeat="tag in $ctrl.visibleTags"
             class="box"
             style="
-                  display: {{ block.visible ? 'block' : 'none' }};
                   position: absolute;
-                  left: {{ block.x * $ctrl.multiplier }}px; 
-                  top: {{ block.y * $ctrl.multiplier }}px; 
-                  width: {{ block.width * $ctrl.multiplier}}px; 
-                  height: {{ block.height * $ctrl.multiplier }}px;"
+                  left: {{ tag.x * $ctrl.multiplier }}px; 
+                  top: {{ tag.y * $ctrl.multiplier }}px; 
+                  width: {{ tag.width * $ctrl.multiplier}}px; 
+                  height: {{ tag.height * $ctrl.multiplier }}px;"
             >
             </div>
           </div>

@@ -36,41 +36,7 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     
     this.isRelationListVisible = false;
     
-    this.attributes = [];
-    
     this.openedRelationEditorFromList = false;
-    
-    var _relations = [];
-    this.relations = function(){
-        // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
-        _relations.splice(0, _relations.length);
-        
-        for (var i = 0; i < this.blocks.length; i++) {
-            var block = this.blocks[i];
-            for (var j = 0; j < block.relations.length; j++) {
-                var relation = block.relations[j];
-                _relations.push(relation);
-            }
-        }
-        return _relations;
-    };
-    
-    var _attributes = [];
-    this.attributes = function(){
-        // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
-        _attributes.splice(0, _attributes.length);
-        
-        for (var i = 0; i < this.blocks.length; i++) {
-            for (var j = 0; j < this.blocks[i].object.attributes.length; j++) {
-                var attribute = this.blocks[i].object.attributes[j];
-                // é usado na overview para mostrar o nome do objeto que possui o attributo
-                attribute.block = this.blocks[i];
-                _attributes.push(attribute);
-            }
-        }
-        
-        return _attributes;
-    },
     
     this.multiplier = function() {
         if(this.image == null) return null;
@@ -132,7 +98,7 @@ component.prototype = {
     $onChanges: function(changes){
         if(changes.image && changes.image.currentValue){
             this.imageResizeMethod = this.resizeMethods.BY_HEIGHT;
-
+            store.imageChangeEvent(changes.image.currentValue);
             /* gambiarra para compatibilizar as diferenças de modelo entre o servidor e o cliente */
             if(this.image.blocks !== undefined && this.image.blocks.length) {
                 this.blocks = this.image.blocks;

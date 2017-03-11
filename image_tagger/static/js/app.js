@@ -27,6 +27,75 @@ ColabDataApp.config(['$httpProvider', function($httpProvider){
     });
 }]);
 
+store = {
+    image: {url: "#", width:0, height:0, tags:[]},
+    imageChangeEvent: function(image) {
+        this.image = image;
+        for(var i = 0; i < this.image.tags.length; i++) {
+            var tag = this.image.tags[i];
+            for(var j = 0; j < tag.attributes.length; j++) {
+                var attribute = tag.attributes[j];
+                attribute.tag = tag;
+            }
+        };
+        for (var i = 0; i < this.image.tags.length; i++) {
+            var tag = this.image.tags[i];
+            for (var j = 0; j < tag.relations.length; j++) {
+                var relation = tag.relations[j];
+                relation.originTag = tag;
+                relation.targetTag = this.idToTag(relation.targetTagId)
+            }
+        }
+    },
+    
+    relationDeletedEvent: function(relation) {
+        var relationTag = relation.originTag;
+        relationTag.relations.splice(relationTag.relations.indexOf(relation), 1);
+    },
+    
+    getImage: function() {
+        return this.image;
+    },
+    _attributes: [],
+    getAllAttributes: function() {
+        // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
+        this._attributes.splice(0, this._attributes.length);
+        
+        for (var i = 0; i < this.image.tags.length; i++) {
+            var tag = this.image.tags[i];
+            for (var j = 0; j < tag.attributes.length; j++) {
+                var attribute = tag.attributes[j];
+                this._attributes.push(attribute);
+            }
+        }
+        
+        return this._attributes;
+    },
+    
+    _relations: [],
+    getAllRelations: function(){
+        // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
+        this._relations.splice(0, this._relations.length);
+        
+        for (var i = 0; i < this.image.tags.length; i++) {
+            var tag = this.image.tags[i];
+            for (var j = 0; j < tag.relations.length; j++) {
+                var relation = tag.relations[j];
+                this._relations.push(relation);
+            }
+        }
+        return this._relations;
+    },
+    
+    idToTag: function(id){
+        for (var i = 0; i < this.image.tags.length; i++) {
+            var tag = this.image.tags[i];
+            if(tag.id == id) return tag;
+        }
+        throw "Id for no existing block used";
+    },
+};
+
 ColabDataApp.component('objectEditor', ObjectEditorComponent.definition);
 
 ColabDataApp.component('objectViewer', ObjectViewerComponent.definition);

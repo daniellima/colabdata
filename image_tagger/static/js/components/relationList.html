@@ -8,24 +8,24 @@
   </button>
     
   <div style="overflow: auto; height: 500px" class="container-fluid">
-    <div ng-repeat="relation in $ctrl.relations">
+    <div ng-repeat="relation in $ctrl.relations()">
       <div class="row" style="margin-top: 1em; margin-bottom: 1em">
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" style="cursor: initial">
-            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.idToTag(relation.originTagId)" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="relation.originTag" size="200"></object-thumbnail>
           </div>
         </div>
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" style="cursor: initial">
-            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.idToTag(relation.targetTagId)" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="relation.targetTag" size="200"></object-thumbnail>
           </div>
         </div>
       </div>
       <div class="row">
         <span style="line-height: 34px;margin-left: 2em;">
-          <span style="font-weight: bold">{{ $ctrl.idToTag(relation.originTagId).object.name }}</span>
+          <span style="font-weight: bold">{{ relation.originTag.object }}</span>
           {{ relation.name }}
-          <span style="font-weight: bold">{{ $ctrl.idToTag(relation.targetTagId).object.name }}</span>
+          <span style="font-weight: bold">{{ relation.targetTag.object }}</span>
         </span>
         <a class="btn btn-danger pull-right"
           href="javascript:void(0)" 

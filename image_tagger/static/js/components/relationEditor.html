@@ -11,23 +11,28 @@
       <div class="row">
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" 
-            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.IsBlocksChoosen()}"
+            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.isBlocksChoosen()}"
             ng-click="$ctrl.onBlockSelected({index: 0})"
             >
-            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.idToTag($ctrl.relation.originTagId)" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.relation.originTag" size="200"></object-thumbnail>
           </div>
         </div>
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" 
-            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.IsBlocksChoosen()}"
+            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.isBlocksChoosen()}"
             ng-click="$ctrl.onBlockSelected({index: 1})"
             >
-            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.idToTag($ctrl.relation.targetTagId)" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.relation.targetTag" size="200"></object-thumbnail>
           </div>
         </div>
       </div>
       <div class="row">
-        <input type="text" class="form-control text-center" style="margin-top: 1em" ng-model="$ctrl.relation.name" ng-disabled="!$ctrl.IsBlocksChoosen()">
+        <input 
+          type="text" 
+          class="form-control text-center" 
+          style="margin-top: 1em" 
+          ng-model="$ctrl.relation.name" 
+          ng-disabled="!$ctrl.isBlocksChoosen()">
       </div>
       <div class="row">
         <button class="btn btn-primary btn-block" 
