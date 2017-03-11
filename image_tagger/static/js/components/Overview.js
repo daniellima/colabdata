@@ -18,15 +18,7 @@ component.definition = {
 
 component.prototype = {
     
-    $onChanges: function(changes){
-        // if(changes.image){
-        //     if(changes.image.currentValue){
-        //         this.multiplier = 390 / this.image.width;
-        //     } else {
-        //         this.multiplier = 1;
-        //     }
-        // }
-    },
+    $onChanges: function(changes){},
     
     idToTag: function(id){
         if(!this.image || !this.image.blocks) return null;

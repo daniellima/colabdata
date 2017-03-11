@@ -27,24 +27,24 @@ component.prototype = {
         return null;
     },
     
-    onRelationDeleted: function(event) {
+    onRelationDeleted: function(relation) {
         showLoadingOverlay(true, "Deletando...");
         
         this.$http({
             method: 'POST',
             url: 'image/delete/relation',
             data: {
-                'id': event.relation.id
+                'id': relation.id
             }
         }).then(
             function(){
-                var relationTag = this.idToTag(event.relation.originTagId);
-                relationTag.relations.splice(relationTag.relations.indexOf(event.relation), 1);
+                var relationTag = this.idToTag(relation.originTagId);
+                relationTag.relations.splice(relationTag.relations.indexOf(relation), 1);
                 
                 showLoadingOverlay(false);
             }.bind(this),
             function(){
-                console.log("Ocorreu um erro ao deletar relação de id " + event.relation.id);
+                console.log("Ocorreu um erro ao deletar relação de id " + relation.id);
                 showLoadingOverlay(false);
             }.bind(this)
         );

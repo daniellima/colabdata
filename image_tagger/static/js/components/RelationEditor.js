@@ -15,8 +15,7 @@ component.definition = {
 
 component.prototype = {
 
-    $onChanges: function(changes){
-    },
+    $onChanges: function(changes){},
     
     idToTag: function(id){
         if(!this.image || !this.image.blocks) return null;
