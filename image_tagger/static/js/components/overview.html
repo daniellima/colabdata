@@ -24,7 +24,7 @@
       <h2>Relações</h2>
       
       <div ng-click="$ctrl.onRelationClick({relation: relation})" style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" ng-repeat="relation in $ctrl.relations" ng-mouseenter="$ctrl.showRelation(relation)" ng-mouseleave="$ctrl.hideRelation(relation)">
-          {{ relation.blocks[0].object.name }} {{ relation.name }} {{ relation.blocks[1].object.name }}
+          {{ $ctrl.idToTag(relation.originTagId).object.name }} {{ relation.name }} {{ $ctrl.idToTag(relation.targetTagId).object.name }}
       </div>
       
     </div>

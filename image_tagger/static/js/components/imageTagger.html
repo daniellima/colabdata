@@ -38,9 +38,9 @@
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler('original')">Original</a></li>
-            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler('byWidth')">Ajustar largura</a></li>
-            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler('byHeight')">Ajustar altura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.ORIGINAL)">Original</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.BY_WIDTH)">Ajustar largura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.BY_HEIGHT)">Ajustar altura</a></li>
           </ul>
         </div>
         <div class="btn-group" ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW">
@@ -50,8 +50,8 @@
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler('byWidth')">Ajustar largura</a></li>
-            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler('byHeight')">Ajustar altura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler($ctrl.resizeMethods.BY_WIDTH)">Ajustar largura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler($ctrl.resizeMethods.BY_HEIGHT)">Ajustar altura</a></li>
           </ul>
         </div>
       </div>
@@ -72,16 +72,16 @@
       <img 
         class="image"
         src="{{ $ctrl.image.url }}"
-        style="width:{{ $ctrl.image.width * $ctrl.multiplier }}px; height:{{ $ctrl.image.height * $ctrl.multiplier }}px"
+        style="width:{{ $ctrl.image.width * $ctrl.multiplier() }}px; height:{{ $ctrl.image.height * $ctrl.multiplier() }}px"
       >
       <div 
         class="box" 
         style="position: absolute; 
-               left: {{ $ctrl.x * $ctrl.multiplier}}px; 
-               top: {{ $ctrl.y * $ctrl.multiplier}}px; 
-               width: {{ $ctrl.width * $ctrl.multiplier}}px; 
-               height: {{ $ctrl.height * $ctrl.multiplier}}px;"
-        ng-hide="!$ctrl.show"
+               left: {{ $ctrl.markerX * $ctrl.multiplier() }}px; 
+               top: {{ $ctrl.markerY * $ctrl.multiplier() }}px; 
+               width: {{ $ctrl.markerWidth * $ctrl.multiplier() }}px; 
+               height: {{ $ctrl.markerHeight * $ctrl.multiplier() }}px;"
+        ng-show="$ctrl.markerVisible"
       >
         <div class="handler handler-top-left" ng-mousedown="$ctrl.tagCornerMousedownHandler($event, 'top-left')"></div>
         <div class="handler handler-top-right" ng-mousedown="$ctrl.tagCornerMousedownHandler($event, 'top-right')"></div>
@@ -93,11 +93,11 @@
         class="box"
         ng-click="$ctrl.tagClickHandler($event, block)"
         style="position: absolute;
-               left: {{ block.x * $ctrl.multiplier }}px; 
-               top: {{ block.y * $ctrl.multiplier }}px; 
-               width: {{ block.width * $ctrl.multiplier}}px; 
-               height: {{ block.height * $ctrl.multiplier }}px;
-               {{ $ctrl.selectedRelation.blocks[0] == block ? 'border-color:orange;' : '' }}"
+               left: {{ block.x * $ctrl.multiplier() }}px; 
+               top: {{ block.y * $ctrl.multiplier() }}px; 
+               width: {{ block.width * $ctrl.multiplier() }}px; 
+               height: {{ block.height * $ctrl.multiplier() }}px;
+               {{ $ctrl.selectedRelation.originTagId == block.id ? 'border-color:orange;' : '' }}"
       >
       </div>
     </div>
@@ -108,9 +108,9 @@
   
   blocks="$ctrl.blocks"
   attributes="$ctrl.attributes"
-  relations="$ctrl.relations"
+  relations="$ctrl.relations()"
   image='$ctrl.image'
-  multiplier='$ctrl.overviewMultiplier'
+  multiplier='$ctrl.overviewMultiplier()'
   
   on-object-click="$ctrl.overviewOnObjectClickHandler(block)"
   on-relation-click="$ctrl.overviewOnRelationClickHandler(relation)"
@@ -156,7 +156,7 @@
   ng-show="$ctrl.isRelationListVisible"
   
   image="$ctrl.image"
-  relations="$ctrl.relations"
+  relations="$ctrl.relations()"
   
   on-relation-selected="$ctrl.relationListOnRelationSelectedHandler(relation)"
   on-close="$ctrl.relationListOnCloseHandler()"

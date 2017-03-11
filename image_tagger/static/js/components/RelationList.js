@@ -17,6 +17,16 @@ component.definition = {
 
 component.prototype = {
     
+    idToTag: function(id){
+        if(!this.image || !this.image.blocks) return null;
+        
+        for (var i = 0; i < this.image.blocks.length; i++) {
+            var block = this.image.blocks[i];
+            if(block.id == id) return block;
+        }
+        return null;
+    },
+    
     onRelationDeleted: function(event) {
         showLoadingOverlay(true, "Deletando...");
         
@@ -28,7 +38,8 @@ component.prototype = {
             }
         }).then(
             function(){
-                this.relations.splice(this.relations.indexOf(event.relation), 1);
+                var relationTag = this.idToTag(event.relation.originTagId);
+                relationTag.relations.splice(relationTag.relations.indexOf(event.relation), 1);
                 
                 showLoadingOverlay(false);
             }.bind(this),

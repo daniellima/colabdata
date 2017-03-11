@@ -28,13 +28,23 @@ component.prototype = {
         // }
     },
     
+    idToTag: function(id){
+        if(!this.image || !this.image.blocks) return null;
+        
+        for (var i = 0; i < this.image.blocks.length; i++) {
+            var block = this.image.blocks[i];
+            if(block.id == id) return block;
+        }
+        return null;
+    },
+    
     showBlock: function(block){
         block.visible = true;
     },
     
     showRelation: function(relation){
-        this.showBlock(relation.blocks[0]);
-        this.showBlock(relation.blocks[1]);
+        this.showBlock(this.idToTag(relation.originTagId));
+        this.showBlock(this.idToTag(relation.targetTagId));
     },
     
     hideBlock: function(block){
@@ -42,8 +52,8 @@ component.prototype = {
     },
     
     hideRelation: function(relation){
-        this.hideBlock(relation.blocks[0]);
-        this.hideBlock(relation.blocks[1]);
+        this.hideBlock(this.idToTag(relation.originTagId));
+        this.hideBlock(this.idToTag(relation.targetTagId));
     },
     
 };

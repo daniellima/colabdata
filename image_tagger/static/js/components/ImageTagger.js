@@ -4,43 +4,22 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.$http = $http;
     
     this.pages = {IMAGE: 1, OVERVIEW: 2}
-    
-    // this.scope = {
-    //     currentPage: this.pages.IMAGE,
-    //     image: null,
-    //     multiplier: 1,
-    //     x: 0,
-    //     y: 0,
-    //     width: 0,
-    //     height: 0,
-    //     blocks: null,
-    //     selectedRelation: null,
-    //     relations: [],
-    //     attributes: [],
-    //     overviewMultiplier: 1,
-    //     showEdit: false,
-    //     editedBlockImage: null,
-    //     editedBlock: null,
-    //     showAllObjects: false,
-    //     objectViewerAction: "",
-    //     relationEditorIsVisible: false,
-    //     isRelationListVisible: false,
-    // }
+    this.resizeMethods = { BY_WIDTH: 1, BY_HEIGHT: 2, ORIGINAL: 3 }
     
     this.currentPage = this.pages.IMAGE;
+    this.overviewImageResizeMethod = this.resizeMethods.BY_WIDTH;
+    this.imageResizeMethod = this.resizeMethods.BY_HEIGHT;
     
+    this.dragging = false;
     this.initialX = 0;
     this.initialY = 0;
-    this.x = 0;
-    this.y = 0;
-    this.width = 0;
-    this.height = 0;
-    this.dragging = false;
-    this.show = false;
-    this.handle = null;
+    this.markerX = 0;
+    this.markerY = 0;
+    this.markerWidth = 0;
+    this.markerHeight = 0;
+    this.markerVisible = false;
     
     this.image = null;
-    this.multiplier = 1;
     this.blocks = [];
     
     this.showEdit = false;
@@ -56,13 +35,58 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.objectViewerAction = "";
     
     this.isRelationListVisible = false;
-    this.relations = [];
     
     this.attributes = [];
     
-    this.ctrlPressed = false;
-    
     this.openedRelationEditorFromList = false;
+    
+    this.relations = function(){
+        // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
+        this._relations.splice(0, this._relations.length);
+        
+        for (var i = 0; i < this.blocks.length; i++) {
+            var block = this.blocks[i];
+            for (var j = 0; j < block.relations.length; j++) {
+                var relation = block.relations[j];
+                this._relations.push(relation);
+            }
+        }
+        return this._relations;
+    };
+    
+    this.multiplier = function() {
+        if(this.image == null) return null;
+        
+        var viewWidth = window.innerWidth - 50; // remove 50 pixels to avoid an eventual scrollbar
+        var viewHeight = window.innerHeight - 98 - 50; // remove 98 pixels from navbar and scrollbar
+        
+        switch (this.imageResizeMethod) {
+            case this.resizeMethods.BY_WIDTH:
+                return viewWidth/this.image.width;
+            case this.resizeMethods.BY_HEIGHT:
+                return viewHeight/this.image.height;
+            case this.resizeMethods.ORIGINAL:
+                return 1;
+        }
+        
+        return 1; // default
+    };
+    
+    this.overviewMultiplier = function() {
+        if(this.image == null) return null;
+        
+        var viewWidth = 390;
+        var viewHeight = window.innerHeight - 98 - 50 - 26; // remove 98 pixels from navbar, scrollbar and overview title
+        
+        switch (this.overviewImageResizeMethod) {
+            case this.resizeMethods.BY_WIDTH:
+                return viewWidth/this.image.width;
+            case this.resizeMethods.BY_HEIGHT:
+                return viewHeight/this.image.height;
+        }
+        
+        return 1; // default
+    };
     
     $document.on('keypress', function(event){
         // Porque não funciona como o keyup e keydown?
@@ -71,17 +95,8 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
         }.bind(this));
     }.bind(this));
     
-    $document.on('keydown', function(event){
-        if(event.keyCode == 17){
-            this.ctrlPressed = true;
-        }
-    }.bind(this))
-    
-    $document.on('keyup', function(event){
-        if(event.keyCode == 17){
-            this.ctrlPressed = false;
-        }
-    }.bind(this))
+    // essa variavel só serve para ser usada no metodo getRelations. Ver comentários dele
+    this._relations = [];
 };
 
 component.definition = {
@@ -101,10 +116,9 @@ component.actions = {
 component.prototype = {
     $onChanges: function(changes){
         if(changes.image && changes.image.currentValue){
-            this.resizeImage('byHeight');
-            
+            this.imageResizeMethod = this.resizeMethods.BY_HEIGHT;
+
             /* gambiarra para compatibilizar as diferenças de modelo entre o servidor e o cliente */
-            
             if(this.image.blocks !== undefined && this.image.blocks.length) {
                 this.blocks = this.image.blocks;
             } else {
@@ -123,89 +137,37 @@ component.prototype = {
                     this.blocks.push(block);
                 }
                 this.image.blocks = this.blocks;
+                
+                
             }
             /* fim da gambiarra */
             
-            this.relations = this.getRelations();
-            this.show = false;
+            this.markerVisible = false;
             this.isEditingExistingBlock = false;
             this.refreshAttributes();
-            this.resizeOverviewImage('byWidth');
         }
     },
     
-    getRelations: function(){
-        // não deveria ser uma 'computed property'?
-        var relations = []
-        for (var i = this.blocks.length; i--; ) {
-            var block = this.blocks[i];
-            var dryRelations = block.relations;
-            for (var j = dryRelations.length; j--; ) {
-                relations.push(this.hidrateRelation(dryRelations[j]));
-            }
-        }
-        return relations;
-    },
-    
-    hidrateRelation: function(dryRelation){
-        return {
-            'id': dryRelation.id,
-            'name': dryRelation.name,
-            'blocks': [this.getBlockFromId(dryRelation.originTagId), this.getBlockFromId(dryRelation.targetTagId)]
-        }
-    },
-    
-    getBlockFromId: function(id){
-        for (var i = this.image.blocks.length; i--; ) {
+    idToTag: function(id){
+        for (var i = 0; i < this.image.blocks.length; i++) {
             var block = this.image.blocks[i];
             if(block.id == id) return block;
         }
-        throw "Block not found";
+        return null;
     },
     
-    resizeImage: function(how){
-        var viewWidth = window.innerWidth - 50; // remove 50 pixels to avoid an eventual scrollbar
-        var viewHeight = window.innerHeight - 98 - 50; // remove 98 pixels from navbar and scrollbar
+    removeRelationFromOriginBlock: function(relation){
+        if(relation.originTagId === null) return null; // a relation é nova
         
-        switch (how) {
-            case 'byWidth':
-                this.multiplier = viewWidth/this.image.width;
-                break;
-            case 'byHeight':
-                this.multiplier = viewHeight/this.image.height;
-                break;
-            case 'original':
-                this.multiplier = 1;
-                break;
-            default:
-                this.multiplier = 1;
+        var relationTag = this.idToTag(relation.originTagId);
+        relationTag.relations.splice(relationTag.relations.indexOf(relation), 1);
+    },
+    
+    addRelationToOriginBlock: function(relation) {
+        var relationBlock = this.idToTag(this.selectedRelation.originTagId);
+        if(relationBlock.relations.indexOf(this.selectedRelation) === -1){
+            relationBlock.relations.push(this.selectedRelation);
         }
-        
-        
-    },
-    
-    resizeOverviewImage: function(how){
-        var viewWidth = 390;
-        var viewHeight = window.innerHeight - 98 - 50 - 26; // remove 98 pixels from navbar, scrollbar and overview title
-        
-        switch (how) {
-            case 'byWidth':
-                this.overviewMultiplier = viewWidth/this.image.width;
-                break;
-            case 'byHeight':
-                this.overviewMultiplier = viewHeight/this.image.height;
-                break;
-            default:
-                this.overviewMultiplier = 1;
-        }
-        
-        
-    },
-    
-    showOverview: function(){
-        this.currentPage = this.currentPage == this.pages.IMAGE ? this.pages.OVERVIEW : this.pages.IMAGE;
-        this.resizeOverviewImage('byWidth');
-        this.refreshAttributes();
     },
     
     refreshAttributes: function(){
@@ -228,24 +190,8 @@ component.prototype = {
         this.editedBlock = block;
     },
     
-    addNewBox: function(){
-        this.x = 0;
-        this.y = 0;
-        this.width = 100;
-        this.height = 100;
-        this.show = true;
-    },
-    
-    updateSelection: function(x, y){
-        this.x = Math.min(x, this.initialX) / this.multiplier;
-        this.y = Math.min(y, this.initialY) / this.multiplier;
-        this.width = Math.abs(x - this.initialX) / this.multiplier;
-        this.height = Math.abs(y - this.initialY) / this.multiplier;
-    },
-    
-    clickedPos: function(event){
-        var image = document.querySelector('.image-container .image');
-        var rect = image.getBoundingClientRect();
+    clickedPositionRelativeToImage: function(event){
+        var rect = event.currentTarget.getBoundingClientRect();
         
         var pos = {
             x: event.clientX - rect.left,
@@ -265,22 +211,17 @@ component.prototype = {
         return pos;
     },
     
-    stopDragging: function(){
-        this.dragging = false;
-        this.handle = null;
-    },
-    
     addBox: function(event){
         if(event.keyCode !== 13) return;
-        if(!this.show) return;
+        if(!this.markerVisible) return;
         event.preventDefault();
         
         var block = null;
         if(this.isEditingExistingBlock){
-            this.editedBlock.x = this.x;
-            this.editedBlock.y = this.y;
-            this.editedBlock.width = this.width;
-            this.editedBlock.height = this.height;
+            this.editedBlock.x = this.markerX;
+            this.editedBlock.y = this.markerY;
+            this.editedBlock.width = this.markerWidth;
+            this.editedBlock.height = this.markerHeight;
             
             if(this.editedBlock.id !== -1) {
                 this.image.blocks.push(this.editedBlock);
@@ -292,10 +233,10 @@ component.prototype = {
         } else {
             block = {
                 id: -1,
-                x: this.x,
-                y: this.y,
-                width: this.width,
-                height: this.height,
+                x: this.markerX,
+                y: this.markerY,
+                width: this.markerWidth,
+                height: this.markerHeight,
                 object: {name: '', attributes: []}
             };
         }
@@ -320,7 +261,8 @@ component.prototype = {
         this.isRelationListVisible = false;
         this.selectedRelation = relation;
         this.originalRelation = {
-            blocks: [relation.blocks[0], relation.blocks[1]],
+            originTagId: relation.originTagId,
+            targetTagId: relation.targetTagId,
             name: relation.name
         }
         this.relationEditorIsVisible = true;
@@ -355,18 +297,23 @@ component.prototype = {
         };
     },
     
+    
     backButtonClickHandler: function() {
         this.onClose();
     },
     
     newRelationButtonClickHandler: function(){
         // não é redundante com o onBlockClicked?
-        this.selectedRelation = {blocks: [], name:""};
+        this.selectedRelation = {originTagId: null, targetTagId: null, name:""};
         this.relationEditorIsVisible = true;
     },
     
     newObjectButtonClickHandler: function(){
-        this.addNewBox();
+        this.markerX = 0;
+        this.markerY = 0;
+        this.markerWidth = 100;
+        this.markerHeight = 100;
+        this.markerVisible = true;
     },
     
     showObjectListButtonClickHandler: function(){
@@ -379,19 +326,21 @@ component.prototype = {
     },
     
     showOverviewButtonClickHandler: function() {
-        this.showOverview();
+        this.currentPage = this.pages.OVERVIEW;
+        this.refreshAttributes();
     },
     
     showImageButtonClickHandler: function() {
-        this.showOverview();
+        this.currentPage = this.pages.IMAGE;
+        this.refreshAttributes();
     },
     
     resizeImageButtonClickHandler: function(how) {
-        this.resizeImage(how);
+        this.imageResizeMethod = how;
     },
     
-    resizeOverviewImageButtonClickHandler: function(how) {
-        this.resizeOverviewImage(how);
+    resizeOverviewImageButtonClickHandler: function(resizeMethod) {
+        this.overviewImageResizeMethod = resizeMethod;
     },
     
     
@@ -405,67 +354,71 @@ component.prototype = {
     
     
     tagContainerMousemoveHandler: function($event){
-        var x = this.clickedPos($event).x;
-        var y = this.clickedPos($event).y;
-        
         if(this.dragging){
             // since the user drag the selection, show it
-            this.show = true;
-            this.updateSelection(x, y);
-        }
-        if(this.handle){
-            this.updateSelection(x, y);
+            this.markerVisible = true;
+            
+            var pos = this.clickedPositionRelativeToImage($event);
+            this.markerX = Math.min(pos.x, this.initialX) / this.multiplier();
+            this.markerY = Math.min(pos.y, this.initialY) / this.multiplier();
+            this.markerWidth = Math.abs(pos.x - this.initialX) / this.multiplier();
+            this.markerHeight = Math.abs(pos.y - this.initialY) / this.multiplier();
         }
     },
     
     tagContainerMousedownHandler: function($event){
         if($event.which !== 1) return;
         $event.preventDefault();
-        if(this.handle) return;
         
         this.dragging = true;
         
-        this.initialX = this.clickedPos($event).x;
-        this.initialY = this.clickedPos($event).y;
+        var pos = this.clickedPositionRelativeToImage($event);
+        this.initialX = pos.x;
+        this.initialY = pos.y;
+    },
+    
+    tagCornerMousedownHandler: function($event, corner){
+        if($event.which !== 1) return;
+        $event.stopPropagation();
+        $event.preventDefault();
+        
+        this.dragging = true;
+
+        if(corner === 'top-left'){
+            this.initialX = this.markerX * this.multiplier() + this.markerWidth * this.multiplier();
+            this.initialY = this.markerY * this.multiplier() + this.markerHeight * this.multiplier();
+        }
+        if(corner === 'top-right'){
+            this.initialX = this.markerX * this.multiplier();
+            this.initialY = this.markerY * this.multiplier() + this.markerHeight * this.multiplier();
+        }
+        if(corner === 'bottom-left'){
+            this.initialX = this.markerX * this.multiplier() + this.markerWidth * this.multiplier();
+            this.initialY = this.markerY * this.multiplier();
+        }
+        if(corner === 'bottom-right'){
+            this.initialX = this.markerX * this.multiplier();
+            this.initialY = this.markerY * this.multiplier();
+        }
     },
     
     tagContainerMouseupHandler: function($event){
-        this.stopDragging();
+        this.dragging = false;
     },
     
     tagContainerMouseleaveHandler: function($event){
-        this.stopDragging();
+        this.dragging = false;
     },
     
-    tagCornerMousedownHandler: function($event, handle){
-        if($event.which !== 1) return;
-        this.handle = handle;
-        if(handle === 'top-left'){
-            this.initialX = this.x * this.multiplier + this.width * this.multiplier;
-            this.initialY = this.y * this.multiplier + this.height * this.multiplier;
-        }
-        if(handle === 'top-right'){
-            this.initialX = this.x * this.multiplier;
-            this.initialY = this.y * this.multiplier + this.height * this.multiplier;
-        }
-        if(handle === 'bottom-left'){
-            this.initialX = this.x * this.multiplier + this.width * this.multiplier;
-            this.initialY = this.y * this.multiplier;
-        }
-        if(handle === 'bottom-right'){
-            this.initialX = this.x * this.multiplier;
-            this.initialY = this.y * this.multiplier;
-        }
-    },
-    
-    tagClickHandler: function(event, block){
-        if(this.ctrlPressed){
+    tagClickHandler: function($event, block){
+        if($event.ctrlKey){
             if(this.selectedRelation === null){
-                this.selectedRelation = {blocks: [], name:""};
+                this.selectedRelation = {originTagId: null, targetTagId: null, name:""};
             }
-            this.selectedRelation.blocks.push(block);
-            
-            if(this.selectedRelation.blocks.length === 2){
+            if(this.selectedRelation.originTagId === null){
+                this.selectedRelation.originTagId = block.id;
+            } else {
+                this.selectedRelation.targetTagId = block.id;
                 this.relationEditorIsVisible = true;
             }
         }
@@ -485,9 +438,10 @@ component.prototype = {
         .then(function onTagSaved(response){
             if(this.editedBlock.id === -1){
                 this.blocks.push(this.editedBlock);
+                this.editedBlock.relations = [];
                 this.editedBlock.id = response.data.id
             }
-            this.show = false;
+            this.markerVisible = false;
             this.showEdit = false;
             this.refreshAttributes();
             
@@ -497,11 +451,11 @@ component.prototype = {
     
     objectEditorOnEditHandler: function(){
         this.isEditingExistingBlock = true;
-        this.show = true;
-        this.x = this.editedBlock.x;
-        this.y = this.editedBlock.y;
-        this.width = this.editedBlock.width;
-        this.height = this.editedBlock.height;
+        this.markerVisible = true;
+        this.markerX = this.editedBlock.x;
+        this.markerY = this.editedBlock.y;
+        this.markerWidth = this.editedBlock.width;
+        this.markerHeight = this.editedBlock.height;
         
         if(this.editedBlock.id !== -1) {
             var index = this.image.blocks.indexOf(this.editedBlock);
@@ -530,10 +484,14 @@ component.prototype = {
     objectEditorOnBlockDeletedHandler: function() {
         this.showEdit = false;
         this.refreshAttributes();
-        for (var i = this.relations.length-1; i >= 0; i--) {
-            var relation = this.relations[i];
-            if(relation.blocks[0].id == this.editedBlock.id || relation.blocks[1].id == this.editedBlock.id) {
-                this.relations.splice(this.relations.indexOf(relation), 1);
+        // remove all relations pointing to it
+        for (var i = 0; i < this.blocks.length; i++) {
+            var block = this.blocks[i];
+            for (var j = 0; j < block.relations.length; j++) {
+                var relation = block.relations[j];
+                if(relation.targetTagId == this.editedBlock.id) {
+                    block.relations.splice(block.relations.indexOf(relation), 1);
+                }
             }
         }
     },
@@ -544,7 +502,12 @@ component.prototype = {
             this.showObjectEditor(block);
         }
         if(action == component.actions.SELECT){
-            this.selectedRelation.blocks[this.relationBlockSelected] = block;
+            if(this.relationBlockSelected == 0){
+                this.selectedRelation.originTagId = block.id;
+            } else {
+                this.selectedRelation.targetTagId = block.id;
+            }
+            
             this.showAllObjects = false;
             this.relationEditorIsVisible = true;
         }
@@ -564,8 +527,8 @@ component.prototype = {
     relationEditorOnCloseHandler: function(){
         if(this.originalRelation) {
             this.selectedRelation.name = this.originalRelation.name;
-            this.selectedRelation.blocks[0] = this.originalRelation.blocks[0];
-            this.selectedRelation.blocks[1] = this.originalRelation.blocks[1];
+            this.selectedRelation.originTagId = this.originalRelation.originTagId;
+            this.selectedRelation.targetTagId = this.originalRelation.targetTagId;
         }
         
         this.closeRelationEditor();
@@ -578,16 +541,18 @@ component.prototype = {
             url: 'image/save/relation',
             data: {
                 'id': this.selectedRelation.id || null,
-                'originTagId': this.selectedRelation.blocks[0].id, 
-                'targetTagId': this.selectedRelation.blocks[1].id,
+                'originTagId': this.selectedRelation.originTagId, 
+                'targetTagId': this.selectedRelation.targetTagId,
                 'name': this.selectedRelation.name
             }
         })
         .then(function onRelationSaved(response){
+            this.removeRelationFromOriginBlock(this.originalRelation);
+            
             this.selectedRelation.id = response.data.id;
-            if(this.relations.indexOf(this.selectedRelation) === -1){
-                this.relations.push(this.selectedRelation);
-            };
+            
+            this.addRelationToOriginBlock(this.selectedRelation);
+            
             this.closeRelationEditor();
             
             showLoadingOverlay(false);

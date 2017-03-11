@@ -14,7 +14,7 @@
             ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.IsBlocksChoosen()}"
             ng-click="$ctrl.onBlockSelected({index: 0})"
             >
-            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.relation.blocks[0]" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.idToTag($ctrl.relation.originTagId)" size="200"></object-thumbnail>
           </div>
         </div>
         <div class="col-md-6 text-center">
@@ -22,7 +22,7 @@
             ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.IsBlocksChoosen()}"
             ng-click="$ctrl.onBlockSelected({index: 1})"
             >
-            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.relation.blocks[1]" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image" block="$ctrl.idToTag($ctrl.relation.targetTagId)" size="200"></object-thumbnail>
           </div>
         </div>
       </div>
