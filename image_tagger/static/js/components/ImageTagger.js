@@ -128,26 +128,14 @@ component.prototype = {
         }
     },
     
-    idToTag: function(id){
-        for (var i = 0; i < this.image.blocks.length; i++) {
-            var block = this.image.blocks[i];
-            if(block.id == id) return block;
-        }
-        return null;
-    },
-    
-    removeRelationFromOriginBlock: function(relation){
-        if(relation.originTagId === null) return null; // a relation é nova
-        
-        var relationTag = this.idToTag(relation.originTagId);
+    removeRelationFromOriginTag: function(relation){
+        var relationTag = relation.originTag;
         relationTag.relations.splice(relationTag.relations.indexOf(relation), 1);
     },
     
-    addRelationToOriginBlock: function(relation) {
-        var relationBlock = this.idToTag(this.selectedRelation.originTagId);
-        if(relationBlock.relations.indexOf(this.selectedRelation) === -1){
-            relationBlock.relations.push(this.selectedRelation);
-        }
+    addRelationToOriginTag: function(relation) {
+        var relationTag = this.selectedRelation.originTag;
+        relationTag.relations.push(this.selectedRelation);
     },
     
     showObjectEditor: function(block){
@@ -228,8 +216,8 @@ component.prototype = {
         this.isRelationListVisible = false;
         this.selectedRelation = relation;
         this.originalRelation = {
-            originTagId: relation.originTagId,
-            targetTagId: relation.targetTagId,
+            originTag: relation.originTag,
+            targetTag: relation.targetTag,
             name: relation.name
         }
         this.relationEditorIsVisible = true;
@@ -378,12 +366,12 @@ component.prototype = {
     tagClickHandler: function($event, block){
         if($event.ctrlKey){
             if(this.selectedRelation === null){
-                this.selectedRelation = {originTagId: null, targetTagId: null, name:""};
+                this.selectedRelation = {originTag: null, targetTag: null, name:""};
             }
-            if(this.selectedRelation.originTagId === null){
-                this.selectedRelation.originTagId = block.id;
+            if(this.selectedRelation.originTag === null){
+                this.selectedRelation.originTag = store.idToTag(block.id);
             } else {
-                this.selectedRelation.targetTagId = block.id;
+                this.selectedRelation.targetTag = store.idToTag(block.id);
                 this.relationEditorIsVisible = true;
             }
         }
@@ -466,9 +454,9 @@ component.prototype = {
         }
         if(action == component.actions.SELECT){
             if(this.relationBlockSelected == 0){
-                this.selectedRelation.originTagId = block.id;
+                this.selectedRelation.originTag = store.idToTag(block.id);
             } else {
-                this.selectedRelation.targetTagId = block.id;
+                this.selectedRelation.targetTag = store.idToTag(block.id);
             }
             
             this.showAllObjects = false;
@@ -490,8 +478,8 @@ component.prototype = {
     relationEditorOnCloseHandler: function(){
         if(this.originalRelation) {
             this.selectedRelation.name = this.originalRelation.name;
-            this.selectedRelation.originTagId = this.originalRelation.originTagId;
-            this.selectedRelation.targetTagId = this.originalRelation.targetTagId;
+            this.selectedRelation.originTag = this.originalRelation.originTag;
+            this.selectedRelation.targetTag = this.originalRelation.targetTag;
         }
         
         this.closeRelationEditor();
@@ -504,18 +492,21 @@ component.prototype = {
             url: 'image/save/relation',
             data: {
                 'id': this.selectedRelation.id || null,
-                'originTagId': this.selectedRelation.originTagId, 
-                'targetTagId': this.selectedRelation.targetTagId,
+                'originTagId': this.selectedRelation.originTag.id, 
+                'targetTagId': this.selectedRelation.targetTag.id,
                 'name': this.selectedRelation.name
             }
         })
         .then(function onRelationSaved(response){
-            this.removeRelationFromOriginBlock(this.originalRelation);
+            if(this.selectedRelation.id){
+                this.removeRelationFromOriginTag(this.originalRelation);
+                this.addRelationToOriginTag(this.selectedRelation);
+            } else {
+                this.addRelationToOriginTag(this.selectedRelation);
+            }
             
             this.selectedRelation.id = response.data.id;
-            
-            this.addRelationToOriginBlock(this.selectedRelation);
-            
+
             this.closeRelationEditor();
             
             showLoadingOverlay(false);
