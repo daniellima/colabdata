@@ -40,19 +40,37 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     
     this.openedRelationEditorFromList = false;
     
+    var _relations = [];
     this.relations = function(){
         // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
-        this._relations.splice(0, this._relations.length);
+        _relations.splice(0, _relations.length);
         
         for (var i = 0; i < this.blocks.length; i++) {
             var block = this.blocks[i];
             for (var j = 0; j < block.relations.length; j++) {
                 var relation = block.relations[j];
-                this._relations.push(relation);
+                _relations.push(relation);
             }
         }
-        return this._relations;
+        return _relations;
     };
+    
+    var _attributes = [];
+    this.attributes = function(){
+        // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
+        _attributes.splice(0, _attributes.length);
+        
+        for (var i = 0; i < this.blocks.length; i++) {
+            for (var j = 0; j < this.blocks[i].object.attributes.length; j++) {
+                var attribute = this.blocks[i].object.attributes[j];
+                // é usado na overview para mostrar o nome do objeto que possui o attributo
+                attribute.block = this.blocks[i];
+                _attributes.push(attribute);
+            }
+        }
+        
+        return _attributes;
+    },
     
     this.multiplier = function() {
         if(this.image == null) return null;
@@ -94,9 +112,6 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
             this.addBox(event);
         }.bind(this));
     }.bind(this));
-    
-    // essa variavel só serve para ser usada no metodo getRelations. Ver comentários dele
-    this._relations = [];
 };
 
 component.definition = {
@@ -144,7 +159,6 @@ component.prototype = {
             
             this.markerVisible = false;
             this.isEditingExistingBlock = false;
-            this.refreshAttributes();
         }
     },
     
@@ -167,19 +181,6 @@ component.prototype = {
         var relationBlock = this.idToTag(this.selectedRelation.originTagId);
         if(relationBlock.relations.indexOf(this.selectedRelation) === -1){
             relationBlock.relations.push(this.selectedRelation);
-        }
-    },
-    
-    refreshAttributes: function(){
-        // não deveria ser uma 'computed property'?
-        this.attributes = [];
-        for (var i = 0; i < this.blocks.length; i++) {
-            for (var j = 0; j < this.blocks[i].object.attributes.length; j++) {
-                var attribute = this.blocks[i].object.attributes[j];
-                // é usado na overview para mostrar o nome do objeto que possui o attributo
-                attribute.block = this.blocks[i];
-                this.attributes.push(attribute);
-            }
         }
     },
     
@@ -327,12 +328,10 @@ component.prototype = {
     
     showOverviewButtonClickHandler: function() {
         this.currentPage = this.pages.OVERVIEW;
-        this.refreshAttributes();
     },
     
     showImageButtonClickHandler: function() {
         this.currentPage = this.pages.IMAGE;
-        this.refreshAttributes();
     },
     
     resizeImageButtonClickHandler: function(how) {
@@ -443,7 +442,6 @@ component.prototype = {
             }
             this.markerVisible = false;
             this.showEdit = false;
-            this.refreshAttributes();
             
             showLoadingOverlay(false);
         }.bind(this));
@@ -483,7 +481,6 @@ component.prototype = {
     
     objectEditorOnBlockDeletedHandler: function() {
         this.showEdit = false;
-        this.refreshAttributes();
         // remove all relations pointing to it
         for (var i = 0; i < this.blocks.length; i++) {
             var block = this.blocks[i];
