@@ -97,7 +97,7 @@
                top: {{ block.y * $ctrl.multiplier() }}px; 
                width: {{ block.width * $ctrl.multiplier() }}px; 
                height: {{ block.height * $ctrl.multiplier() }}px;
-               {{ $ctrl.selectedRelation.originTagId == block.id ? 'border-color:orange;' : '' }}"
+               {{ $ctrl.selectedTag.id == block.id ? 'border-color:orange;' : '' }}"
       >
       </div>
     </div>
@@ -125,7 +125,7 @@
     on-save="$ctrl.objectEditorOnSaveHandler()"
     on-edit="$ctrl.objectEditorOnEditHandler()"
 ></object-editor>
-  
+
 <object-viewer
     ng-show="$ctrl.showAllObjects"
     
@@ -137,22 +137,9 @@
     on-block-selected="$ctrl.objectViewerOnBlockSelectedHandler(block, action)"
 ></object-viewer>
 
-<relation-editor
-  ng-show="$ctrl.relationEditorIsVisible"
-  
-  relation="$ctrl.selectedRelation"
-  
-  on-save="$ctrl.relationEditorOnSaveHandler()"
-  on-close="$ctrl.relationEditorOnCloseHandler()"
-  on-block-selected="$ctrl.relationEditorOnBlockSelectedHandler(index)"
-></relation-editor>
+<relation-editor></relation-editor>
 
-<relation-list
-  ng-show="$ctrl.isRelationListVisible"
-  
-  on-relation-selected="$ctrl.relationListOnRelationSelectedHandler(relation)"
-  on-close="$ctrl.relationListOnCloseHandler()"
-></relation-list>
+<relation-list></relation-list>
 
 <!-- background branco transparente -->
 <div

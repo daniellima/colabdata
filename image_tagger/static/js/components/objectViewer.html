@@ -1,4 +1,4 @@
-<div class="modal-panel all-objects-panel">
+<div class="modal-panel all-objects-panel" ng-show="$ctrl.open">
   <h3 class="edit-panel-title">
     Objetos
   </h3>
@@ -15,7 +15,7 @@
       <a class="btn btn-default btn-block" 
         style="margin-top: 1em" 
         href="javascript:void(0)" 
-        ng-click="$ctrl.onBlockSelected({block: block, action: $ctrl.action})"
+        ng-click="$ctrl.tagThumbnailButtonClickHandler(block)"
         >
         {{ $ctrl.action }}
       </a>

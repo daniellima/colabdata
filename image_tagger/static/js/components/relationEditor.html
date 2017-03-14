@@ -1,10 +1,10 @@
-<div class="modal-panel relation-editor-panel">
+<div class="modal-panel relation-editor-panel" ng-show="$ctrl.open">
     <div class="container-fluid">
       <div class="row">
           <h3 class="edit-panel-title">
             Editar Relação
           </h3>
-          <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">
+          <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
             <span class="glyphicon glyphicon-remove"></span>
           </button>
       </div>
@@ -12,17 +12,17 @@
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" 
             ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.isBlocksChoosen()}"
-            ng-click="$ctrl.onBlockSelected({index: 0})"
+            ng-click="$ctrl.tagThumbnailButtonClickHandler('origin')"
             >
-            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.relation.originTag" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.originTag" size="200"></object-thumbnail>
           </div>
         </div>
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" 
             ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.isBlocksChoosen()}"
-            ng-click="$ctrl.onBlockSelected({index: 1})"
+            ng-click="$ctrl.tagThumbnailButtonClickHandler('target')"
             >
-            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.relation.targetTag" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.targetTag" size="200"></object-thumbnail>
           </div>
         </div>
       </div>
@@ -31,14 +31,14 @@
           type="text" 
           class="form-control text-center" 
           style="margin-top: 1em" 
-          ng-model="$ctrl.relation.name" 
+          ng-model="$ctrl.name" 
           ng-disabled="!$ctrl.isBlocksChoosen()">
       </div>
       <div class="row">
         <button class="btn btn-primary btn-block" 
           style="margin-top: 1em" 
           ng-disabled="!$ctrl.isRelationComplete()"
-          ng-click="$ctrl.onSave()"
+          ng-click="$ctrl.saveButtonClickHandler()"
           >
           Salvar
         </button>

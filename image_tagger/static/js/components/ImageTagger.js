@@ -2,6 +2,7 @@
 (function(){
 var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.$http = $http;
+    this.$rootScope = $rootScope;
     
     this.pages = {IMAGE: 1, OVERVIEW: 2}
     this.resizeMethods = { BY_WIDTH: 1, BY_HEIGHT: 2, ORIGINAL: 3 }
@@ -27,16 +28,11 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.editedBlock = null;
     this.isEditingExistingBlock = false;
     
+    this.selectedTag = null;
+    
     this.showAllObjects = false;
-    this.relationEditorIsVisible = false;
-    this.selectedRelation = null;
-    this.relationBlockSelected = undefined;
     
     this.objectViewerAction = "";
-    
-    this.isRelationListVisible = false;
-    
-    this.openedRelationEditorFromList = false;
     
     this.multiplier = function() {
         if(this.image == null) return null;
@@ -128,16 +124,6 @@ component.prototype = {
         }
     },
     
-    removeRelationFromOriginTag: function(relation){
-        var relationTag = relation.originTag;
-        relationTag.relations.splice(relationTag.relations.indexOf(relation), 1);
-    },
-    
-    addRelationToOriginTag: function(relation) {
-        var relationTag = this.selectedRelation.originTag;
-        relationTag.relations.push(this.selectedRelation);
-    },
-    
     showObjectEditor: function(block){
         this.showEdit = true;
         this.showAllObjects = false;
@@ -202,27 +188,6 @@ component.prototype = {
         }
     },
     
-    closeRelationEditor: function(){
-        this.relationEditorIsVisible = false;
-        this.selectedRelation = null;
-        
-        if(this.openedRelationEditorFromList){
-            this.isRelationListVisible = true;
-            this.openedRelationEditorFromList = false;
-        }
-    },
-    
-    showRelationEditor: function(relation){
-        this.isRelationListVisible = false;
-        this.selectedRelation = relation;
-        this.originalRelation = {
-            originTag: relation.originTag,
-            targetTag: relation.targetTag,
-            name: relation.name
-        }
-        this.relationEditorIsVisible = true;
-    },
-    
     // esse metodo e os outros Jsonable só quer ignorar o campo 'block' de um attribute,
     // que gera uma referencia ciclica caso se tente transformar o
     // block em um JSON diretamente.
@@ -258,9 +223,9 @@ component.prototype = {
     },
     
     newRelationButtonClickHandler: function(){
-        // não é redundante com o onBlockClicked?
-        this.selectedRelation = {originTagId: null, targetTagId: null, name:""};
-        this.relationEditorIsVisible = true;
+        this.$rootScope.$emit('relation-editor-requested', {
+            callback: function(relation) {}.bind(this)
+        });
     },
     
     newObjectButtonClickHandler: function(){
@@ -277,7 +242,9 @@ component.prototype = {
     },
     
     showRelationListButtonClickHandler: function(){
-        this.isRelationListVisible = true;
+        this.$rootScope.$emit('relation-list-requested', {
+            callback: function(){}.bind(this)
+        });
     },
     
     showOverviewButtonClickHandler: function() {
@@ -365,14 +332,20 @@ component.prototype = {
     
     tagClickHandler: function($event, block){
         if($event.ctrlKey){
-            if(this.selectedRelation === null){
-                this.selectedRelation = {originTag: null, targetTag: null, name:""};
-            }
-            if(this.selectedRelation.originTag === null){
-                this.selectedRelation.originTag = store.idToTag(block.id);
+            if(this.selectedTag === null){
+                this.selectedTag = store.idToTag(block.id);
             } else {
-                this.selectedRelation.targetTag = store.idToTag(block.id);
-                this.relationEditorIsVisible = true;
+                var relationToEdit = {
+                    id: null,
+                    name: "",
+                    originTag: this.selectedTag,
+                    targetTag: store.idToTag(block.id)
+                };
+                this.$rootScope.$emit('relation-editor-requested', {
+                    relation: relationToEdit,
+                    callback: function() {}.bind(this)
+                });
+                this.selectedTag = null;
             }
         }
     },
@@ -473,63 +446,5 @@ component.prototype = {
         
         this.objectViewerAction = "";
     },
-    
-    
-    relationEditorOnCloseHandler: function(){
-        if(this.originalRelation) {
-            this.selectedRelation.name = this.originalRelation.name;
-            this.selectedRelation.originTag = this.originalRelation.originTag;
-            this.selectedRelation.targetTag = this.originalRelation.targetTag;
-        }
-        
-        this.closeRelationEditor();
-    },
-    
-    relationEditorOnSaveHandler: function(){
-        showLoadingOverlay(true, "Salvando...");
-        this.$http({
-            method: 'POST',
-            url: 'image/save/relation',
-            data: {
-                'id': this.selectedRelation.id || null,
-                'originTagId': this.selectedRelation.originTag.id, 
-                'targetTagId': this.selectedRelation.targetTag.id,
-                'name': this.selectedRelation.name
-            }
-        })
-        .then(function onRelationSaved(response){
-            if(this.selectedRelation.id){
-                this.removeRelationFromOriginTag(this.originalRelation);
-                this.addRelationToOriginTag(this.selectedRelation);
-            } else {
-                this.addRelationToOriginTag(this.selectedRelation);
-            }
-            
-            this.selectedRelation.id = response.data.id;
-
-            this.closeRelationEditor();
-            
-            showLoadingOverlay(false);
-        }.bind(this));
-    },
-    
-    relationEditorOnBlockSelectedHandler: function(index){
-        this.relationEditorIsVisible = false;
-        this.showAllObjects = true;
-        this.objectViewerAction = component.actions.SELECT;
-        this.relationBlockSelected = index;
-    },
-    
-    
-    relationListOnRelationSelectedHandler: function(relation){
-        this.showRelationEditor(relation);
-        
-        this.openedRelationEditorFromList = true;
-    },
-    
-    relationListOnCloseHandler: function(){
-        this.isRelationListVisible = false;
-    },
-    
 };
 })();

@@ -1,6 +1,14 @@
 /* global angular */
-var component = RelationListComponent = function($http){
+var component = RelationListComponent = function($rootScope, $http){
     this.$http = $http;
+    this.$rootScope = $rootScope;
+    
+    this.open = false;
+    
+    $rootScope.$on('relation-list-requested', function(event, data) {
+        this.open = true;
+        this.modalCallback = data.callback;
+    }.bind(this));
     
     this.relations = function() {
         return store.getAllRelations();
@@ -12,36 +20,36 @@ var component = RelationListComponent = function($http){
 }
 
 component.definition = {
-    controller: ['$http', component],
+    controller: ['$rootScope', '$http', component],
     templateUrl: "static/js/components/relationList.html",
-    bindings: {
-        onClose: '&',
-        onRelationSelected: '&'
-    }
+    bindings: {}
 }
 
 component.prototype = {
     
-    onRelationDeleted: function(relation) {
+    closeButtonClickHandler: function() {
+        this.open = false;
+        
+        this.modalCallback();
+    },
+    
+    deleteRelationButtonClickHandler: function(relation) {
         showLoadingOverlay(true, "Deletando...");
         
-        this.$http({
-            method: 'POST',
-            url: 'image/delete/relation',
-            data: {
-                'id': relation.id
-            }
-        }).then(
-            function(){
-                store.relationDeletedEvent(relation);
-                
-                showLoadingOverlay(false);
-            }.bind(this),
-            function(){
-                console.log("Ocorreu um erro ao deletar relação de id " + relation.id);
-                showLoadingOverlay(false);
+        store.deleteRelation(this.$http, relation).then(function(){
+            showLoadingOverlay(false);
+        }.bind(this));
+    },
+    
+    editRelationButtonClickHandler: function(relation) {
+        this.open = false;
+        
+        this.$rootScope.$emit('relation-editor-requested', {
+            relation: relation,
+            callback: function() {
+                this.open = true;
             }.bind(this)
-        );
+        });
     }
     
 };

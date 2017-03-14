@@ -1,9 +1,9 @@
-<div class="modal-panel relations-list-panel">
+<div class="modal-panel relations-list-panel" ng-show="$ctrl.open">
   <h3 class="edit-panel-title">
     Relações
   </h3>
   
-  <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">
+  <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
     <span class="glyphicon glyphicon-remove"></span>
   </button>
     
@@ -29,13 +29,13 @@
         </span>
         <a class="btn btn-danger pull-right"
           href="javascript:void(0)" 
-          ng-click="$ctrl.onRelationDeleted(relation)"
+          ng-click="$ctrl.deleteRelationButtonClickHandler(relation)"
           >
           Deletar
         </a>
         <a class="btn btn-default pull-right"
           href="javascript:void(0)" 
-          ng-click="$ctrl.onRelationSelected({relation: relation})"
+          ng-click="$ctrl.editRelationButtonClickHandler(relation)"
           >
           Editar
         </a>

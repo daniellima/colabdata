@@ -48,11 +48,49 @@ store = {
         }
     },
     
-    relationDeletedEvent: function(relation) {
-        var relationTag = relation.originTag;
-        relationTag.relations.splice(relationTag.relations.indexOf(relation), 1);
+    saveRelation: function($http, relation){
+        return $http({
+            method: 'POST',
+            url: 'image/save/relation',
+            data: {
+                'id': relation.id || null,
+                'originTagId': relation.originTag.id, 
+                'targetTagId': relation.targetTag.id,
+                'name': relation.name
+            }
+        })
+        .then(function (response){
+            // remove relation from tag if origin tag changed
+            if(relation.id) {
+                for (var i = 0; i < this.image.tags.length; i++) {
+                    var tag = this.image.tags[i];
+                    for (var j = 0; j < tag.relations.length; j++) {
+                        var pos = tag.relations.indexOf(relation);
+                        if(pos !== -1) {
+                            tag.relations.splice(pos, 1);
+                        }
+                    }
+                }
+            }
+            // add it to the new origin tag
+            relation.originTag.relations.push(relation);
+            
+            relation.id = response.data.id;
+        }.bind(this));
     },
-    
+    deleteRelation: function($http, relation) {
+        return $http({
+            method: 'POST',
+            url: 'image/delete/relation',
+            data: {
+                'id': relation.id
+            }
+        }).then(function(response) {
+            var relationTag = relation.originTag;
+            var pos = relationTag.relations.indexOf(relation);
+            relationTag.relations.splice(pos, 1);
+        });
+    },
     getImage: function() {
         return this.image;
     },
