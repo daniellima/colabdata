@@ -89,15 +89,15 @@
         <div class="handler handler-bottom-right" ng-mousedown="$ctrl.tagCornerMousedownHandler($event, 'bottom-right')"></div>
       </div>
       <div
-        ng-repeat="block in $ctrl.blocks"
+        ng-repeat="tag in $ctrl.image.tags"
         class="box"
-        ng-click="$ctrl.tagClickHandler($event, block)"
+        ng-click="$ctrl.tagClickHandler($event, tag)"
         style="position: absolute;
-               left: {{ block.x * $ctrl.multiplier() }}px; 
-               top: {{ block.y * $ctrl.multiplier() }}px; 
-               width: {{ block.width * $ctrl.multiplier() }}px; 
-               height: {{ block.height * $ctrl.multiplier() }}px;
-               {{ $ctrl.selectedTag.id == block.id ? 'border-color:orange;' : '' }}"
+               left: {{ tag.x * $ctrl.multiplier() }}px; 
+               top: {{ tag.y * $ctrl.multiplier() }}px; 
+               width: {{ tag.width * $ctrl.multiplier() }}px; 
+               height: {{ tag.height * $ctrl.multiplier() }}px;
+               {{ $ctrl.selectedTag == tag ? 'border-color:orange;' : '' }}"
       >
       </div>
     </div>
@@ -107,35 +107,11 @@
   ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW"
   
   multiplier='$ctrl.overviewMultiplier()'
-  
-  on-object-click="$ctrl.overviewOnObjectClickHandler(block)"
-  on-relation-click="$ctrl.overviewOnRelationClickHandler(relation)"
 ></overview>
 
-<object-editor
-    ng-show="$ctrl.showEdit"
-    
-    
-    edited-block-image="$ctrl.editedBlockImage"
-    edited-block="$ctrl.editedBlock"
-    blocks="$ctrl.image.blocks"
-    
-    on-block-deleted="$ctrl.objectEditorOnBlockDeletedHandler()"
-    on-close="$ctrl.objectEditorOnCloseHandler()"
-    on-save="$ctrl.objectEditorOnSaveHandler()"
-    on-edit="$ctrl.objectEditorOnEditHandler()"
-></object-editor>
+<object-editor></object-editor>
 
-<object-viewer
-    ng-show="$ctrl.showAllObjects"
-    
-    blocks="$ctrl.image.blocks"
-    image="$ctrl.image"
-    action="$ctrl.objectViewerAction"
-    
-    on-close="$ctrl.objectViewerOnCloseHandler()"
-    on-block-selected="$ctrl.objectViewerOnBlockSelectedHandler(block, action)"
-></object-viewer>
+<object-viewer></object-viewer>
 
 <relation-editor></relation-editor>
 

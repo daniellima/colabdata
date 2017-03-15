@@ -20,19 +20,10 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.markerHeight = 0;
     this.markerVisible = false;
     
-    this.image = null;
-    this.blocks = [];
-    
-    this.showEdit = false;
-    this.editedBlockImage = null;
-    this.editedBlock = null;
-    this.isEditingExistingBlock = false;
-    
     this.selectedTag = null;
     
-    this.showAllObjects = false;
-    
-    this.objectViewerAction = "";
+    this.editingMarker = false;
+    this.pageToReturn = null;
     
     this.multiplier = function() {
         if(this.image == null) return null;
@@ -68,10 +59,23 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
         return 1; // default
     };
     
+    $rootScope.$on('new-marker-requested', function(event, data){
+        this.editingMarker = true;
+        this.pageToReturn = this.currentPage;
+        this.currentPage = this.pages.IMAGE;
+        this.markerX = data.marker.x;
+        this.markerY = data.marker.y;
+        this.markerWidth = data.marker.width;
+        this.markerHeight = data.marker.height;
+        this.markerVisible = true;
+        
+        this.newMarkerCallback = data.callback;
+    }.bind(this));
+    
     $document.on('keypress', function(event){
         // Porque não funciona como o keyup e keydown?
         $rootScope.$apply(function(){
-            this.addBox(event);
+            this.setMarkerEnterKeypressHandler(event);
         }.bind(this));
     }.bind(this));
 };
@@ -85,50 +89,13 @@ component.definition = {
     }
 }
 
-component.actions = {
-    EDIT: "Editar",
-    SELECT: "Selecionar"
-}
-
 component.prototype = {
     $onChanges: function(changes){
         if(changes.image && changes.image.currentValue){
             this.imageResizeMethod = this.resizeMethods.BY_HEIGHT;
-            store.imageChangeEvent(changes.image.currentValue);
-            /* gambiarra para compatibilizar as diferenças de modelo entre o servidor e o cliente */
-            if(this.image.blocks !== undefined && this.image.blocks.length) {
-                this.blocks = this.image.blocks;
-            } else {
-                this.blocks = []
-                for(var i = 0; i < this.image.tags.length; i++){
-                    var tag = this.image.tags[i];
-                    var block = {
-                        'id': tag.id,
-                        'x': tag.x,
-                        'y': tag.y,
-                        'width': tag.width,
-                        'height': tag.height,
-                        'relations': tag.relations
-                    }
-                    block.object = {'name': tag.object, 'attributes': tag.attributes}
-                    this.blocks.push(block);
-                }
-                this.image.blocks = this.blocks;
-                
-                
-            }
-            /* fim da gambiarra */
-            
+            store.setImage(changes.image.currentValue);
             this.markerVisible = false;
-            this.isEditingExistingBlock = false;
         }
-    },
-    
-    showObjectEditor: function(block){
-        this.showEdit = true;
-        this.showAllObjects = false;
-        this.editedBlockImage = this.image;
-        this.editedBlock = block;
     },
     
     clickedPositionRelativeToImage: function(event){
@@ -152,69 +119,26 @@ component.prototype = {
         return pos;
     },
     
-    addBox: function(event){
+    setMarkerEnterKeypressHandler: function(event){
         if(event.keyCode !== 13) return;
         if(!this.markerVisible) return;
         event.preventDefault();
         
-        var block = null;
-        if(this.isEditingExistingBlock){
-            this.editedBlock.x = this.markerX;
-            this.editedBlock.y = this.markerY;
-            this.editedBlock.width = this.markerWidth;
-            this.editedBlock.height = this.markerHeight;
-            
-            if(this.editedBlock.id !== -1) {
-                this.image.blocks.push(this.editedBlock);
-            }
-            
-            block = this.editedBlock;
-            
-            this.isEditingExistingBlock = false;
+        if(this.editingMarker) {
+            this.editingMarker = false;
+            this.currentPage = this.pageToReturn;
+            this.markerVisible = false;
+            this.newMarkerCallback({x: this.markerX, y: this.markerY, width: this.markerWidth, height: this.markerHeight})
         } else {
-            block = {
-                id: -1,
-                x: this.markerX,
-                y: this.markerY,
-                width: this.markerWidth,
-                height: this.markerHeight,
-                object: {name: '', attributes: []}
-            };
+            this.$rootScope.$emit('tag-editor-requested', {
+                marker: {x: this.markerX, y: this.markerY, width: this.markerWidth, height: this.markerHeight},
+                callback: function(saved){
+                    if(saved) {
+                        this.markerVisible = false;
+                    }
+                }.bind(this)
+            });
         }
-        this.showObjectEditor(block);
-        if(this.objectTagEditFromOverview){
-            this.objectTagEditFromOverview = false;
-            this.currentPage = this.pages.OVERVIEW;
-        }
-    },
-    
-    // esse metodo e os outros Jsonable só quer ignorar o campo 'block' de um attribute,
-    // que gera uma referencia ciclica caso se tente transformar o
-    // block em um JSON diretamente.
-    blockToJsonable: function(block){
-        return {
-            id: block.id,
-            object: this.objectToJsonable(block.object),
-            relations: block.relations,
-            x: block.x,
-            y: block.y,
-            width: block.width,
-            height: block.height,
-        };
-    },
-    
-    objectToJsonable: function(object){
-        return {
-            name: object.name,
-            attributes: object.attributes.map(function(attribute){ return this.attributeToJsonable(attribute); }, this)
-        };
-    },
-    
-    attributeToJsonable: function(attribute){
-        return {
-            name: attribute.name,
-            value: attribute.value,
-        };
     },
     
     
@@ -237,8 +161,10 @@ component.prototype = {
     },
     
     showObjectListButtonClickHandler: function(){
-        this.showAllObjects = true;
-        this.objectViewerAction = component.actions.EDIT;
+        this.$rootScope.$emit('tag-requested', {
+            action: 'Editar',
+            callback: function(){}.bind(this)
+        });
     },
     
     showRelationListButtonClickHandler: function(){
@@ -330,16 +256,16 @@ component.prototype = {
         this.dragging = false;
     },
     
-    tagClickHandler: function($event, block){
+    tagClickHandler: function($event, tag){
         if($event.ctrlKey){
             if(this.selectedTag === null){
-                this.selectedTag = store.idToTag(block.id);
+                this.selectedTag = tag;
             } else {
                 var relationToEdit = {
                     id: null,
                     name: "",
                     originTag: this.selectedTag,
-                    targetTag: store.idToTag(block.id)
+                    targetTag: tag
                 };
                 this.$rootScope.$emit('relation-editor-requested', {
                     relation: relationToEdit,
@@ -348,103 +274,7 @@ component.prototype = {
                 this.selectedTag = null;
             }
         }
-    },
+    }
     
-    
-    objectEditorOnSaveHandler: function(){
-        showLoadingOverlay(true, "Salvando...");
-        this.$http({
-            method: 'POST',
-            url: 'image/save/tag',
-            data: {
-                'imageId': this.editedBlockImage.id, 
-                'tag': this.blockToJsonable(this.editedBlock)
-            }
-        })
-        .then(function onTagSaved(response){
-            if(this.editedBlock.id === -1){
-                this.blocks.push(this.editedBlock);
-                this.editedBlock.relations = [];
-                this.editedBlock.id = response.data.id
-            }
-            this.markerVisible = false;
-            this.showEdit = false;
-            
-            showLoadingOverlay(false);
-        }.bind(this));
-    },
-    
-    objectEditorOnEditHandler: function(){
-        this.isEditingExistingBlock = true;
-        this.markerVisible = true;
-        this.markerX = this.editedBlock.x;
-        this.markerY = this.editedBlock.y;
-        this.markerWidth = this.editedBlock.width;
-        this.markerHeight = this.editedBlock.height;
-        
-        if(this.editedBlock.id !== -1) {
-            var index = this.image.blocks.indexOf(this.editedBlock);
-            this.image.blocks.splice(index, 1);
-        }
-        
-        this.showEdit = false;
-        this.showAllObjects = false;
-        
-        // no caso de abrir da overview
-        if(this.currentPage == this.pages.OVERVIEW) {
-            this.objectTagEditFromOverview = true;
-        }
-        
-        this.currentPage = this.pages.IMAGE;
-    },
-    
-    objectEditorOnCloseHandler: function(){
-        this.showEdit = false;
-        
-        if(this.objectViewerAction == component.actions.EDIT){
-            this.showAllObjects = true;
-        }
-    },
-    
-    objectEditorOnBlockDeletedHandler: function() {
-        this.showEdit = false;
-        // remove all relations pointing to it
-        for (var i = 0; i < this.blocks.length; i++) {
-            var block = this.blocks[i];
-            for (var j = 0; j < block.relations.length; j++) {
-                var relation = block.relations[j];
-                if(relation.targetTagId == this.editedBlock.id) {
-                    block.relations.splice(block.relations.indexOf(relation), 1);
-                }
-            }
-        }
-    },
-    
-    
-    objectViewerOnBlockSelectedHandler: function(block, action){
-        if(action == component.actions.EDIT){
-            this.showObjectEditor(block);
-        }
-        if(action == component.actions.SELECT){
-            if(this.relationBlockSelected == 0){
-                this.selectedRelation.originTag = store.idToTag(block.id);
-            } else {
-                this.selectedRelation.targetTag = store.idToTag(block.id);
-            }
-            
-            this.showAllObjects = false;
-            this.relationEditorIsVisible = true;
-        }
-    },
-    
-    objectViewerOnCloseHandler: function(){
-        this.showAllObjects = false;
-        
-        if(this.objectViewerAction == component.actions.SELECT){
-            this.relationEditorIsVisible = true;
-        }
-        
-        this.objectViewerAction = "";
-    },
 };
 })();

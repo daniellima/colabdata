@@ -1,52 +1,119 @@
 /* global angular */
-var component = ObjectEditorComponent = function($http){
-    this.editedBlock = null;
-    this.editedBlockImage = null;
+var component = ObjectEditorComponent = function($rootScope, $http){
     this.$http = $http;
-    this.removedAttributes = [];
-}
+    this.$rootScope = $rootScope;
+    
+    this.open = false;
+    this.tagBeingEdited = null;
+    this.object = "";
+    this.attributes = [];
+    this.marker = {x:0, y:0, width:0, height:0}
+    
+    $rootScope.$on('tag-editor-requested', function(event, data){
+        if(data.tag) {
+            this.tagBeingEdited = data.tag;
+            
+            this.object = data.tag.object;
+            this.marker = {x:data.tag.x, y:data.tag.y, width:data.tag.width, height:data.tag.height}
+            
+            this.attributes = [];
+            for(var i = 0; i < data.tag.attributes.length; i++) {
+                var attribute = data.tag.attributes[i];
+                this.attributes.push({name: attribute.name, value: attribute.value});
+            }
+        } else {
+            this.tagBeingEdited = null;
+            
+            this.object = "";
+            this.attributes = [];
+            this.marker = {x:data.marker.x, y:data.marker.y, width:data.marker.width, height:data.marker.height};
+        }
+        
+        this.open = true;
+        this.modalCallback = data.callback;
+    }.bind(this));
+    
+    this.image = function(){
+        return store.getImage();
+    }
+};
 
 component.definition = {
-    controller: ['$http', component],
+    controller: ['$rootScope', '$http', component],
     templateUrl: "static/js/components/objectEditor.html",
-    bindings: {
-        editedBlock: '<',
-        editedBlockImage: '<',
-        blocks: '<',
-        onBlockDeleted: '&',
-        onClose: '&',
-        onSave: '&',
-        onEdit: '&'
-    }
-}
+    bindings: {}
+};
 
 component.prototype = {
-    addAttribute: function(){
-        this.editedBlock.object.attributes.push({'name': '', 'value': ''});
+    
+    closeButtonClickHandler: function(){
+        this.open = false;
+        
+        this.modalCallback();
     },
-    removeAttribute: function(attribute){
-        var attrs = this.editedBlock.object.attributes;
-        attrs.splice(attrs.indexOf(attribute), 1);
+    editMarkerButtonClickHandler: function() {
+        this.open = false;
+        
+        this.$rootScope.$emit('new-marker-requested', {
+            marker: this.marker,
+            callback: function(newMarker) {
+                this.marker = newMarker;
+                
+                this.open = true;
+            }.bind(this)
+        });
     },
-    deleteBlock: function() {
+    saveButtonClickHandler: function() {
+        showLoadingOverlay(true, "Salvando...");
+        
+        if(this.tagBeingEdited == null) {
+            this.tagBeingEdited = {
+                id: null,
+                object: "", 
+                attributes: [],
+                relations: [],
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0,
+            };
+        }
+        
+        this.tagBeingEdited.object = this.object;
+        this.tagBeingEdited.x = this.marker.x;
+        this.tagBeingEdited.y = this.marker.y;
+        this.tagBeingEdited.width = this.marker.width;
+        this.tagBeingEdited.height = this.marker.height;
+        this.tagBeingEdited.attributes = [];
+        for(var i = 0; i < this.attributes.length; i++) {
+            var attribute = this.attributes[i];
+            this.tagBeingEdited.attributes.push({name: attribute.name, value: attribute.value, tag: this.tagBeingEdited});
+        }
+        
+        store.saveTag(this.$http, this.tagBeingEdited).finally(function() {
+            this.open = false;
+            
+            this.modalCallback(true);
+            
+            showLoadingOverlay(false);
+        }.bind(this));
+    },
+    deleteButtonClickHandler: function() {
         showLoadingOverlay(true, "Deletando...");
         
-        this.$http({
-            method: 'POST',
-            url: 'image/delete/tag',
-            data: {
-                'id': this.editedBlock.id
-            }
-        }).then(
-            function(){
-                this.blocks.splice(this.blocks.indexOf(this.editedBlock), 1);
-                this.onBlockDeleted();
-                showLoadingOverlay(false);
-            }.bind(this),
-            function(){
-                console.log("Ocorreu um erro ao deletar bloco de id " +this.editedBlock.id);
-                showLoadingOverlay(false);
-            }.bind(this)
-        );
+        store.deleteTag(this.$http, this.tagBeingEdited).finally(function(){
+            this.open = false;
+            
+            this.modalCallback();
+            
+            showLoadingOverlay(false);
+        }.bind(this));
+    },
+    addAttributeButtonClickHandler: function(){
+        this.attributes.push({'name': '', 'value': ''});
+    },
+    removeAttributeButtonClickHandler: function(attribute){
+        var attrs = this.attributes;
+        attrs.splice(attrs.indexOf(attribute), 1);
     }
 };

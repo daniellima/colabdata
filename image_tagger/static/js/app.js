@@ -29,7 +29,7 @@ ColabDataApp.config(['$httpProvider', function($httpProvider){
 
 store = {
     image: {url: "#", width:0, height:0, tags:[]},
-    imageChangeEvent: function(image) {
+    setImage: function(image) {
         this.image = image;
         for(var i = 0; i < this.image.tags.length; i++) {
             var tag = this.image.tags[i];
@@ -46,6 +46,9 @@ store = {
                 relation.targetTag = this.idToTag(relation.targetTagId)
             }
         }
+    },
+    getImage: function() {
+        return this.image;
     },
     
     saveRelation: function($http, relation){
@@ -91,9 +94,47 @@ store = {
             relationTag.relations.splice(pos, 1);
         });
     },
-    getImage: function() {
-        return this.image;
+    
+    saveTag: function($http, tag) {
+        var tagJSON = {
+            id: tag.id,
+            object: {name: tag.object, attributes: []},
+            x: tag.x,
+            y: tag.y,
+            width: tag.width,
+            height: tag.height,
+        };
+        for(var i = 0; i < tag.attributes.length; i++) {
+            var attribute = tag.attributes[i];
+            tagJSON.object.attributes.push({name: attribute.name, value: attribute.value});
+        }
+        
+        return $http({
+            method: 'POST',
+            url: 'image/save/tag',
+            data: {
+                'imageId': this.image.id,
+                'tag': tagJSON
+            }
+        }).then(function(response){
+            if(tag.id == null) {
+                tag.id = response.data.id;
+                this.image.tags.push(tag);
+            }
+        }.bind(this));
     },
+    deleteTag: function($http, tag){
+        return $http({
+            method: 'POST',
+            url: 'image/delete/tag',
+            data: {
+                'id': tag.id
+            }
+        }).then(function(){
+            this.image.tags.splice(this.image.tags.indexOf(tag), 1);
+        }.bind(this));
+    },
+    
     _attributes: [],
     getAllAttributes: function() {
         // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
@@ -123,14 +164,6 @@ store = {
             }
         }
         return this._relations;
-    },
-    
-    idToTag: function(id){
-        for (var i = 0; i < this.image.tags.length; i++) {
-            var tag = this.image.tags[i];
-            if(tag.id == id) return tag;
-        }
-        throw "Id for no existing block used";
     },
 };
 

@@ -1,5 +1,6 @@
 /* global angular */
 var component = ObjectViewerComponent = function($rootScope, $http){
+    this.$rootScope = $rootScope;
     this.$http = $http;
     
     this.open = false;
@@ -8,32 +9,41 @@ var component = ObjectViewerComponent = function($rootScope, $http){
         this.open = true;
         this.action = data.action;
         
-        this.blockSelectedCallback = data.callback;
+        this.tagSelectedCallback = data.callback;
     }.bind(this));
+    
+    this.image = function() {
+        return store.getImage();
+    }
 }
 
 component.definition = {
     controller: ['$rootScope', '$http', component],
     templateUrl: "static/js/components/objectViewer.html",
-    bindings: {
-        blocks: '<',
-        image: '<',
-        action: '<',
-        
-        onClose: '&',
-        onBlockSelected: '&',
-        
-    }
+    bindings: {}
 }
 
 component.prototype = {
     
-    tagThumbnailButtonClickHandler: function(block){
-        this.blockSelectedCallback(block);
+    closeButtonClickHandler: function() {
+        this.tagSelectedCallback();
         
         this.open = false;
+    },
+    
+    tagThumbnailButtonClickHandler: function(tag){
+        if(this.action == "Editar") {
+            this.$rootScope.$emit('tag-editor-requested', {
+                tag: tag,
+                callback: function() {
+                    this.open = true;
+                }.bind(this)
+            });
+        } else {
+            this.tagSelectedCallback(tag);
+        }
         
-        //this.onBlockSelected({block: block, action: this.action});
+        this.open = false;
     }
     
 };

@@ -1,5 +1,7 @@
 /* global angular */
-var component = OverviewComponent = function(){
+var component = OverviewComponent = function($rootScope){
+    this.$rootScope = $rootScope;
+    
     /* TODO deveria ser uma computed property */
     this.visibleTags = [];
     
@@ -18,14 +20,11 @@ var component = OverviewComponent = function(){
 }
 
 component.definition = {
-    controller: component,
+    controller: ['$rootScope', component],
     templateUrl: "static/js/components/overview.html",
     bindings: {
         // TODO receber via eventos
         multiplier: '<',
-        
-        onObjectClick: '&',
-        onRelationClick: '&'
     }
 }
 
@@ -36,7 +35,24 @@ component.prototype = {
     showTag: function(tag){
         this.visibleTags.push(tag);
     },
-    
+    tagItemClickHandler: function(tag){
+        this.$rootScope.$emit('tag-editor-requested', {
+            tag: tag,
+            callback: function(){}.bind(this)
+        });
+    },
+    attributeItemClickHandler: function(tag){
+        this.$rootScope.$emit('tag-editor-requested', {
+            tag: tag,
+            callback: function(){}.bind(this)
+        });
+    },
+    relationItemClickHandler: function(relation){
+        this.$rootScope.$emit('relation-editor-requested', {
+            relation: relation,
+            callback: function() {}.bind(this)
+        });
+    },
     showRelation: function(relation){
         this.showTag(relation.originTag);
         this.showTag(relation.targetTag);

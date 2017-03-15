@@ -3,19 +3,19 @@
     Objetos
   </h3>
   
-  <button class="btn btn-danger close-button" ng-click="$ctrl.onClose()">
+  <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
     <span class="glyphicon glyphicon-remove"></span>
   </button>
     
   <div style="overflow: auto; height: 500px">
-    <div style="float:left; margin: 25px; width: 200px; height: {{200 + 34 + 10}}px;" ng-repeat="block in $ctrl.blocks">
+    <div style="float:left; margin: 25px; width: 200px; height: {{200 + 34 + 10}}px;" ng-repeat="tag in $ctrl.image().tags">
       <div style="position:relative; height: 200px;">
-        <object-thumbnail class="centered-vh" image="$ctrl.image" block="block" size="200"></object-thumbnail>
+        <object-thumbnail class="centered-vh" image="$ctrl.image()" block="tag" size="200"></object-thumbnail>
       </div>
       <a class="btn btn-default btn-block" 
         style="margin-top: 1em" 
         href="javascript:void(0)" 
-        ng-click="$ctrl.tagThumbnailButtonClickHandler(block)"
+        ng-click="$ctrl.tagThumbnailButtonClickHandler(tag)"
         >
         {{ $ctrl.action }}
       </a>

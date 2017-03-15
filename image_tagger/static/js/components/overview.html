@@ -8,7 +8,7 @@
       <h2>Objetos</h2>
       
       <div 
-        ng-click="$ctrl.onObjectClick({block: block})" 
+        ng-click="$ctrl.tagItemClickHandler(tag)" 
         style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
         ng-repeat="tag in $ctrl.image().tags" 
         ng-mouseenter="$ctrl.showTag(tag)" 
@@ -21,7 +21,7 @@
       <h2>Atributos</h2>
       
       <div 
-        ng-click="$ctrl.onObjectClick({block: attribute.tag})" 
+        ng-click="$ctrl.attributeItemClickHandler(attribute.tag)"
         style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
         ng-repeat="attribute in $ctrl.attributes()" 
         ng-mouseenter="$ctrl.showTag(attribute.tag)" 
@@ -34,7 +34,7 @@
       <h2>Relações</h2>
       
       <div 
-        ng-click="$ctrl.onRelationClick({relation: relation})" 
+        ng-click="$ctrl.relationItemClickHandler(relation)"
         style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
         ng-repeat="relation in $ctrl.relations()" 
         ng-mouseenter="$ctrl.showRelation(relation)" 
