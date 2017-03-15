@@ -6,7 +6,7 @@ var component = ObjectViewerComponent = function($rootScope, $http){
     this.open = false;
     
     $rootScope.$on('tag-requested', function(event, data) {
-        this.open = true;
+        this.setOpen(true);
         this.action = data.action;
         
         this.tagSelectedCallback = data.callback;
@@ -28,22 +28,33 @@ component.prototype = {
     closeButtonClickHandler: function() {
         this.tagSelectedCallback();
         
-        this.open = false;
+        this.setOpen(false);
+    },
+    
+    setOpen: function(value) {
+        if(this.open == true && value == false){
+            this.$rootScope.$emit('modal-closed');
+        }
+        if(this.open == false && value == true){
+            this.$rootScope.$emit('modal-opened');
+        }
+        
+        this.open = value;
     },
     
     tagThumbnailButtonClickHandler: function(tag){
+        this.setOpen(false);
+        
         if(this.action == "Editar") {
             this.$rootScope.$emit('tag-editor-requested', {
                 tag: tag,
                 callback: function() {
-                    this.open = true;
+                    this.setOpen(true);
                 }.bind(this)
             });
         } else {
             this.tagSelectedCallback(tag);
         }
-        
-        this.open = false;
     }
     
 };

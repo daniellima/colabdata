@@ -29,7 +29,7 @@ var component = ObjectEditorComponent = function($rootScope, $http){
             this.marker = {x:data.marker.x, y:data.marker.y, width:data.marker.width, height:data.marker.height};
         }
         
-        this.open = true;
+        this.setOpen(true);
         this.modalCallback = data.callback;
     }.bind(this));
     
@@ -47,19 +47,31 @@ component.definition = {
 component.prototype = {
     
     closeButtonClickHandler: function(){
-        this.open = false;
+        this.setOpen(false);
         
         this.modalCallback();
     },
+    
+    setOpen: function(value) {
+        if(this.open == true && value == false){
+            this.$rootScope.$emit('modal-closed');
+        }
+        if(this.open == false && value == true){
+            this.$rootScope.$emit('modal-opened');
+        }
+        
+        this.open = value;
+    },
+    
     editMarkerButtonClickHandler: function() {
-        this.open = false;
+        this.setOpen(false);
         
         this.$rootScope.$emit('new-marker-requested', {
             marker: this.marker,
             callback: function(newMarker) {
                 this.marker = newMarker;
                 
-                this.open = true;
+                this.setOpen(true);
             }.bind(this)
         });
     },
@@ -91,7 +103,7 @@ component.prototype = {
         }
         
         store.saveTag(this.$http, this.tagBeingEdited).finally(function() {
-            this.open = false;
+            this.setOpen(false);
             
             this.modalCallback(true);
             
@@ -102,7 +114,7 @@ component.prototype = {
         showLoadingOverlay(true, "Deletando...");
         
         store.deleteTag(this.$http, this.tagBeingEdited).finally(function(){
-            this.open = false;
+            this.setOpen(false);
             
             this.modalCallback();
             

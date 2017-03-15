@@ -6,7 +6,7 @@ var component = RelationListComponent = function($rootScope, $http){
     this.open = false;
     
     $rootScope.$on('relation-list-requested', function(event, data) {
-        this.open = true;
+        this.setOpen(true);
         this.modalCallback = data.callback;
     }.bind(this));
     
@@ -28,9 +28,20 @@ component.definition = {
 component.prototype = {
     
     closeButtonClickHandler: function() {
-        this.open = false;
+        this.setOpen(false);
         
         this.modalCallback();
+    },
+    
+    setOpen: function(value) {
+        if(this.open == true && value == false){
+            this.$rootScope.$emit('modal-closed');
+        }
+        if(this.open == false && value == true){
+            this.$rootScope.$emit('modal-opened');
+        }
+        
+        this.open = value;
     },
     
     deleteRelationButtonClickHandler: function(relation) {
@@ -42,12 +53,12 @@ component.prototype = {
     },
     
     editRelationButtonClickHandler: function(relation) {
-        this.open = false;
+        this.setOpen(false);
         
         this.$rootScope.$emit('relation-editor-requested', {
             relation: relation,
             callback: function() {
-                this.open = true;
+                this.setOpen(true);
             }.bind(this)
         });
     }

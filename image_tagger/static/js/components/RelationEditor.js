@@ -3,13 +3,14 @@ var component = RelationEditorComponent = function($http, $rootScope){
     this.$rootScope = $rootScope;
 
     this.open = false;
+    
     this.relationBeingEdited = null;
     this.originTag = null;
     this.targetTag = null;
     this.name = null;
     
     $rootScope.$on('relation-editor-requested', function(event, data) {
-        this.open = true;
+        this.setOpen(true);
         
         if(!data.relation) {
             this.relationBeingEdited = null;
@@ -41,6 +42,17 @@ component.prototype = {
 
     $onChanges: function(changes){},
     
+    setOpen: function(value) {
+        if(this.open == true && value == false){
+            this.$rootScope.$emit('modal-closed');
+        }
+        if(this.open == false && value == true){
+            this.$rootScope.$emit('modal-opened');
+        }
+        
+        this.open = value;
+    },
+    
     isBlocksChoosen: function(){
         return this.originTag && this.targetTag;
     },
@@ -51,12 +63,12 @@ component.prototype = {
     
     tagThumbnailButtonClickHandler: function(whichTag) {
         
-        this.open = false;
+        this.setOpen(false);
         
         this.$rootScope.$emit('tag-requested', {
             action: 'Selecionar',
             callback: function(tag){
-                this.open = true;
+                this.setOpen(true);
                 
                 if(whichTag == 'origin') {
                     this.originTag = tag;
@@ -69,7 +81,7 @@ component.prototype = {
     },
     
     closeButtonClickHandler: function() {
-        this.open = false;
+        this.setOpen(false);
         
         this.modalCallback();
     },
@@ -95,7 +107,7 @@ component.prototype = {
             
             this.modalCallback(this.relationBeingEdited);
             
-            this.open = false;
+            this.setOpen(false);
             
             showLoadingOverlay(false);
         }.bind(this));

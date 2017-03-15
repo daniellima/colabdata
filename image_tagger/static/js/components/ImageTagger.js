@@ -59,6 +59,14 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
         return 1; // default
     };
     
+    $rootScope.$on('modal-opened', function(){
+        this.dialogOpen = true;
+    }.bind(this));
+    
+    $rootScope.$on('modal-closed', function(){
+        this.dialogOpen = false;
+    }.bind(this));
+    
     $rootScope.$on('new-marker-requested', function(event, data){
         this.editingMarker = true;
         this.pageToReturn = this.currentPage;
@@ -118,6 +126,7 @@ component.prototype = {
         
         return pos;
     },
+    
     
     setMarkerEnterKeypressHandler: function(event){
         if(event.keyCode !== 13) return;
@@ -189,7 +198,7 @@ component.prototype = {
         this.overviewImageResizeMethod = resizeMethod;
     },
     
-    
+    // TODO remover isso
     overviewOnObjectClickHandler: function(block) {
         this.showObjectEditor(block);
     },
