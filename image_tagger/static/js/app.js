@@ -101,17 +101,17 @@ store = {
         });
     },
     
-    saveTag: function($http, tag) {
+    saveTag: function($http, tagToSave, newObject, newAttributes, newMarker) {
         var tagJSON = {
-            id: tag.id,
-            object: {name: tag.object, attributes: []},
-            x: tag.x,
-            y: tag.y,
-            width: tag.width,
-            height: tag.height,
+            id: tagToSave ? tagToSave.id : null,
+            object: {name: newObject, attributes: []},
+            x: newMarker.x,
+            y: newMarker.y,
+            width: newMarker.width,
+            height: newMarker.height,
         };
-        for(var i = 0; i < tag.attributes.length; i++) {
-            var attribute = tag.attributes[i];
+        for(var i = 0; i < newAttributes.length; i++) {
+            var attribute = newAttributes[i];
             tagJSON.object.attributes.push({name: attribute.name, value: attribute.value});
         }
         
@@ -123,9 +123,25 @@ store = {
                 'tag': tagJSON
             }
         }).then(function(response){
-            if(tag.id == null) {
-                tag.id = response.data.id;
-                this.image.tags.push(tag);
+            
+            if(tagToSave == null) {
+                tagToSave = {
+                    id: response.data.id,
+                    relations: [],
+                };
+                
+                this.image.tags.push(tagToSave);
+            }
+            
+            tagToSave.object = newObject;
+            tagToSave.x = newMarker.x;
+            tagToSave.y = newMarker.y;
+            tagToSave.width = newMarker.width;
+            tagToSave.height = newMarker.height;
+            tagToSave.attributes = [];
+            for(var i = 0; i < newAttributes.length; i++) {
+                var attribute = newAttributes[i];
+                tagToSave.attributes.push({name: attribute.name, value: attribute.value, tag: tagToSave});
             }
         }.bind(this));
     },

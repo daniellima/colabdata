@@ -22,6 +22,8 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     
     this.selectedTag = null;
     
+    this.error = null;
+    
     this.editingMarker = false;
     this.pageToReturn = null;
     
@@ -65,6 +67,10 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     
     $rootScope.$on('modal-closed', function(){
         this.dialogOpen = false;
+    }.bind(this));
+    
+    $rootScope.$on('error-notification-requested', function(event, data){
+        this.error = data.error;
     }.bind(this));
     
     $rootScope.$on('new-marker-requested', function(event, data){
@@ -149,6 +155,9 @@ component.prototype = {
         }
     },
     
+    errorMessageOkButtonClickHandler: function(){
+        this.error = null;
+    },
     
     backButtonClickHandler: function() {
         this.onClose();

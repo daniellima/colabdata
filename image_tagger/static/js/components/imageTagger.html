@@ -120,3 +120,14 @@
 <!-- background branco transparente -->
 <div ng-show="$ctrl.dialogOpen" style="position: fixed; background-color: white; opacity: 0.5; width: 100%; height: 100%; top: 0; left: 0; z-index: 10000">
 </div>
+
+<!-- background de erro transparente -->
+<div ng-show="$ctrl.error != null" style="position: fixed; background-color: rgba(255,255,255,0.8); width: 100%; height: 100%; top: 0; left: 0; z-index: 99999">
+  <div class="error-overlay_content alert alert-danger">
+    <span class="error-overlay_content_icon glyphicon glyphicon-remove-circle"></span>
+    <p>Ocorreu um erro ao tentar {{ $ctrl.error.actionThatFailed }}.</p>
+    <p>{{ $ctrl.error.message }}</p>
+    <p>Por favor, verifique se sua internet está em boas condições.</p>
+    <button class="btn btn-default btn-block error-overlay_content_button" ng-click="$ctrl.errorMessageOkButtonClickHandler()">Ok</button>
+  </div>
+</div>

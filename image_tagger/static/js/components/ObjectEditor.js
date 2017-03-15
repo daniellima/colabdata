@@ -90,35 +90,20 @@ component.prototype = {
     saveButtonClickHandler: function() {
         showLoadingOverlay(true, "Salvando...");
         
-        if(this.tagBeingEdited == null) {
-            this.tagBeingEdited = {
-                id: null,
-                object: "", 
-                attributes: [],
-                relations: [],
-                x: 0,
-                y: 0,
-                width: 0,
-                height: 0,
-            };
-        }
-        
-        this.tagBeingEdited.object = this.object;
-        this.tagBeingEdited.x = this.marker.x;
-        this.tagBeingEdited.y = this.marker.y;
-        this.tagBeingEdited.width = this.marker.width;
-        this.tagBeingEdited.height = this.marker.height;
-        this.tagBeingEdited.attributes = [];
-        for(var i = 0; i < this.attributes.length; i++) {
-            var attribute = this.attributes[i];
-            this.tagBeingEdited.attributes.push({name: attribute.name, value: attribute.value, tag: this.tagBeingEdited});
-        }
-        
-        store.saveTag(this.$http, this.tagBeingEdited).finally(function() {
+        store.saveTag(this.$http, this.tagBeingEdited, this.object, this.attributes, this.marker)
+        .then(function() {
             this.setOpen(false);
             
             this.modalCallback();
-            
+        }.bind(this), function(){
+            this.$rootScope.$emit('error-notification-requested', {
+                error: {
+                    actionThatFailed: "salvar",
+                    message: "Servidor retornou mensagem de erro."
+                }
+            });
+        }.bind(this))
+        .finally(function() {
             showLoadingOverlay(false);
         }.bind(this));
     },

@@ -166,6 +166,7 @@ def delete_relation(request):
     
     return HttpResponse()
 
+# TODO: deletar
 @require_POST
 @ajax_aware_login_required
 def logout(request):
