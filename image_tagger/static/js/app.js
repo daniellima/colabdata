@@ -43,7 +43,13 @@ store = {
             for (var j = 0; j < tag.relations.length; j++) {
                 var relation = tag.relations[j];
                 relation.originTag = tag;
-                relation.targetTag = this.idToTag(relation.targetTagId)
+                for(var k = 0; k < this.image.tags.length; k++) {
+                    var possiblyTargetTag = this.image.tags[k];
+                    if(possiblyTargetTag.id == relation.targetTagId) {
+                        relation.targetTag = possiblyTargetTag;
+                        break;
+                    }
+                }
             }
         }
     },
