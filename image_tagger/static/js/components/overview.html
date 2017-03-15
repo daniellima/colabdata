@@ -13,7 +13,7 @@
         ng-repeat="tag in $ctrl.image().tags" 
         ng-mouseenter="$ctrl.showTag(tag)" 
         ng-mouseleave="$ctrl.hideTag(tag)">
-        {{ tag.object }}
+        {{ tag.object || "(sem nome)" }}
       </div>
       
     </div>
@@ -26,7 +26,7 @@
         ng-repeat="attribute in $ctrl.attributes()" 
         ng-mouseenter="$ctrl.showTag(attribute.tag)" 
         ng-mouseleave="$ctrl.hideTag(attribute.tag)">
-        {{ attribute.name }} de {{ attribute.tag.object }} é {{ attribute.value }}
+        {{ attribute.name }} de {{ attribute.tag.object || "(sem nome)" }} é {{ attribute.value }}
       </div>
 
     </div>
@@ -39,7 +39,7 @@
         ng-repeat="relation in $ctrl.relations()" 
         ng-mouseenter="$ctrl.showRelation(relation)" 
         ng-mouseleave="$ctrl.hideRelation(relation)">
-          {{ relation.originTag.object }} {{ relation.name }} {{ relation.targetTag.object }}
+          {{ relation.originTag.object || "(sem nome)" }} {{ relation.name }} {{ relation.targetTag.object || "(sem nome)" }}
       </div>
       
     </div>
