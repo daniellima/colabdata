@@ -223,6 +223,14 @@ component.prototype = {
         this.initialY = pos.y;
     },
     
+    tagContainerMouseupHandler: function($event){
+        this.dragging = false;
+    },
+    
+    tagContainerMouseleaveHandler: function($event){
+        this.dragging = false;
+    },
+    
     tagCornerMousedownHandler: function($event, corner){
         if($event.which !== 1) return;
         $event.stopPropagation();
@@ -246,14 +254,6 @@ component.prototype = {
             this.initialX = this.markerX * this.multiplier();
             this.initialY = this.markerY * this.multiplier();
         }
-    },
-    
-    tagContainerMouseupHandler: function($event){
-        this.dragging = false;
-    },
-    
-    tagContainerMouseleaveHandler: function($event){
-        this.dragging = false;
     },
     
     tagClickHandler: function($event, tag){
