@@ -119,7 +119,7 @@ component.prototype = {
         store.saveTag(this.$http, this.tagBeingEdited).finally(function() {
             this.setOpen(false);
             
-            this.modalCallback(true);
+            this.modalCallback();
             
             showLoadingOverlay(false);
         }.bind(this));

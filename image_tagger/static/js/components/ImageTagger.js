@@ -131,21 +131,20 @@ component.prototype = {
     setMarkerEnterKeypressHandler: function(event){
         if(event.keyCode !== 13) return;
         if(!this.markerVisible) return;
+        if(this.dialogOpen) return;
+        if(this.currentPage != this.pages.IMAGE) return;
         event.preventDefault();
+        
+        this.markerVisible = false;
         
         if(this.editingMarker) {
             this.editingMarker = false;
             this.currentPage = this.pageToReturn;
-            this.markerVisible = false;
             this.newMarkerCallback({x: this.markerX, y: this.markerY, width: this.markerWidth, height: this.markerHeight})
         } else {
             this.$rootScope.$emit('tag-editor-requested', {
                 marker: {x: this.markerX, y: this.markerY, width: this.markerWidth, height: this.markerHeight},
-                callback: function(saved){
-                    if(saved) {
-                        this.markerVisible = false;
-                    }
-                }.bind(this)
+                callback: function(){}.bind(this)
             });
         }
     },
