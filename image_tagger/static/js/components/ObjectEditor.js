@@ -9,6 +9,24 @@ var component = ObjectEditorComponent = function($rootScope, $http){
     this.attributes = [];
     this.marker = {x:0, y:0, width:0, height:0}
     
+    this.image = function(){
+        return store.getImage();
+    }
+    
+    this.canSaveTag = function(){
+        
+        if(this.object.trim() == "") return false;
+        
+        for(var i = 0; i < this.attributes.length; i++) {
+            var attribute = this.attributes[i];
+            if(attribute.name.trim() == "" || attribute.value.trim() == "") {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
     $rootScope.$on('tag-editor-requested', function(event, data){
         if(data.tag) {
             this.tagBeingEdited = data.tag;
@@ -32,10 +50,6 @@ var component = ObjectEditorComponent = function($rootScope, $http){
         this.setOpen(true);
         this.modalCallback = data.callback;
     }.bind(this));
-    
-    this.image = function(){
-        return store.getImage();
-    }
 };
 
 component.definition = {

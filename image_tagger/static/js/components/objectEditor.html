@@ -60,7 +60,7 @@
         <div class="col-md-6">
           <div style="display: table; width: 100%;">
             <div style="display: table-cell">
-              <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.saveButtonClickHandler()">
+              <button class="btn btn-primary btn-block save-button" ng-disabled="!$ctrl.canSaveTag()" ng-click="$ctrl.saveButtonClickHandler()">
                 Salvar
               </button>
             </div>
