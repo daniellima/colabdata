@@ -15,8 +15,6 @@ var component = ObjectEditorComponent = function($rootScope, $http){
     
     this.canSaveTag = function(){
         
-        if(this.object.trim() == "") return false;
-        
         for(var i = 0; i < this.attributes.length; i++) {
             var attribute = this.attributes[i];
             if(attribute.name.trim() == "" || attribute.value.trim() == "") {
