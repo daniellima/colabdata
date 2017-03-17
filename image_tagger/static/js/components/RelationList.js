@@ -47,9 +47,13 @@ component.prototype = {
     deleteRelationButtonClickHandler: function(relation) {
         showLoadingOverlay(true, "Deletando...");
         
-        store.deleteRelation(this.$http, relation).then(function(){
+        store.deleteRelation(this.$http, relation).then(function(){}.bind(this),
+        function(response) {
+            showAndLogErrorThatOcurredDuringAction("deletar a relação", response, this.$rootScope);
+        }.bind(this))
+        .finally(function() {
             showLoadingOverlay(false);
-        }.bind(this));
+        });
     },
     
     editRelationButtonClickHandler: function(relation) {

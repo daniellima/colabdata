@@ -165,7 +165,7 @@ component.prototype = {
     
     newRelationButtonClickHandler: function(){
         this.$rootScope.$emit('relation-editor-requested', {
-            callback: function(relation) {}.bind(this)
+            callback: function() {}.bind(this)
         });
     },
     

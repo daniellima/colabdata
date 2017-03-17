@@ -57,34 +57,43 @@ store = {
         return this.image;
     },
     
-    saveRelation: function($http, relation){
+    saveRelation: function($http, relationToSave, newName, newOriginTag, newTargetTag){
         return $http({
             method: 'POST',
             url: 'image/save/relation',
             data: {
-                'id': relation.id || null,
-                'originTagId': relation.originTag.id, 
-                'targetTagId': relation.targetTag.id,
-                'name': relation.name
+                'id': relationToSave.id || null,
+                'name': newName,
+                'originTagId': newOriginTag.id, 
+                'targetTagId': newTargetTag.id,
             }
         })
         .then(function (response){
-            // remove relation from tag if origin tag changed
-            if(relation.id) {
+            if(relationToSave === null) {
+                relationToSave = { id: null };
+            }
+            
+            // if already exists, remove relation from the old origin tag
+            if(relationToSave.id) {
                 for (var i = 0; i < this.image.tags.length; i++) {
                     var tag = this.image.tags[i];
                     for (var j = 0; j < tag.relations.length; j++) {
-                        var pos = tag.relations.indexOf(relation);
+                        var pos = tag.relations.indexOf(relationToSave);
                         if(pos !== -1) {
                             tag.relations.splice(pos, 1);
                         }
                     }
                 }
             }
-            // add it to the new origin tag
-            relation.originTag.relations.push(relation);
             
-            relation.id = response.data.id;
+            relationToSave.name = newName;
+            relationToSave.originTag = newOriginTag;
+            relationToSave.targetTag = newTargetTag;
+            
+            // add it to the new origin tag
+            newOriginTag.relations.push(relationToSave);
+            
+            relationToSave.id = response.data.id;
         }.bind(this));
     },
     deleteRelation: function($http, relation) {
@@ -209,6 +218,14 @@ ColabDataApp.component('loginForm', LoginFormComponent.definition);
 
 ColabDataApp.component('mainComponent', MainComponent.definition);
 
+showAndLogErrorThatOcurredDuringAction = function(action, response, $rootScope) {
+    console.log(response);
+    $rootScope.$emit('error-notification-requested', {
+        error: {
+            actionThatFailed: action,
+        }
+    });
+}
 
 /* TODO GAMBI PARA MOSTRAR LOADING DE QUALQUER LUGAR */
 showLoadingOverlay = function(show, loadingMessage){

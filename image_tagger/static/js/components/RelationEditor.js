@@ -87,29 +87,18 @@ component.prototype = {
     },
     
     saveButtonClickHandler: function() {
-        
-        if(this.relationBeingEdited === null) {
-            this.relationBeingEdited = {
-                id: null,
-                name: "",
-                originTag: null,
-                targetTag: null
-            };
-        }
-        
-        this.relationBeingEdited.name = this.name;
-        this.relationBeingEdited.originTag = this.originTag;
-        this.relationBeingEdited.targetTag = this.targetTag;
-        
         showLoadingOverlay(true, "Salvando...");
-        store.saveRelation(this.$http, this.relationBeingEdited)
+        store.saveRelation(this.$http, this.relationBeingEdited, this.name, this.originTag, this.targetTag)
         .then(function(){
             
-            this.modalCallback(this.relationBeingEdited);
+            this.modalCallback();
             
             this.setOpen(false);
-            
+        }.bind(this), function(response) {
+            showAndLogErrorThatOcurredDuringAction("salvar a relação", response, this.$rootScope);
+        }.bind(this))
+        .finally(function(){
             showLoadingOverlay(false);
-        }.bind(this));
+        });
     }
 };

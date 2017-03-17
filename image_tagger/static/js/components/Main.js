@@ -41,7 +41,6 @@ MainComponent.prototype = {
             
             showLoadingOverlay(false);
         }.bind(this), function(){
-            
             showLoadingOverlay(false);
         }.bind(this));
     },

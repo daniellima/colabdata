@@ -95,13 +95,8 @@ component.prototype = {
             this.setOpen(false);
             
             this.modalCallback();
-        }.bind(this), function(){
-            this.$rootScope.$emit('error-notification-requested', {
-                error: {
-                    actionThatFailed: "salvar",
-                    message: "Servidor retornou mensagem de erro."
-                }
-            });
+        }.bind(this), function(response) { 
+            showAndLogErrorThatOcurredDuringAction("salvar o objeto", response, this.$rootScope);
         }.bind(this))
         .finally(function() {
             showLoadingOverlay(false);
@@ -110,13 +105,17 @@ component.prototype = {
     deleteButtonClickHandler: function() {
         showLoadingOverlay(true, "Deletando...");
         
-        store.deleteTag(this.$http, this.tagBeingEdited).finally(function(){
+        store.deleteTag(this.$http, this.tagBeingEdited)
+        .then(function(){
             this.setOpen(false);
             
             this.modalCallback();
-            
+        }.bind(this), function(response){
+            showAndLogErrorThatOcurredDuringAction("deletar o objeto", response, this.$rootScope);
+        }.bind(this))
+        .finally(function(response) {
             showLoadingOverlay(false);
-        }.bind(this));
+        });
     },
     addAttributeButtonClickHandler: function(){
         this.attributes.push({'name': '', 'value': ''});
