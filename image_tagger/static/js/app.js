@@ -218,6 +218,27 @@ ColabDataApp.component('loginForm', LoginFormComponent.definition);
 
 ColabDataApp.component('mainComponent', MainComponent.definition);
 
+prefetchImage = function($q, url) {
+    var promise = $q(function(resolve, reject) {
+
+        var imgElement = new Image();
+
+        imgElement.addEventListener('load', function () {
+            resolve(this);
+        });
+
+        imgElement.addEventListener('error', function () {
+            console.log('image "'+url+'" not loaded');
+            reject();
+        })
+
+        imgElement.src = url;
+
+    });
+    
+    return promise;
+}
+
 showAndLogErrorThatOcurredDuringAction = function(action, response, $rootScope) {
     console.log(response);
     $rootScope.$emit('error-notification-requested', {

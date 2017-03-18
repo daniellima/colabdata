@@ -2,6 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^([0-9]+)$', views.image, name='image'),
     url(r'^all$', views.all, name='all'),
     url(r'^save/tag$', views.save_tag, name='save_tag'),
     url(r'^save/relation$', views.save_relation, name='save_relation'),

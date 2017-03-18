@@ -229,3 +229,31 @@ def private_datasets(request):
     datasets = Dataset.objects.filter(datasetmembership__user=request.user).order_by('name')
     datasets_with_images = [(dataset, dataset.get_example_images(3)) for dataset in datasets]
     return render(request, 'image_tagger/private_datasets.html', {'datasets_with_images': datasets_with_images})
+    
+@require_GET
+@login_required
+def image(request, index):
+    index = int(index)
+    
+    image = Image.objects.raw("""
+        SELECT image.id AS id, image.dataset_id AS dataset_id, image.file AS file, COUNT(tag.id) AS c1, -1 as c2
+        FROM image_tagger_image AS image
+        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+        WHERE image.dataset_id = %s
+        GROUP BY image.id
+        HAVING c1 < 3
+        UNION
+        SELECT image.id, image.dataset_id, image.file, -1 as c1, COUNT(tag.id) AS c2
+        FROM image_tagger_image AS image
+        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+        WHERE image.dataset_id = %s
+        GROUP BY image.id
+        HAVING c2 >= 3
+        ORDER BY c1 DESC, c2 ASC
+        LIMIT 1 OFFSET %s""", [39, 39, index])[0]
+    num_of_images = Image.objects.filter(dataset_id=39).count()
+    has_next_image = (index != num_of_images-1)
+    return JsonResponse({
+        'image': image.toJSONSerializable(only_tags_from_user=request.user),
+        'has_next_image': has_next_image
+    })

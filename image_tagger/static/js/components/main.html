@@ -1,24 +1,53 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a href="#" class="navbar-brand">
-                COLABDATA
-            </a>
-        </div>
+    <div class="container">
+        <ul class="nav navbar-nav util-centered">
+            <li ng-style="{'visibility': $ctrl.hasPreviousImage() ? 'visible' : 'hidden'}">
+                <a href="javascript:void(0)" class="navbar-brand" ng-click="$ctrl.previousImageButtonClickHandler()">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    Previous Image
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0)" class="navbar-brand">
+                    All Images
+                </a>
+            </li>
+            <li ng-style="{'visibility': $ctrl.hasNextImage ? 'visible' : 'hidden'}">
+                <a href="javascript:void(0)" class="navbar-brand" ng-click="$ctrl.nextImageButtonClickHandler()">
+                    Next Image
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </a>
+            </li>
+        </ul>
         
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a 
-                    href="#" 
-                    ng-click="$ctrl.onSairButtonClick()" 
-                    ng-show="$ctrl.userLogged"
-                    >
-                        Sair
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <ul class="nav navbar-nav">
+            <li>
+                <a 
+                href="#"
+                >
+                    <span class="glyphicon glyphicon-arrow-left"></span>
+                    Back to datasets
+                </a>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <!--<li>-->
+            <!--    <a href="javascript:void(0)">-->
+            <!--        <span class="glyphicon glyphicon-adjust"></span>-->
+            <!--        White | Dark Mode-->
+            <!--    </a>-->
+            <!--</li>-->
+            <li>
+                <a 
+                href="javascript:void(0)" 
+                ng-click="$ctrl.sairButtonClickHandler()" 
+                ng-show="$ctrl.userLogged"
+                >
+                    <span class="glyphicon glyphicon-log-out"></span>
+                    Logout
+                </a>
+            </li>
+        </ul>
     </div>
 </nav>
   
@@ -27,12 +56,12 @@
     on-login="$ctrl.onLogin()"
 ></login-form>
 
-<image-chooser
+<!--<image-chooser
     datasets="$ctrl.datasets"
     ng-show="$ctrl.page == 'image-chooser'"
     on-choose="$ctrl.onImageChooserChoose(image)"
 ></image-chooser>
-
+-->
 <image-tagger
     image="$ctrl.selectedImage"
     ng-show="$ctrl.page == 'image-tagger'"

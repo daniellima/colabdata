@@ -159,10 +159,6 @@ component.prototype = {
         this.error = null;
     },
     
-    backButtonClickHandler: function() {
-        this.onClose();
-    },
-    
     newRelationButtonClickHandler: function(){
         this.$rootScope.$emit('relation-editor-requested', {
             callback: function() {}.bind(this)

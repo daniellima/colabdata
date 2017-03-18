@@ -1,10 +1,6 @@
 <div class="toolbar">
     <div class="container">
-      <div class="toolbar-add">
-        <button class="btn btn-default" ng-click="$ctrl.backButtonClickHandler()">
-          <span class="glyphicon glyphicon-arrow-left"></span>
-          Voltar
-        </button>
+      <div class="toolbar-add pull-left">
         <button class="btn btn-default" ng-click="$ctrl.newObjectButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-plus"></span>
             Objeto
@@ -14,7 +10,7 @@
             Relações
         </button>
       </div>
-      <div class="toolbar-show">
+      <div class="toolbar-show pull-right">
         <button class="btn btn-default" ng-click="$ctrl.showOverviewButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-eye-open"></span>
             Overview
