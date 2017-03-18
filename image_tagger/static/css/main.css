@@ -5,7 +5,12 @@ body {
   border: hsl(118, 50%, 50%) solid 2px;
 }
 .navbar-brand {
-  margin-left: 0 !important; /* remove uma margin que o bootstrap adiciona não sei porque */
+  /*margin-left: 0 !important; /* remove uma margin que o bootstrap adiciona não sei porque */
+}
+.util-centered{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .image-container {
   text-align: center;
@@ -43,20 +48,8 @@ body {
   top: 50px;
   left: 0;
   width: 100%;
-  background-color: #fff;
   padding: 0.5em 0;
   z-index: 9999;
-}
-.toolbar .toolbar-add {
-  float:left;
-}
-.toolbar .toolbar-show {
-  float:right;
-}
-.navbar-brand{
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 .image-thumb {
   width: 100%; 
