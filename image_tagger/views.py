@@ -205,4 +205,4 @@ def image(request, dataset_id, index):
 def dataset_image_tagger(request, dataset_id):
     if not request.user.datasets.filter(pk=dataset_id).exists():
         raise PermissionDenied
-    return render(request, 'image_tagger/dataset_images_tagger.html')
+    return render(request, 'image_tagger/dataset_image_tagger.html')
