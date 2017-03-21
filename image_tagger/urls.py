@@ -2,7 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.index, name='index'), # this name 'index' must exist in order to generate correctly urls in angular app. See 'urls.js'
     url(r'^logout$', views.logout, name='logout'),
     url(r'^datasets$', views.datasets, name='datasets'),
     url(r'^private_datasets$', views.private_datasets, name='private_datasets'),

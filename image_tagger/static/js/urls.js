@@ -1,5 +1,5 @@
 var urls = {};
-urls.root = 'https://colabdata-tnik.c9users.io/';
+urls.root = serverData.rootURL;
 urls.privateDatasets = urls.root + 'private_datasets';
 urls.index = urls.root;
 urls.saveRelation = urls.root + 'save/relation'
