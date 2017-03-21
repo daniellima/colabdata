@@ -233,7 +233,10 @@ def private_datasets(request):
     
 @require_GET
 @login_required
-def image(request, index):
+def image(request, dataset_id, index):
+    if not request.user.datasets.filter(pk=dataset_id).exists():
+        raise PermissionDenied
+    
     index = int(index)
     
     # image = Image.objects.raw("""
@@ -252,8 +255,11 @@ def image(request, index):
     #     HAVING c2 >= 3
     #     ORDER BY from_user ASC, c1 DESC, c2 ASC
     #     LIMIT 1 OFFSET %s""", [request.user.id, 39, request.user.id, 39, index])[0]
-    image = Image.objects.filter(dataset_id=39).order_by('id')[index]
-    num_of_images = Image.objects.filter(dataset_id=39).count()
+    
+    num_of_images = Image.objects.filter(dataset_id=dataset_id).count()
+    index = min(index, num_of_images-1)
+    
+    image = Image.objects.filter(dataset_id=dataset_id).order_by('id')[index]
     has_next_image = (index != num_of_images-1)
     return JsonResponse({
         'image': image.toJSONSerializable(only_tags_from_user=request.user),

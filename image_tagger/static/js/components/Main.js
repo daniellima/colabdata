@@ -32,8 +32,10 @@ MainComponent.prototype = {
     requestImage: function(imageIndex){
         showLoadingOverlay(true, "Carregando imagem...");
         this.isLoadingImage = true;
+        this.datasetId = this.getDatasetIdFromURL();
+        
         var response = null;
-        this.$http({method: 'get', url: 'image/'+imageIndex})
+        this.$http({method: 'get', url: 'image/'+this.datasetId+'/'+imageIndex})
         .then(function (_response){
             response = _response;
             return prefetchImage(this.$q, response.data.image.url);
@@ -57,6 +59,11 @@ MainComponent.prototype = {
             
         }.bind(this));
         
+    },
+    
+    getDatasetIdFromURL: function() {
+        var pathParts = window.location.pathname.split( '/' );
+        return pathParts[pathParts.length-1];
     },
     
     onImageTaggerClose: function(){
