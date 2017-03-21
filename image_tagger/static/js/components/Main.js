@@ -88,17 +88,13 @@ MainComponent.prototype = {
         this.blurButton();
     },
     
-    sairButtonClickHandler: function(){
+    logoutButtonClickHandler: function(){
         showLoadingOverlay(true, "Saindo...")
         this.$http({
             method: 'POST',
             url: urls.logout
         })
         .then(function(response){
-            this.userLogged = false;
-            localStorage.clear();
-            this.page = 'login-form';
-            
             window.location = urls.index;
         }.bind(this), function(response){
             showLoadingOverlay(false);
