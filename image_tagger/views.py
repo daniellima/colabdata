@@ -24,64 +24,6 @@ def is_curator(user, dataset):
     return DatasetMembership.objects.filter(user=user, dataset=dataset, group__name__in=["Curador","Administrador"]).exists()
 
 @require_POST
-def login(request):
-    sent = get_json(request)
-    
-    username = sent['email']
-    password = sent['senha']
-
-    user = auth.authenticate(username=username, password=password)
-    
-    if user is not None:
-        auth.login(request, user)
-        return HttpResponse()
-    else:
-        return HttpResponse(status=400)
-
-@require_GET
-@ajax_aware_login_required
-def all(request):
-    user = request.user
-    datasets = user.datasets.all()
-    datasets_for_response = []
-    
-    for dataset in datasets:
-        images = dataset.images.annotate(number_of_contributors=Count('tags__user', distinct=True))
-        
-        if is_curator(user, dataset):
-            ordered_images = images.order_by('-number_of_contributors')
-        else:
-            images_with_less_than_3_contributors = images.filter(number_of_contributors__lt=3).order_by('-number_of_contributors')
-            images_with_3_or_more_contributors = images.filter(number_of_contributors__gt=2).order_by('number_of_contributors')
-            
-            ordered_images = list(images_with_less_than_3_contributors) + list(images_with_3_or_more_contributors)
-        
-        images_for_response = []
-        for image in ordered_images:
-            if is_curator(user, dataset):
-                tags = image.tags.all()
-            else:
-                tags = image.tags.filter(user=user)
-            
-            images_for_response.append({
-                'id': image.id,
-                'url': image.file.url,
-                'width': image.file.width,
-                'height': image.file.height,
-                'tags': [tag.toJSONSerializable() for tag in tags]
-            })    
-        
-        
-        dataset_for_response = {
-            'name': dataset.name,
-            'images': images_for_response,
-        }
-        
-        datasets_for_response.append(dataset_for_response)
-    
-    return JsonResponse({'datasets': datasets_for_response})
-
-@require_POST
 @ajax_aware_login_required
 def save_tag(request):
     
@@ -165,14 +107,6 @@ def delete_relation(request):
     relation.delete()
     
     return HttpResponse()
-
-# # TODO: deletar
-# @require_POST
-# @ajax_aware_login_required
-# def logout(request):
-#     auth.logout(request)
-    
-#     return HttpResponse()
     
 @require_GET
 def dataset_publications(request, dataset_id):
