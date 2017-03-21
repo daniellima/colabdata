@@ -21,7 +21,7 @@ var component = RelationListComponent = function($rootScope, $http){
 
 component.definition = {
     controller: ['$rootScope', '$http', component],
-    templateUrl: "static/js/components/relationList.html",
+    templateUrl: urls.template("relationList.html"),
     bindings: {}
 }
 

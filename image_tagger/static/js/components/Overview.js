@@ -21,7 +21,7 @@ var component = OverviewComponent = function($rootScope){
 
 component.definition = {
     controller: ['$rootScope', component],
-    templateUrl: "static/js/components/overview.html",
+    templateUrl: urls.template("overview.html"),
     bindings: {
         // TODO receber via eventos
         multiplier: '<',

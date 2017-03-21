@@ -1,11 +1,6 @@
 /* global angular */
 var ColabDataApp = angular.module('ColabDataApp', []);
 
-var urls = {};
-urls.root = 'https://colabdata-tnik.c9users.io/';
-urls.privateDatasets = urls.root + 'image/private_datasets';
-urls.index = urls.root + 'image';
-
 ColabDataApp.config(['$httpProvider', function($httpProvider){
     
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -16,7 +11,7 @@ ColabDataApp.config(['$httpProvider', function($httpProvider){
             'request': function (config) {
                 // transforma qualquer request para que ele sempre seja feito para o root do site
                 // se a URL do site mudar, então tem que mudar aqui também!
-                config.url = urls.root + config.url;
+                //config.url = urls.root + config.url;
                 return config || $q.when(config); // TODO não sei que $q é esse
             },
             'responseError': function(rejection) {
@@ -65,7 +60,7 @@ store = {
     saveRelation: function($http, relationToSave, newName, newOriginTag, newTargetTag){
         return $http({
             method: 'POST',
-            url: 'image/save/relation',
+            url: urls.saveRelation,
             data: {
                 'id': relationToSave.id || null,
                 'name': newName,
@@ -104,7 +99,7 @@ store = {
     deleteRelation: function($http, relation) {
         return $http({
             method: 'POST',
-            url: 'image/delete/relation',
+            url: urls.deleteRelation,
             data: {
                 'id': relation.id
             }
@@ -131,7 +126,7 @@ store = {
         
         return $http({
             method: 'POST',
-            url: 'image/save/tag',
+            url: urls.saveTag,
             data: {
                 'imageId': this.image.id,
                 'tag': tagJSON
@@ -162,7 +157,7 @@ store = {
     deleteTag: function($http, tag){
         return $http({
             method: 'POST',
-            url: 'image/delete/tag',
+            url: urls.deleteTag,
             data: {
                 'id': tag.id
             }

@@ -34,7 +34,7 @@ var component = RelationEditorComponent = function($http, $rootScope){
 
 component.definition = {
     controller: ['$http', '$rootScope', component],
-    templateUrl: 'static/js/components/relationEditor.html',
+    templateUrl: urls.template('relationEditor.html'),
     bindings: {}
 },
 

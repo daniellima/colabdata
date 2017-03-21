@@ -2,7 +2,7 @@ var component = ObjectThumbnailComponent = function(){};
 
 component.definition = {
     controller: component,
-    templateUrl: 'static/js/components/objectThumbnail.html',
+    templateUrl: urls.template('objectThumbnail.html'),
     bindings: {
         image: '<',
         block: '<',

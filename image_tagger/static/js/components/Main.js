@@ -16,7 +16,7 @@ var MainComponent = function($rootScope, $http, $q){
 
 MainComponent.definition = {
     controller: ['$rootScope','$http', '$q', MainComponent],
-    templateUrl: 'static/js/components/main.html'
+    templateUrl: urls.template('main.html')
 }
 
 MainComponent.prototype = {
@@ -27,7 +27,10 @@ MainComponent.prototype = {
         this.datasetId = this.getDatasetIdFromURL();
         
         var response = null;
-        this.$http({method: 'get', url: 'image/'+this.datasetId+'/'+imageIndex})
+        this.$http({
+            method: 'get', 
+            url: urls.image(this.datasetId, imageIndex)
+        })
         .then(function (_response){
             response = _response;
             return prefetchImage(this.$q, response.data.image.url);
@@ -89,7 +92,7 @@ MainComponent.prototype = {
         showLoadingOverlay(true, "Saindo...")
         this.$http({
             method: 'POST',
-            url: 'image/logout'
+            url: urls.logout
         })
         .then(function(response){
             this.userLogged = false;

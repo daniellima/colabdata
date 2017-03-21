@@ -52,7 +52,7 @@ var component = ObjectEditorComponent = function($rootScope, $http){
 
 component.definition = {
     controller: ['$rootScope', '$http', component],
-    templateUrl: "static/js/components/objectEditor.html",
+    templateUrl: urls.template("objectEditor.html"),
     bindings: {}
 };
 

@@ -1,0 +1,11 @@
+var urls = {};
+urls.root = 'https://colabdata-tnik.c9users.io/';
+urls.privateDatasets = urls.root + 'private_datasets';
+urls.index = urls.root;
+urls.saveRelation = urls.root + 'save/relation'
+urls.deleteRelation = urls.root + 'delete/relation'
+urls.saveTag = urls.root + 'save/tag'
+urls.deleteTag = urls.root + 'delete/tag'
+urls.logout = urls.root + 'logout'
+urls.image = function(datasetId, imageIndex) {return urls.root + datasetId + '/' + imageIndex; };
+urls.template = function(templateName){ return urls.root+'static/js/components/' + templateName; };

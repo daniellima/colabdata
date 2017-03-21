@@ -96,7 +96,7 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
 
 component.definition = {
     controller: ['$rootScope', '$http', '$document', component],
-    templateUrl: "static/js/components/imageTagger.html",
+    templateUrl: urls.template("imageTagger.html"),
     bindings: {
         image: '<',
         onClose: '&'

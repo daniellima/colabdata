@@ -19,7 +19,7 @@ var component = ObjectViewerComponent = function($rootScope, $http){
 
 component.definition = {
     controller: ['$rootScope', '$http', component],
-    templateUrl: "static/js/components/objectViewer.html",
+    templateUrl: urls.template("objectViewer.html"),
     bindings: {}
 }
 
