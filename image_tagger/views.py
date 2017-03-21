@@ -15,7 +15,7 @@ import json
 import os
 from os import listdir
 from os.path import isfile, join
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 def get_json(request):
     return json.loads(request.body.decode('utf-8'))
@@ -166,13 +166,13 @@ def delete_relation(request):
     
     return HttpResponse()
 
-# TODO: deletar
-@require_POST
-@ajax_aware_login_required
-def logout(request):
-    auth.logout(request)
+# # TODO: deletar
+# @require_POST
+# @ajax_aware_login_required
+# def logout(request):
+#     auth.logout(request)
     
-    return HttpResponse()
+#     return HttpResponse()
     
 @require_GET
 def dataset_publications(request, dataset_id):
@@ -208,6 +208,7 @@ def index(request):
             user = auth.authenticate(username=request.POST['username'], password=request.POST['password'])
             if user is not None:
                 auth.login(request, user)
+                
                 return redirect('index')
             
             form.add_error(None, "Your credentials are not valid.")
@@ -235,25 +236,33 @@ def private_datasets(request):
 def image(request, index):
     index = int(index)
     
-    image = Image.objects.raw("""
-        SELECT image.id AS id, image.dataset_id AS dataset_id, image.file AS file, COUNT(tag.id) AS c1, -1 as c2
-        FROM image_tagger_image AS image
-        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-        WHERE image.dataset_id = %s
-        GROUP BY image.id
-        HAVING c1 < 3
-        UNION
-        SELECT image.id, image.dataset_id, image.file, -1 as c1, COUNT(tag.id) AS c2
-        FROM image_tagger_image AS image
-        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-        WHERE image.dataset_id = %s
-        GROUP BY image.id
-        HAVING c2 >= 3
-        ORDER BY c1 DESC, c2 ASC
-        LIMIT 1 OFFSET %s""", [39, 39, index])[0]
+    # image = Image.objects.raw("""
+    #     SELECT image.id AS id, image.dataset_id AS dataset_id, image.file AS file, COUNT(tag.id) AS c1, -1 as c2, MAX(tag.user_id = %s) AS from_user
+    #     FROM image_tagger_image AS image
+    #     LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+    #     WHERE image.dataset_id = %s
+    #     GROUP BY image.id
+    #     HAVING c1 < 3
+    #     UNION
+    #     SELECT image.id AS id, image.dataset_id AS dataset_id, image.file AS file, -1 as c1, COUNT(tag.id) AS c2, MAX(tag.user_id = %s) AS from_user
+    #     FROM image_tagger_image AS image
+    #     LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+    #     WHERE image.dataset_id = %s
+    #     GROUP BY image.id
+    #     HAVING c2 >= 3
+    #     ORDER BY from_user ASC, c1 DESC, c2 ASC
+    #     LIMIT 1 OFFSET %s""", [request.user.id, 39, request.user.id, 39, index])[0]
+    image = Image.objects.filter(dataset_id=39).order_by('id')[index]
     num_of_images = Image.objects.filter(dataset_id=39).count()
     has_next_image = (index != num_of_images-1)
     return JsonResponse({
         'image': image.toJSONSerializable(only_tags_from_user=request.user),
         'has_next_image': has_next_image
     })
+    
+@require_GET
+@login_required
+def dataset_images_tagger(request, dataset_id):
+    if not request.user.datasets.filter(pk=dataset_id).exists():
+        raise PermissionDenied
+    return render(request, 'image_tagger/dataset_images_tagger.html')

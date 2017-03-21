@@ -1,6 +1,11 @@
 /* global angular */
 var ColabDataApp = angular.module('ColabDataApp', []);
 
+var urls = {};
+urls.root = 'https://colabdata-tnik.c9users.io/';
+urls.privateDatasets = urls.root + 'image/private_datasets';
+urls.index = urls.root + 'image';
+
 ColabDataApp.config(['$httpProvider', function($httpProvider){
     
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -11,7 +16,7 @@ ColabDataApp.config(['$httpProvider', function($httpProvider){
             'request': function (config) {
                 // transforma qualquer request para que ele sempre seja feito para o root do site
                 // se a URL do site mudar, então tem que mudar aqui também!
-                config.url = 'https://colabdata-tnik.c9users.io/' + config.url;
+                config.url = urls.root + config.url;
                 return config || $q.when(config); // TODO não sei que $q é esse
             },
             'responseError': function(rejection) {

@@ -1,0 +1,45 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}{% endblock %}COLABDATA</title>
+  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="{% url 'index' %}" class="navbar-brand">
+                  COLABDATA
+                </a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="{% url 'index' %}" class="navbar-link">
+                        Home
+                    </a>
+                </li>
+            </ul>
+            {% if request.user.is_authenticated %}
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link navbar-btn">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

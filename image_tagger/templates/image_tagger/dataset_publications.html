@@ -1,65 +1,49 @@
+{% extends 'image_tagger/base.html' %}
+
 {% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Publicações | COLABDATA</title>
-  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
-  <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
-</head>
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a href="#" class="navbar-brand">
-          COLABDATA
-        </a>
-      </div>
-    </div>
-    </nav>
-    
-    <div class="container">
-        <p>
-          {% if should_go_back_to_private_datasets %}
-            <a href="{% url 'private-datasets' %}">
-                <span class="glyphicon glyphicon-chevron-left"></span>
-                Back to your datasets
-            </a>
-          {% else %}
-            <a href="{% url 'datasets' %}">
-                <span class="glyphicon glyphicon-chevron-left"></span>
-                See all datasets
-            </a>
-          {% endif %}
-        </p>
-        <div class="jumbotron">
-            <h1>{{ dataset.name }}</h1>
-            <p>{{ dataset.description|linebreaks }}</p>
+
+{% block title %}Publications | {% endblock %}
+
+{% block content %}
+  <p>
+    {% if should_go_back_to_private_datasets %}
+      <a href="{% url 'private-datasets' %}">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+          Back to your datasets
+      </a>
+    {% else %}
+      <a href="{% url 'datasets' %}">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+          See all datasets
+      </a>
+    {% endif %}
+  </p>
+  <div class="jumbotron">
+      <h1>{{ dataset.name }}</h1>
+      <p>{{ dataset.description|linebreaks }}</p>
+  </div>
+  <div class="page-header">
+    <h2>Available publications:</h2>
+  </div>
+  <ul style="padding-left: 0">
+  {% for publication in publications %}
+      <li class="panel panel-default" style="list-style-type: none">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ publication.name }}</h3>
         </div>
-        <div class="page-header">
-          <h2>Available publications:</h2>
+        <div class="panel-body">
+          <p>{{ publication.description|linebreaks }}</p>
+          <p><a 
+              class="btn btn-default" 
+              href="{% static 'tagged_images/publications/' %}{{ publication.get_file_name }}"
+              title="Download publication '{{ publication.name }}'">
+                  <span class="glyphicon glyphicon-download"></span>
+                  Download
+              </a>
+              Published on {{ publication.export_date }}
+          </p>
         </div>
-        <ul style="padding-left: 0">
-        {% for publication in publications %}
-            <li class="panel panel-default" style="list-style-type: none">
-              <div class="panel-heading">
-                <h3 class="panel-title">{{ publication.name }}</h3>
-              </div>
-              <div class="panel-body">
-                <p>{{ publication.description|linebreaks }}</p>
-                <p><a 
-                    class="btn btn-default" 
-                    href="{% static 'tagged_images/publications/' %}{{ publication.get_file_name }}"
-                    title="Download publication '{{ publication.name }}'">
-                        <span class="glyphicon glyphicon-download"></span>
-                        Download
-                    </a>
-                    Published on {{ publication.export_date }}
-                </p>
-              </div>
-            </li>
-        {% endfor %}
-        </ul>
-    </div>
-</body>
-</html>
+      </li>
+  {% endfor %}
+  </ul>
+{% endblock content %}

@@ -1,89 +1,71 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Datasets | COLABDATA</title>
-  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
-  <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
-</head>
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a href="#" class="navbar-brand">
-          COLABDATA
-        </a>
-      </div>
+{% extends 'image_tagger/base.html' %}
+
+{% block title %}Datasets | {% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-xs-12">
+    <div class="jumbotron">
+      <h1>Your Datasets</h1>
+      <p>Below is a list of all datasets that you can contribute to.</p>
+      <p>Click on 'contribute' to start contributing or on 'publications' to see the list of publications in each dataset and download them.</p>
     </div>
-    </nav>
-    
-    <div class="container">
-        <div class="row">
-          <div class="col-xs-12">
-            <div class="jumbotron">
-              <h1>Your Datasets</h1>
-              <p>Below is a list of all datasets that you can contribute to.</p>
-              <p>Click on 'contribute' to start contributing or on 'publications' to see the list of publications in each dataset and download them.</p>
-            </div>
-        
-            {% for dataset, images in datasets_with_images %}
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <h3 class="panel-title">{{ dataset.name }}</h3>
-                </div>
-                <div class="panel-body">
-                  <div class="col-xs-6">
-                    <p>{{ dataset.description|linebreaks }}</p>
-                    <p>
-                      <a 
-                        href="#"
-                        class="btn btn-primary" 
-                        title="Click to start contributing!"
-                        >
-                          <span class="glyphicon glyphicon-thumbs-up"></span>
-                          Start contributing
-                      </a>
-                      {% if dataset.has_no_publications %}
-                        <button
-                          disabled
-                          class="btn btn-default" 
-                          title="This dataset has no publications"
-                          >
-                            <span class="glyphicon glyphicon-eye-close"></span>
-                            This dataset has no publications
-                        </button>
-                      {% else %}
-                        <a 
-                          href="{% url 'dataset-publications' dataset.id %}?from_private"
-                          class="btn btn-default" 
-                          title="Click to view a list of this dataset publications"
-                          >
-                            <span class="glyphicon glyphicon-eye-open"></span>
-                            Publications
-                        </a>
-                      {% endif %}
-                    </p>
-                  </div>
-                  {% for image in images %}
-                    <div class="col-xs-2">
-                      <span class="thumbnail">
-                        <img src="{{ image.file.url }}" alt="one of the dataset images" />
-                      </span>
-                    </div>
-                  {% endfor %}
-                </div>
-              </div>
-            {% empty %}
-              <p style="text-align:center; font-size: 1.5em; margin-top: 3em">
-                You have no datasets. Ask an administrator to add you to a dataset
-              </p>
-              <p style="text-align:center; font-size: 1.5em;">
-                <a href="{% url 'datasets' %}">However, you can freely navigate through the public datasets. Click here</a>
-              </p>
-            {% endfor %}
-          </div>
+
+    {% for dataset, images in datasets_with_images %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ dataset.name }}</h3>
         </div>
-    </div>
-</body>
-</html>
+        <div class="panel-body">
+          <div class="col-xs-6">
+            <p>{{ dataset.description|linebreaks }}</p>
+            <p>
+              <a 
+                href="{% url 'dataset-images-tagger' dataset.id %}"
+                class="btn btn-primary" 
+                title="Click to start contributing!"
+                >
+                  <span class="glyphicon glyphicon-thumbs-up"></span>
+                  Start contributing
+              </a>
+              {% if dataset.has_no_publications %}
+                <button
+                  disabled
+                  class="btn btn-default" 
+                  title="This dataset has no publications"
+                  >
+                    <span class="glyphicon glyphicon-eye-close"></span>
+                    This dataset has no publications
+                </button>
+              {% else %}
+                <a 
+                  href="{% url 'dataset-publications' dataset.id %}?from_private"
+                  class="btn btn-default" 
+                  title="Click to view a list of this dataset publications"
+                  >
+                    <span class="glyphicon glyphicon-eye-open"></span>
+                    Publications
+                </a>
+              {% endif %}
+            </p>
+          </div>
+          {% for image in images %}
+            <div class="col-xs-2">
+              <span class="thumbnail">
+                <img src="{{ image.file.url }}" alt="one of the dataset images" />
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <p style="text-align:center; font-size: 1.5em; margin-top: 3em">
+        You have no datasets. Ask an administrator to add you to a dataset
+      </p>
+      <p style="text-align:center; font-size: 1.5em;">
+        <a href="{% url 'datasets' %}">However, you can freely navigate through the public datasets. Click here</a>
+      </p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}

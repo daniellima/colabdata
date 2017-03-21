@@ -84,11 +84,23 @@ MainComponent.prototype = {
         }.bind(this));
     },
     
+    blurButton: function() {
+        // The next and back buttons remain focused after the user click then.
+        // This removes the focus. The problem is that pressing enter to add a object might 
+        // trigger the click on the next or back button
+        document.activeElement.blur();
+    },
+    
+    backToDatasetsButtonClickHandler: function(){
+        window.location = urls.privateDatasets;
+    },
+    
     previousImageButtonClickHandler: function(event) {
         if(this.isLoadingImage) return;
         
         this.seletedImageIndex--;
         this.requestImage(this.seletedImageIndex);
+        this.blurButton();
     },
     
     nextImageButtonClickHandler: function(event) {
@@ -96,6 +108,7 @@ MainComponent.prototype = {
         
         this.seletedImageIndex++;
         this.requestImage(this.seletedImageIndex);
+        this.blurButton();
     },
     
     sairButtonClickHandler: function(){
@@ -109,9 +122,10 @@ MainComponent.prototype = {
             localStorage.clear();
             this.page = 'login-form';
             
+            window.location = urls.index;
+        }.bind(this), function(response){
             showLoadingOverlay(false);
-        }.bind(this), function(){
-            // TODO dar feedback pro usuario
+            showAndLogErrorThatOcurredDuringAction("sair", response, this.$rootScope)
         }.bind(this))
     }
 

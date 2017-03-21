@@ -1,0 +1,49 @@
+{% load static %}
+<!doctype html>
+<html lang="en" ng-app="ColabDataApp">
+<head>
+  <meta charset="utf-8">
+  <title>Image Tagger | COLABDATA</title>
+  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
+  <!-- aqui para fazer o angular usar o jQuery -->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+  <!-- angular está qui para o ng-cloak funcionar -->
+  <script src="{% static 'libs/angular/angular-1.5.6.js' %}"></script>
+</head>
+<body 
+  ng-cloak
+>
+  <main-component></main-component>
+  
+  <div class="loading-overlay loading-overlay__hidden">
+    <div class="loading-overlay_content">
+      <div class="sk-cube-grid">
+        <div class="sk-cube sk-cube1"></div>
+        <div class="sk-cube sk-cube2"></div>
+        <div class="sk-cube sk-cube3"></div>
+        <div class="sk-cube sk-cube4"></div>
+        <div class="sk-cube sk-cube5"></div>
+        <div class="sk-cube sk-cube6"></div>
+        <div class="sk-cube sk-cube7"></div>
+        <div class="sk-cube sk-cube8"></div>
+        <div class="sk-cube sk-cube9"></div>
+      </div>
+      <p class="loading-overlay_content_text">Carregando...</p>
+    </div>
+  </div>
+  
+<script type="text/javascript" src="{% static 'js/components/ImageChooser.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/ImageTagger.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/ObjectEditor.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/ObjectViewer.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/ObjectThumbnail.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/RelationEditor.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/RelationList.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/LoginForm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/Main.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/components/Overview.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+<script type="text/javascript" src="{% static 'libs/bootstrap/js/bootstrap.min.js' %}"></script>
+</body>
+</html>
