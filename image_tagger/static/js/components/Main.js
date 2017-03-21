@@ -55,7 +55,7 @@ MainComponent.prototype = {
     
     getDatasetIdFromURL: function() {
         var pathParts = window.location.pathname.split( '/' );
-        return pathParts[pathParts.length-1];
+        return pathParts[pathParts.length-2];
     },
     
     blurButton: function() {

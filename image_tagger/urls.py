@@ -12,5 +12,5 @@ urlpatterns = [
     url(r'^datasets$', views.datasets, name='datasets'),
     url(r'^$', views.index, name='index'),
     url(r'^private_datasets$', views.private_datasets, name='private_datasets'),
-    url(r'^dataset_image_tagger/([0-9]+)$', views.dataset_image_tagger, name='dataset_image_tagger'),
+    url(r'^dataset/([0-9]+)/image_tagger$', views.dataset_image_tagger, name='dataset_image_tagger'),
 ]
