@@ -70,7 +70,7 @@ class DatasetAdmin(admin.ModelAdmin):
         if dataset.has_no_publications():
             return "(não possui link pois não possui publicações)"
             
-        link = reverse('dataset-publications', args=(dataset.id,))
+        link = reverse('dataset_publications', args=(dataset.id,))
         return mark_safe('<a href="{0}">{0}</a>'.format(link))
         
     link.short_description = "Link para publicações"

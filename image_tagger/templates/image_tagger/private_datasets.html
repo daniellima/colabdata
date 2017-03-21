@@ -21,7 +21,7 @@
             <p>{{ dataset.description|linebreaks }}</p>
             <p>
               <a 
-                href="{% url 'dataset-images-tagger' dataset.id %}"
+                href="{% url 'dataset_image_tagger' dataset.id %}"
                 class="btn btn-primary" 
                 title="Click to start contributing!"
                 >
@@ -39,7 +39,7 @@
                 </button>
               {% else %}
                 <a 
-                  href="{% url 'dataset-publications' dataset.id %}?from_private"
+                  href="{% url 'dataset_publications' dataset.id %}?from_private"
                   class="btn btn-default" 
                   title="Click to view a list of this dataset publications"
                   >
