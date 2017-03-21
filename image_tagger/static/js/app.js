@@ -207,8 +207,6 @@ ColabDataApp.component('objectEditor', ObjectEditorComponent.definition);
 
 ColabDataApp.component('objectViewer', ObjectViewerComponent.definition);
 
-ColabDataApp.component('imageChooser', ImageChooserComponent.definition);
-
 ColabDataApp.component('imageTagger', ImageTaggerComponent.definition);
 
 ColabDataApp.component('objectThumbnail', ObjectThumbnailComponent.definition);
@@ -218,8 +216,6 @@ ColabDataApp.component('relationEditor', RelationEditorComponent.definition);
 ColabDataApp.component('relationList', RelationListComponent.definition);
 
 ColabDataApp.component('overview', OverviewComponent.definition);
-
-ColabDataApp.component('loginForm', LoginFormComponent.definition);
 
 ColabDataApp.component('mainComponent', MainComponent.definition);
 

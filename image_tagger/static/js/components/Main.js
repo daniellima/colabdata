@@ -3,7 +3,6 @@ var MainComponent = function($rootScope, $http, $q){
     this.$http = $http;
     this.$q = $q;
 
-    // this.images = [];
     this.seletedImageIndex = 0;
     this.selectedImage = null;
     this.hasNextImage = true;
@@ -12,14 +11,7 @@ var MainComponent = function($rootScope, $http, $q){
     };
     this.isLoadingImage = false;
     
-    this.userLogged = false;
-    this.page = 'image-tagger';
-    
     this.requestImage(this.seletedImageIndex);
-    
-    // if(localStorage.userLogged == "true"){
-    //     this.onLogin();
-    // }
 }
 
 MainComponent.definition = {
@@ -64,31 +56,6 @@ MainComponent.prototype = {
     getDatasetIdFromURL: function() {
         var pathParts = window.location.pathname.split( '/' );
         return pathParts[pathParts.length-1];
-    },
-    
-    onImageTaggerClose: function(){
-        this.page = 'image-chooser';
-    },
-    
-    onImageChooserChoose: function(image){
-        this.page = 'image-tagger';
-        // this.selectedImage = image;
-    },
-    
-    onLogin: function(){
-        this.userLogged = true;
-        localStorage.userLogged = this.userLogged;
-        this.page = 'image-tagger';
-        
-        showLoadingOverlay(true, "Carregando imagens...");
-        this.$http({method: 'get', url: 'image/all'})
-        .then(function (response){
-            this.datasets = response.data.datasets;
-            this.images = this.datasets[0].images;
-            showLoadingOverlay(false);
-        }.bind(this), function(){
-            showLoadingOverlay(false);
-        }.bind(this));
     },
     
     blurButton: function() {

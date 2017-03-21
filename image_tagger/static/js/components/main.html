@@ -48,19 +48,6 @@
     </div>
 </nav>
   
-<login-form
-    ng-show="$ctrl.page == 'login-form'"
-    on-login="$ctrl.onLogin()"
-></login-form>
-
-<!--<image-chooser
-    datasets="$ctrl.datasets"
-    ng-show="$ctrl.page == 'image-chooser'"
-    on-choose="$ctrl.onImageChooserChoose(image)"
-></image-chooser>
--->
 <image-tagger
     image="$ctrl.selectedImage"
-    ng-show="$ctrl.page == 'image-tagger'"
-    on-close="$ctrl.onImageTaggerClose()"
 ></image-tagger>
