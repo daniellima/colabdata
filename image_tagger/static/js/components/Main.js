@@ -22,17 +22,19 @@ MainComponent.definition = {
 MainComponent.prototype = {
     
     requestImage: function(imageIndex){
-        showLoadingOverlay(true, "Carregando imagem...");
+        showLoadingOverlay(true, "Carregando dados da imagem...");
         this.isLoadingImage = true;
         this.datasetId = this.getDatasetIdFromURL();
         
         var response = null;
-        this.$http({
+        return this.$http({
             method: 'get', 
             url: urls.image(this.datasetId, imageIndex)
         })
         .then(function (_response){
             response = _response;
+            
+            showLoadingOverlay(true, "Carregando imagem...");
             return prefetchImage(this.$q, response.data.image.url);
 
         }.bind(this))
@@ -41,7 +43,7 @@ MainComponent.prototype = {
             this.selectedImage = response.data.image;
             this.hasNextImage = response.data.has_next_image;
             
-        }.bind(this), function(){
+        }.bind(this), function(response){
             
             showAndLogErrorThatOcurredDuringAction("carregar imagem", response, this.$rootScope);
             // TODO retornar para datasets se for o primeiro loading
@@ -52,7 +54,7 @@ MainComponent.prototype = {
             showLoadingOverlay(false);
             this.isLoadingImage = false;
             
-        }.bind(this));
+        }.bind(this))
         
     },
     
