@@ -135,13 +135,19 @@ class Image(models.Model):
         extension = os.path.splitext(self.file.name)[1]
         return "{0}{1}".format(id, extension)
         
-    def toJSONSerializable(self, only_tags_from_user):
+    def toJSONSerializable(self, only_tags_from_user=None):
+        
+        if only_tags_from_user is not None:
+            tags = self.tags.filter(user=only_tags_from_user)
+        else:
+            tags = self.tags.all()
+            
         return {
             'id': self.id,
             'url': self.file.url,
             'width': self.file.width,
             'height': self.file.height,
-            'tags': [tag.toJSONSerializable() for tag in self.tags.filter(user=only_tags_from_user)]
+            'tags': [tag.toJSONSerializable() for tag in tags]
         }
         
     def __str__(self):

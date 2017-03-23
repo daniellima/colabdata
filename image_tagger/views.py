@@ -157,22 +157,21 @@ def logout(request):
     auth.logout(request)
     
     return redirect('index')
-    
+
 @require_GET
 @login_required
 def private_datasets(request):
     datasets = Dataset.objects.filter(datasetmembership__user=request.user).order_by('name')
-    datasets_with_images = [(dataset, dataset.get_example_images(3)) for dataset in datasets]
-    return render(request, 'image_tagger/private_datasets.html', {'datasets_with_images': datasets_with_images})
+    datasets_with_info = [(dataset, is_curator(request.user, dataset), dataset.get_example_images(3)) for dataset in datasets]
+    return render(request, 'image_tagger/private_datasets.html', {
+        'datasets_with_info': datasets_with_info
+    })
     
 @require_GET
 @login_required
 def image(request, dataset_id, index):
     if not request.user.datasets.filter(pk=dataset_id).exists():
         raise PermissionDenied
-    
-    index = int(index)
-    
     # image = Image.objects.raw("""
     #     SELECT image.id AS id, image.dataset_id AS dataset_id, image.file AS file, COUNT(tag.id) AS c1, -1 as c2, MAX(tag.user_id = %s) AS from_user
     #     FROM image_tagger_image AS image
@@ -190,16 +189,25 @@ def image(request, dataset_id, index):
     #     ORDER BY from_user ASC, c1 DESC, c2 ASC
     #     LIMIT 1 OFFSET %s""", [request.user.id, 39, request.user.id, 39, index])[0]
     
+    index = int(index)
+    
     num_of_images = Image.objects.filter(dataset_id=dataset_id).count()
     index = min(index, num_of_images-1)
     
     image = Image.objects.filter(dataset_id=dataset_id).order_by('id')[index]
     has_next_image = (index != num_of_images-1)
+
+    dataset = Dataset.objects.get(pk=dataset_id)
+    if is_curator(request.user, dataset):
+        image = image.toJSONSerializable()
+    else:
+        image = image.toJSONSerializable(only_tags_from_user=request.user)
+
     return JsonResponse({
-        'image': image.toJSONSerializable(only_tags_from_user=request.user),
+        'image': image,
         'has_next_image': has_next_image
     })
-    
+
 @require_GET
 @login_required
 def dataset_image_tagger(request, dataset_id):

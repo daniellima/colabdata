@@ -11,7 +11,7 @@
       <p>Click on 'contribute' to start contributing or on 'publications' to see the list of publications in each dataset and download them.</p>
     </div>
 
-    {% for dataset, images in datasets_with_images %}
+    {% for dataset, user_is_curator, images in datasets_with_info %}
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">{{ dataset.name }}</h3>
@@ -28,6 +28,16 @@
                   <span class="glyphicon glyphicon-thumbs-up"></span>
                   Start contributing
               </a>
+              {% if user_is_curator %}
+              <a 
+                href="{% url 'dataset_image_tagger' dataset.id %}"
+                class="btn btn-success" 
+                title="Click to start curating"
+                >
+                  <span class="glyphicon glyphicon-zoom-in"></span>
+                  Start curating
+              </a>
+              {% endif %}
               {% if dataset.has_no_publications %}
                 <button
                   disabled
