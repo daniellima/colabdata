@@ -8,4 +8,5 @@ urls.saveTag = urls.root + 'save/tag'
 urls.deleteTag = urls.root + 'delete/tag'
 urls.logout = urls.root + 'logout'
 urls.image = function(datasetId, imageIndex) {return urls.root + datasetId + '/' + imageIndex; };
-urls.template = function(templateName){ return urls.root+'static/js/components/' + templateName; };
+urls.template = function(templateName){ return urls.root + 'static/js/components/' + templateName; };
+urls.datasetOnthology = function(datasetId){ return urls.root + 'dataset/'+datasetId+'/onthology'; };

@@ -25,6 +25,23 @@ var component = ObjectEditorComponent = function($rootScope, $http){
         return true;
     }
     
+    var _attributeTypeNames = []
+    this.possibleAttributeTypeNames = function(){
+        _attributeTypeNames.splice(0, _attributeTypeNames.length)
+        
+        var types = store.getAttributeTypes();
+        for(var i = 0; i < types.length; i++) {
+            var type = types[i];
+            _attributeTypeNames.push(type.name);
+        }
+        
+        return _attributeTypeNames;
+    }
+    
+    this.possibleValuesOfAttributeType = function(attributeTypeName){
+        return store.getValuesForAttributeType(attributeTypeName);
+    }
+    
     $rootScope.$on('tag-editor-requested', function(event, data){
         if(data.tag) {
             this.tagBeingEdited = data.tag;

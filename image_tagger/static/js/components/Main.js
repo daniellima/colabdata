@@ -10,8 +10,9 @@ var MainComponent = function($rootScope, $http, $q){
         return this.seletedImageIndex != 0;
     };
     this.isLoadingImage = false;
+    this.datasetId = this.getDatasetIdFromURL();
     
-    this.requestImage(this.seletedImageIndex);
+    this.requestOnthologyAndFirstImage();
 }
 
 MainComponent.definition = {
@@ -21,13 +22,32 @@ MainComponent.definition = {
 
 MainComponent.prototype = {
     
+    requestOnthologyAndFirstImage: function(){
+        showLoadingOverlay(true, "Carregando ontologia...");
+        
+        return this.$http({
+            method: 'get', 
+            url: urls.datasetOnthology(this.datasetId)
+        })
+        .then(function(response){
+            
+            store.setOnthology(response.data);
+            this.requestImage(this.seletedImageIndex);
+            
+        }.bind(this), function(response){
+            
+            showLoadingOverlay(false);
+            showAndLogErrorThatOcurredDuringAction("carregar ontologia", response, this.$rootScope);
+            
+        }.bind(this));
+    },
+    
     requestImage: function(imageIndex){
         showLoadingOverlay(true, "Carregando dados da imagem...");
         this.isLoadingImage = true;
-        this.datasetId = this.getDatasetIdFromURL();
         
         var response = null;
-        return this.$http({
+        this.$http({
             method: 'get', 
             url: urls.image(this.datasetId, imageIndex)
         })
