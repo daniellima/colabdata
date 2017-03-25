@@ -4,6 +4,9 @@ var component = ObjectEditorComponent = function($rootScope, $http){
     this.$rootScope = $rootScope;
     
     this.open = false;
+    
+    this.errors = [];
+    
     this.tagBeingEdited = null;
     this.object = null;
     this.attributes = [];
@@ -15,18 +18,6 @@ var component = ObjectEditorComponent = function($rootScope, $http){
     
     this.image = function(){
         return store.getImage();
-    }
-    
-    this.canSaveTag = function(){
-        
-        for(var i = 0; i < this.attributes.length; i++) {
-            var attribute = this.attributes[i];
-            if(attribute.name == null || attribute.value == null || attribute.name.trim() == "" || attribute.value.trim() == "") {
-                return false;
-            }
-        }
-        
-        return true;
     }
     
     this.possibleObjectTypes = function(){
@@ -80,6 +71,43 @@ component.prototype = {
         this.modalCallback();
     },
     
+    checkValid: function() {
+        this.errors = [];
+        if(this.hasEmptyAttributes()) {
+            this.errors.push("There is at least one empty attribute.");
+        }
+        if(this.hasRepeatedAttributes()) {
+            this.errors.push("There is at least one attribute being repeated.");
+        }
+        
+        return this.errors.length == 0;
+    },
+    
+    hasEmptyAttributes: function() {
+        for(var i = 0; i < this.attributes.length; i++) {
+            var attribute = this.attributes[i];
+            if(attribute.name == null || attribute.value == null || attribute.name.trim() == "" || attribute.value.trim() == "") {
+                return true;
+            }
+        }
+        
+        return false;
+    },
+    
+    hasRepeatedAttributes: function() {
+        for(var i = 0; i < this.attributes.length; i++) {
+            var attribute1 = this.attributes[i];
+            for(var j = 0; j < this.attributes.length; j++) {
+                var attribute2 = this.attributes[j];
+                if(attribute1 != attribute2 && attribute1.name == attribute2.name && attribute1.value == attribute2.value) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    },
+    
     setOpen: function(value) {
         if(this.open == true && value == false){
             this.$rootScope.$emit('modal-closed');
@@ -104,19 +132,23 @@ component.prototype = {
         });
     },
     saveButtonClickHandler: function() {
-        showLoadingOverlay(true, "Salvando...");
-        var object = this.object == null ? "" : this.object;
-        store.saveTag(this.$http, this.tagBeingEdited, object, this.attributes, this.marker)
-        .then(function() {
-            this.setOpen(false);
-            
-            this.modalCallback();
-        }.bind(this), function(response) { 
-            showAndLogErrorThatOcurredDuringAction("salvar o objeto", response, this.$rootScope);
-        }.bind(this))
-        .finally(function() {
-            showLoadingOverlay(false);
-        }.bind(this));
+        var isValid = this.checkValid();
+        
+        if(isValid) {
+            showLoadingOverlay(true, "Salvando...");
+            var object = this.object == null ? "" : this.object;
+            store.saveTag(this.$http, this.tagBeingEdited, object, this.attributes, this.marker)
+            .then(function() {
+                this.setOpen(false);
+                
+                this.modalCallback();
+            }.bind(this), function(response) { 
+                showAndLogErrorThatOcurredDuringAction("salvar o objeto", response, this.$rootScope);
+            }.bind(this))
+            .finally(function() {
+                showLoadingOverlay(false);
+            }.bind(this));
+        }
     },
     deleteButtonClickHandler: function() {
         showLoadingOverlay(true, "Deletando...");

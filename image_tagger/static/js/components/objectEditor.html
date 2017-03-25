@@ -10,6 +10,11 @@
         </button>
       </div>
       <div class="row">
+        <div class="alert alert-danger" ng-if="$ctrl.errors.length">
+          <p ng-repeat="error in $ctrl.errors">{{ error }}</p>
+        </div>
+      </div>
+      <div class="row">
         <div class="col-md-6 object-image-column">
           <object-thumbnail class="object-image" image="$ctrl.image()" block="$ctrl.marker" size="350"></object-thumbnail>
         </div>
@@ -79,7 +84,7 @@
         <div class="col-md-6">
           <div style="display: table; width: 100%;">
             <div style="display: table-cell">
-              <button class="btn btn-primary btn-block save-button" ng-disabled="!$ctrl.canSaveTag()" ng-click="$ctrl.saveButtonClickHandler()">
+              <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.saveButtonClickHandler()">
                 Salvar
               </button>
             </div>
