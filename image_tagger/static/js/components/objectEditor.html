@@ -17,7 +17,9 @@
           <div class="row">
             <div class="col-md-12">
               <label for="object-name">Nome</label>
-              <input type="text" id="object-name" class="form-control" ng-model="$ctrl.object" placeholder="nome do objeto">
+              <!--<input type="text" id="object-name" class="form-control" ng-model="$ctrl.object" placeholder="nome do objeto">-->
+              <select class="form-control" id="object-name" ng-model="$ctrl.object" ng-options="type for type in $ctrl.possibleObjectTypes()">
+              </select>
               <label for="">Atributos</label>
             </div>
           </div>
@@ -41,7 +43,7 @@
               <div style="display: table; width: 100%">
                 <div style="display: table-row;" ng-repeat="attribute in $ctrl.attributes">
                   <div style="display: table-cell; width: 50%">
-                    <select class="form-control attribute-name" ng-model="attribute.name" ng-options="type.name as type.name for type in $ctrl.possibleAttributeTypeNames()">
+                    <select class="form-control attribute-name" ng-model="attribute.name" ng-options="type.name as type.name for type in $ctrl.possibleAttributeTypes()">
                     </select>
                   </div>
                   <div style="display: table-cell; width: 50%">

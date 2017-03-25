@@ -5,7 +5,7 @@ var component = ObjectEditorComponent = function($rootScope, $http){
     
     this.open = false;
     this.tagBeingEdited = null;
-    this.object = "";
+    this.object = null;
     this.attributes = [];
     this.marker = {x:0, y:0, width:0, height:0}
     
@@ -25,7 +25,11 @@ var component = ObjectEditorComponent = function($rootScope, $http){
         return true;
     }
     
-    this.possibleAttributeTypeNames = function(){
+    this.possibleObjectTypes = function(){
+        return store.getObjectTypes();
+    }
+    
+    this.possibleAttributeTypes = function(){
         return store.getAttributeTypes();
     }
     

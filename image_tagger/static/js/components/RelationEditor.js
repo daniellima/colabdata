@@ -9,6 +9,10 @@ var component = RelationEditorComponent = function($http, $rootScope){
     this.targetTag = null;
     this.name = null;
     
+    this.possibleRelationTypes = function(){
+        return store.getRelationTypes();
+    }
+    
     $rootScope.$on('relation-editor-requested', function(event, data) {
         this.setOpen(true);
         
@@ -16,7 +20,7 @@ var component = RelationEditorComponent = function($http, $rootScope){
             this.relationBeingEdited = null;
             this.originTag = null;
             this.targetTag = null;
-            this.name = "";
+            this.name = null;
         } else {
             this.relationBeingEdited = data.relation;
             this.originTag = data.relation.originTag;

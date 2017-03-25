@@ -63,6 +63,12 @@ store = {
     getOnthology: function(){
         return this.onthology;
     },
+    getObjectTypes: function() {
+        return this.onthology.objects;
+    },
+    getRelationTypes: function() {
+        return this.onthology.relations;
+    },
     getAttributeTypes: function() {
         return this.onthology.attributes;
     },

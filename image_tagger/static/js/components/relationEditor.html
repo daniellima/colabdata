@@ -27,12 +27,19 @@
         </div>
       </div>
       <div class="row">
-        <input 
-          type="text" 
-          class="form-control text-center" 
+        <!--<input -->
+        <!--  type="text" -->
+        <!--  class="form-control text-center" -->
+        <!--  style="margin-top: 1em" -->
+        <!--  ng-model="$ctrl.name" -->
+        <!--  ng-disabled="!$ctrl.isBlocksChoosen()">-->
+        <select 
+          class="form-control" 
           style="margin-top: 1em" 
           ng-model="$ctrl.name" 
-          ng-disabled="!$ctrl.isBlocksChoosen()">
+          ng-disabled="!$ctrl.isBlocksChoosen()" 
+          ng-options="type for type in $ctrl.possibleRelationTypes()">
+        </select>
       </div>
       <div class="row">
         <button class="btn btn-primary btn-block" 
