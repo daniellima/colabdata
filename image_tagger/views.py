@@ -260,7 +260,7 @@ def dataset_image_tagger(request, dataset_id):
     else:
         user_is_curator = 'false'
     
-    if True:
+    if dataset.fixed_onthology:
         use_onthology = 'true'
     else:
         use_onthology = 'false'
