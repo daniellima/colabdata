@@ -186,6 +186,12 @@ class CustomUserAdmin(UserAdmin):
         
         return qs.filter(is_superuser=False)
     
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.is_staff = True
+        
+        super(CustomUserAdmin, self).save_model(request, obj, form, change)
+    
     def has_module_permission(self, request):
         return True
     
