@@ -233,7 +233,7 @@ def images_pack(request, dataset_id):
 def dataset_onthology(request, dataset_id):
     dataset = Dataset.objects.get(pk=dataset_id);
     
-    objects = [object_type.name for object_type in dataset.object_types.all()];
+    objects = [object_type.name for object_type in dataset.object_types.all() if object_type.name.strip() != ""];
     relations = [relation_type.name for relation_type in dataset.relation_types.all()]
     attributes = [];
     for attribute_type in dataset.attribute_types.all():
