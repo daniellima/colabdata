@@ -80,12 +80,13 @@ store = {
             }
         }
     },
+    
     saveRelation: function($http, relationToSave, newName, newOriginTag, newTargetTag){
         return $http({
             method: 'POST',
             url: urls.saveRelation,
             data: {
-                'id': relationToSave.id || null,
+                'id': relationToSave || null,
                 'name': newName,
                 'originTagId': newOriginTag.id, 
                 'targetTagId': newTargetTag.id,
