@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django import forms
 from .decorators import ajax_aware_login_required
-from django.db.models import Count
+from django.db.models import Count, Case, When, IntegerField, Max, Sum
 import json
 import os
 import random
@@ -204,22 +204,25 @@ def images_pack(request, dataset_id):
             ids = random.sample(ids, PACK_SIZE)
         images = Image.objects.filter(id__in=ids)
     else:
-        images = Image.objects.raw("""
-            SELECT image.id AS id, COUNT(DISTINCT tag.user_id) AS c1, -1 as c2, MAX(tag.user_id = %s) AS from_user
-            FROM image_tagger_image AS image
-            LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-            WHERE image.dataset_id = %s
-            GROUP BY image.id
-            HAVING c1 < 3
-            UNION
-            SELECT image.id AS id, -1 as c1, COUNT(DISTINCT tag.user_id) AS c2, MAX(tag.user_id = %s) AS from_user
-            FROM image_tagger_image AS image
-            LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-            WHERE image.dataset_id = %s
-            GROUP BY image.id
-            HAVING c2 >= 3
-            ORDER BY from_user ASC, c1 DESC, c2 ASC
-            LIMIT %s""", [request.user.id, dataset_id, request.user.id, dataset_id, PACK_SIZE])
+        num_images_to_contribute_to = Image.objects.annotate(contributed_by_user=Sum(
+            Case(
+                When(tags__user=request.user, then=1),
+                default=0,
+                output_field=IntegerField()
+        ))).filter(dataset=dataset, contributed_by_user=0).count()
+        if num_images_to_contribute_to > 0:
+            images = Image.objects \
+                .annotate(contributions=Count('tags__user', distinct=True)) \
+                .annotate(user_contributed=Max(Case(When(tags__user=request.user, then=1), default=0, output_field=IntegerField()))) \
+                .filter(user_contributed=0, dataset=dataset) \
+                .order_by(Case(When(contributions__lte=3, then='contributions')).desc(), Case(When(contributions__gt=3, then='contributions')).asc()) \
+                [:PACK_SIZE]
+        else:
+            ids = Image.objects.filter(dataset=dataset).order_by('id').values_list('id', flat=True)
+            ids = list(ids)
+            if len(ids) > PACK_SIZE:
+                ids = random.sample(ids, PACK_SIZE)
+            images = Image.objects.filter(id__in=ids)
 
     image_ids = [image.id for image in images]
     
