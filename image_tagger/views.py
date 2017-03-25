@@ -13,6 +13,7 @@ from .decorators import ajax_aware_login_required
 from django.db.models import Count
 import json
 import os
+import random
 from os import listdir
 from os.path import isfile, join
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -189,29 +190,40 @@ def image(request, dataset_id, image_id):
 @require_GET
 @ajax_aware_login_required
 def images_pack(request, dataset_id):
+    PACK_SIZE = 15
+    
     if not request.user.datasets.filter(pk=dataset_id).exists():
         raise PermissionDenied
     
-    images = Image.objects.raw("""
-        SELECT image.id AS id, COUNT(DISTINCT tag.user_id) AS c1, -1 as c2, MAX(tag.user_id = %s) AS from_user
-        FROM image_tagger_image AS image
-        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-        WHERE image.dataset_id = %s
-        GROUP BY image.id
-        HAVING c1 < 3
-        UNION
-        SELECT image.id AS id, -1 as c1, COUNT(DISTINCT tag.user_id) AS c2, MAX(tag.user_id = %s) AS from_user
-        FROM image_tagger_image AS image
-        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-        WHERE image.dataset_id = %s
-        GROUP BY image.id
-        HAVING c2 >= 3
-        ORDER BY from_user ASC, c1 DESC, c2 ASC
-        LIMIT %s""", [request.user.id, dataset_id, request.user.id, dataset_id, 15])
+    dataset = Dataset.objects.get(pk=dataset_id)
     
-    ids = [image.id for image in images]
+    if is_curator(request.user, dataset):
+        ids = Image.objects.annotate(num_tags=Count('tags')).filter(num_tags__gt=0, dataset=dataset).order_by('id').values_list('id', flat=True)
+        ids = list(ids)
+        if len(ids) > PACK_SIZE:
+            ids = random.sample(ids, PACK_SIZE)
+        images = Image.objects.filter(id__in=ids)
+    else:
+        images = Image.objects.raw("""
+            SELECT image.id AS id, COUNT(DISTINCT tag.user_id) AS c1, -1 as c2, MAX(tag.user_id = %s) AS from_user
+            FROM image_tagger_image AS image
+            LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+            WHERE image.dataset_id = %s
+            GROUP BY image.id
+            HAVING c1 < 3
+            UNION
+            SELECT image.id AS id, -1 as c1, COUNT(DISTINCT tag.user_id) AS c2, MAX(tag.user_id = %s) AS from_user
+            FROM image_tagger_image AS image
+            LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+            WHERE image.dataset_id = %s
+            GROUP BY image.id
+            HAVING c2 >= 3
+            ORDER BY from_user ASC, c1 DESC, c2 ASC
+            LIMIT %s""", [request.user.id, dataset_id, request.user.id, dataset_id, PACK_SIZE])
+
+    image_ids = [image.id for image in images]
     
-    return JsonResponse({'images': ids})
+    return JsonResponse({'images': image_ids})
 
 @require_GET
 @login_required
