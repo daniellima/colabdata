@@ -9,17 +9,22 @@
           </button>
       </div>
       <div class="row">
+        <div class="alert alert-danger" ng-if="$ctrl.errors.length">
+          <p ng-repeat="error in $ctrl.errors">{{ error }}</p>
+        </div>
+      </div>
+      <div class="row">
         <div class="col-md-6 text-center">
-          <div class="relation-editor-thumbnail-container" 
-            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.isBlocksChoosen()}"
+          <div 
+            class="relation-editor-thumbnail-container relation-editor-thumbnail-container__empty" 
             ng-click="$ctrl.tagThumbnailButtonClickHandler('origin')"
             >
             <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.originTag" size="200"></object-thumbnail>
           </div>
         </div>
         <div class="col-md-6 text-center">
-          <div class="relation-editor-thumbnail-container" 
-            ng-class="{'relation-editor-thumbnail-container__empty': !$ctrl.isBlocksChoosen()}"
+          <div 
+            class="relation-editor-thumbnail-container relation-editor-thumbnail-container__empty" 
             ng-click="$ctrl.tagThumbnailButtonClickHandler('target')"
             >
             <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.targetTag" size="200"></object-thumbnail>
@@ -32,21 +37,18 @@
           type="text" 
           class="form-control text-center" 
           style="margin-top: 1em" 
-          ng-model="$ctrl.name" 
-          ng-disabled="!$ctrl.isBlocksChoosen()">
+          ng-model="$ctrl.name">
         <select
           ng-if="$ctrl.useOnthology()"
           class="form-control" 
           style="margin-top: 1em" 
           ng-model="$ctrl.name" 
-          ng-disabled="!$ctrl.isBlocksChoosen()" 
           ng-options="type for type in $ctrl.possibleRelationTypes()">
         </select>
       </div>
       <div class="row">
         <button class="btn btn-primary btn-block" 
           style="margin-top: 1em" 
-          ng-disabled="!$ctrl.isRelationComplete()"
           ng-click="$ctrl.saveButtonClickHandler()"
           >
           Salvar
