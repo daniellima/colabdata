@@ -218,4 +218,14 @@ def images_pack(request, dataset_id):
 def dataset_image_tagger(request, dataset_id):
     if not request.user.datasets.filter(pk=dataset_id).exists():
         raise PermissionDenied
-    return render(request, 'image_tagger/dataset_image_tagger.html')
+    
+    dataset = Dataset.objects.get(pk=dataset_id)
+    
+    if is_curator(request.user, dataset):
+        user_is_curator = 'true'
+    else:
+        user_is_curator = 'false'
+    
+    return render(request, 'image_tagger/dataset_image_tagger.html', {
+        'user_is_curator': user_is_curator
+    })

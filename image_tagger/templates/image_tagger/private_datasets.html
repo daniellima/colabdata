@@ -20,23 +20,24 @@
           <div class="col-xs-6">
             <p>{{ dataset.description|linebreaks }}</p>
             <p>
-              <a 
-                href="{% url 'dataset_image_tagger' dataset.id %}"
-                class="btn btn-primary" 
-                title="Click to start contributing!"
-                >
-                  <span class="glyphicon glyphicon-thumbs-up"></span>
-                  Start contributing
-              </a>
               {% if user_is_curator %}
-              <a 
-                href="{% url 'dataset_image_tagger' dataset.id %}"
-                class="btn btn-success" 
-                title="Click to start curating"
-                >
-                  <span class="glyphicon glyphicon-zoom-in"></span>
-                  Start curating
-              </a>
+                <a 
+                  href="{% url 'dataset_image_tagger' dataset.id %}"
+                  class="btn btn-success" 
+                  title="Click to start curating"
+                  >
+                    <span class="glyphicon glyphicon-zoom-in"></span>
+                    Start curating
+                </a>
+              {% else %}
+                <a 
+                  href="{% url 'dataset_image_tagger' dataset.id %}"
+                  class="btn btn-primary" 
+                  title="Click to start contributing!"
+                  >
+                    <span class="glyphicon glyphicon-thumbs-up"></span>
+                    Start contributing
+                </a>
               {% endif %}
               {% if dataset.has_no_publications %}
                 <button

@@ -7,7 +7,7 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
     this.pages = {IMAGE: 1, OVERVIEW: 2}
     this.resizeMethods = { BY_WIDTH: 1, BY_HEIGHT: 2, ORIGINAL: 3 }
     
-    this.currentPage = this.pages.IMAGE;
+    this.currentPage = serverData.user_is_curator ? this.pages.OVERVIEW : this.pages.IMAGE;
     this.overviewImageResizeMethod = this.resizeMethods.BY_WIDTH;
     this.imageResizeMethod = this.resizeMethods.BY_HEIGHT;
     
