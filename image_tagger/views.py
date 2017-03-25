@@ -231,13 +231,15 @@ def images_pack(request, dataset_id):
 @require_GET
 @ajax_aware_login_required
 def dataset_onthology(request, dataset_id):
-    objects = ['objeto 1', 'objeto 2', 'objeto 3'];
-    relations = ['relacao 1', 'relacao 2', 'relacao 3', 'relacao 4']
-    attributes = [
-        {'name': 'A1', 'values': ['V11', 'V12', 'V13']},
-        {'name': 'A2', 'values': ['V21', 'V22', 'V23']},
-        {'name': 'A3', 'values': ['V31', 'V32', 'V33']},
-    ];
+    dataset = Dataset.objects.get(pk=dataset_id);
+    
+    objects = [object_type.name for object_type in dataset.object_types.all()];
+    relations = [relation_type.name for relation_type in dataset.relation_types.all()]
+    attributes = [];
+    for attribute_type in dataset.attribute_types.all():
+        values = [value.name for value in attribute_type.values.all()]
+        attributes.append({'name': attribute_type.name, 'values': values})
+    
     onthology = {
         'objects': objects,
         'relations': relations,
