@@ -9,6 +9,10 @@ var component = RelationEditorComponent = function($http, $rootScope){
     this.targetTag = null;
     this.name = null;
     
+    this.useOnthology = function() {
+        return serverData.use_onthology;
+    };
+    
     this.possibleRelationTypes = function(){
         return store.getRelationTypes();
     }

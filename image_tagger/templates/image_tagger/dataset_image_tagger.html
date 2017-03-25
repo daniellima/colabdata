@@ -36,7 +36,8 @@
 <script>
   serverData = {};
   serverData.rootURL = '{% url 'index' %}';
-  serverData.user_is_curator = {{ user_is_curator }};
+  serverData.user_is_curator = {{ user_is_curator }}; // TODO mudar o nome para padrão javascript
+  serverData.use_onthology = {{ use_onthology }};
 </script>
 <script type="text/javascript" src="{% static 'js/urls.js' %}"></script> 
 <script type="text/javascript" src="{% static 'js/components/ImageTagger.js' %}"></script>

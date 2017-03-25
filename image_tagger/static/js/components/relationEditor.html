@@ -27,13 +27,15 @@
         </div>
       </div>
       <div class="row">
-        <!--<input -->
-        <!--  type="text" -->
-        <!--  class="form-control text-center" -->
-        <!--  style="margin-top: 1em" -->
-        <!--  ng-model="$ctrl.name" -->
-        <!--  ng-disabled="!$ctrl.isBlocksChoosen()">-->
-        <select 
+        <input
+          ng-if="!$ctrl.useOnthology()"
+          type="text" 
+          class="form-control text-center" 
+          style="margin-top: 1em" 
+          ng-model="$ctrl.name" 
+          ng-disabled="!$ctrl.isBlocksChoosen()">
+        <select
+          ng-if="$ctrl.useOnthology()"
           class="form-control" 
           style="margin-top: 1em" 
           ng-model="$ctrl.name" 

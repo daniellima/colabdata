@@ -9,6 +9,10 @@ var component = ObjectEditorComponent = function($rootScope, $http){
     this.attributes = [];
     this.marker = {x:0, y:0, width:0, height:0}
     
+    this.useOnthology = function() {
+        return serverData.use_onthology;
+    };
+    
     this.image = function(){
         return store.getImage();
     }

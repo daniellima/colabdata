@@ -260,6 +260,12 @@ def dataset_image_tagger(request, dataset_id):
     else:
         user_is_curator = 'false'
     
+    if True:
+        use_onthology = 'true'
+    else:
+        use_onthology = 'false'
+    
     return render(request, 'image_tagger/dataset_image_tagger.html', {
-        'user_is_curator': user_is_curator
+        'user_is_curator': user_is_curator,
+        'use_onthology' : use_onthology
     })

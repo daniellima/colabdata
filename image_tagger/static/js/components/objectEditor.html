@@ -17,15 +17,15 @@
           <div class="row">
             <div class="col-md-12">
               <label for="object-name">Nome</label>
-              <!--<input type="text" id="object-name" class="form-control" ng-model="$ctrl.object" placeholder="nome do objeto">-->
-              <select class="form-control" id="object-name" ng-model="$ctrl.object" ng-options="type for type in $ctrl.possibleObjectTypes()">
+              <input type="text" ng-if="!$ctrl.useOnthology()" id="object-name" class="form-control" ng-model="$ctrl.object" placeholder="nome do objeto">
+              <select ng-if="$ctrl.useOnthology()" class="form-control" id="object-name" ng-model="$ctrl.object" ng-options="type for type in $ctrl.possibleObjectTypes()">
               </select>
               <label for="">Atributos</label>
             </div>
           </div>
           <div class="row object-attributes">
             <div class="col-md-12">
-              <!--<div style="display: table;">
+              <div ng-if="!$ctrl.useOnthology()" style="display: table;">
                 <div style="display: table-row;" ng-repeat="attribute in $ctrl.attributes">
                   <div style="display: table-cell;">
                     <input type="text" class="form-control attribute-name" ng-model="attribute.name" placeholder="propriedade é...">
@@ -39,8 +39,8 @@
                     </button>
                   </div>
                 </div>
-              </div>-->
-              <div style="display: table; width: 100%">
+              </div>
+              <div ng-if="$ctrl.useOnthology()" style="display: table; width: 100%">
                 <div style="display: table-row;" ng-repeat="attribute in $ctrl.attributes">
                   <div style="display: table-cell; width: 50%">
                     <select class="form-control attribute-name" ng-model="attribute.name" ng-options="type.name as type.name for type in $ctrl.possibleAttributeTypes()">
