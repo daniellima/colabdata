@@ -86,7 +86,7 @@ store = {
             method: 'POST',
             url: urls.saveRelation,
             data: {
-                'id': relationToSave || null,
+                'id': relationToSave == null ? null : relationToSave.id,
                 'name': newName,
                 'originTagId': newOriginTag.id, 
                 'targetTagId': newTargetTag.id,
