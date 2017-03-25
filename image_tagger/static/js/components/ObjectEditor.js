@@ -101,8 +101,8 @@ component.prototype = {
     },
     saveButtonClickHandler: function() {
         showLoadingOverlay(true, "Salvando...");
-        
-        store.saveTag(this.$http, this.tagBeingEdited, this.object, this.attributes, this.marker)
+        var object = this.object == null ? "" : this.object;
+        store.saveTag(this.$http, this.tagBeingEdited, object, this.attributes, this.marker)
         .then(function() {
             this.setOpen(false);
             
