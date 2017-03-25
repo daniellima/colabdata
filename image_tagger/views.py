@@ -207,7 +207,7 @@ def images_pack(request, dataset_id):
         GROUP BY image.id
         HAVING c2 >= 3
         ORDER BY from_user ASC, c1 DESC, c2 ASC
-        LIMIT %s""", [request.user.id, 39, request.user.id, 39, 15])
+        LIMIT %s""", [request.user.id, dataset_id, request.user.id, dataset_id, 15])
     
     ids = [image.id for image in images]
     
