@@ -62,7 +62,7 @@ component.prototype = {
     },
     
     isRelationComplete: function(){
-        return this.originTag && this.targetTag && this.name !== "";
+        return this.originTag && this.targetTag && this.name !== null && this.name !== "";
     },
     
     tagThumbnailButtonClickHandler: function(whichTag) {
