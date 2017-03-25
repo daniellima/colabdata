@@ -2,16 +2,24 @@ var MainComponent = function($rootScope, $http, $q){
     this.$rootScope = $rootScope;
     this.$http = $http;
     this.$q = $q;
-
-    this.seletedImageIndex = 0;
-    this.selectedImage = null;
-    this.hasNextImage = true;
+    
+    this.datasetId = this.getDatasetIdFromURL();
+    
+    this.imagePack = [];
+    this.currentImageIndex = 0;
+    this.currentImageId = function(){
+        return this.imagePack[this.currentImageIndex];
+    }
+    this.currentImage = null;
     this.hasPreviousImage = function(){
-        return this.seletedImageIndex != 0;
+        return this.currentImageIndex != 0;
     };
     this.isLoadingImage = false;
     
-    this.requestImage(this.seletedImageIndex);
+    this.requestImages()
+    .then(function(){
+        this.requestImage(this.currentImageId());
+    }.bind(this));
 }
 
 MainComponent.definition = {
@@ -21,15 +29,39 @@ MainComponent.definition = {
 
 MainComponent.prototype = {
     
-    requestImage: function(imageIndex){
-        showLoadingOverlay(true, "Carregando dados da imagem...");
-        this.isLoadingImage = true;
-        this.datasetId = this.getDatasetIdFromURL();
+    requestImages: function() {
+        showLoadingOverlay(true, "Carregando imagens...");
         
         var response = null;
         return this.$http({
             method: 'get', 
-            url: urls.image(this.datasetId, imageIndex)
+            url: urls.imagesPack(this.datasetId)
+        })
+        .then(function (response){
+            
+            this.imagePack = response.data.images;
+            
+        }.bind(this), function(response){
+            
+            showAndLogErrorThatOcurredDuringAction("carregando imagens", response, this.$rootScope);
+            // TODO retornar para datasets se for o primeiro loading
+            
+        }.bind(this))
+        .finally(function(){
+            
+            showLoadingOverlay(false);
+            
+        }.bind(this))
+    },
+    
+    requestImage: function(imageId){
+        showLoadingOverlay(true, "Carregando dados da imagem...");
+        this.isLoadingImage = true;
+        
+        var response = null;
+        return this.$http({
+            method: 'get', 
+            url: urls.image(this.datasetId, imageId)
         })
         .then(function (_response){
             response = _response;
@@ -77,16 +109,25 @@ MainComponent.prototype = {
     previousImageButtonClickHandler: function(event) {
         if(this.isLoadingImage) return;
         
-        this.seletedImageIndex--;
-        this.requestImage(this.seletedImageIndex);
+        this.currentImageIndex--;
+        this.requestImage(this.currentImageId());
         this.blurButton();
     },
     
     nextImageButtonClickHandler: function(event) {
         if(this.isLoadingImage) return;
         
-        this.seletedImageIndex++;
-        this.requestImage(this.seletedImageIndex);
+        this.currentImageIndex++;
+        if(this.currentImageIndex == this.imagePack.length) {
+            this.requestImages()
+            .then(function() {
+                this.currentImageIndex = 0;
+                this.requestImage(this.currentImageId());
+            }.bind(this))
+        } else {
+            this.requestImage(this.currentImageId());    
+        }
+        
         this.blurButton();
     },
     

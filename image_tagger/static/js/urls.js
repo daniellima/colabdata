@@ -7,5 +7,6 @@ urls.deleteRelation = urls.root + 'delete/relation'
 urls.saveTag = urls.root + 'save/tag'
 urls.deleteTag = urls.root + 'delete/tag'
 urls.logout = urls.root + 'logout'
-urls.image = function(datasetId, imageIndex) {return urls.root + datasetId + '/' + imageIndex; };
+urls.imagesPack = function(datasetId) {return urls.root + 'dataset/' + datasetId + '/images_pack'; };
+urls.image = function(datasetId, imageIndex) {return urls.root + 'dataset/' + datasetId + '/image/' + imageIndex; };
 urls.template = function(templateName){ return urls.root+'static/js/components/' + templateName; };

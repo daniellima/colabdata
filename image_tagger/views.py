@@ -168,36 +168,15 @@ def private_datasets(request):
     })
     
 @require_GET
-@login_required
-def image(request, dataset_id, index):
+@login_required # TODO ajax_aware_login_required
+def image(request, dataset_id, image_id):
     if not request.user.datasets.filter(pk=dataset_id).exists():
         raise PermissionDenied
-    # image = Image.objects.raw("""
-    #     SELECT image.id AS id, image.dataset_id AS dataset_id, image.file AS file, COUNT(tag.id) AS c1, -1 as c2, MAX(tag.user_id = %s) AS from_user
-    #     FROM image_tagger_image AS image
-    #     LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-    #     WHERE image.dataset_id = %s
-    #     GROUP BY image.id
-    #     HAVING c1 < 3
-    #     UNION
-    #     SELECT image.id AS id, image.dataset_id AS dataset_id, image.file AS file, -1 as c1, COUNT(tag.id) AS c2, MAX(tag.user_id = %s) AS from_user
-    #     FROM image_tagger_image AS image
-    #     LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
-    #     WHERE image.dataset_id = %s
-    #     GROUP BY image.id
-    #     HAVING c2 >= 3
-    #     ORDER BY from_user ASC, c1 DESC, c2 ASC
-    #     LIMIT 1 OFFSET %s""", [request.user.id, 39, request.user.id, 39, index])[0]
-    
-    index = int(index)
-    
-    num_of_images = Image.objects.filter(dataset_id=dataset_id).count()
-    index = min(index, num_of_images-1)
-    
-    image = Image.objects.filter(dataset_id=dataset_id).order_by('id')[index]
-    has_next_image = (index != num_of_images-1)
 
     dataset = Dataset.objects.get(pk=dataset_id)
+    
+    image = Image.objects.get(pk=image_id)
+    
     if is_curator(request.user, dataset):
         image = image.toJSONSerializable()
     else:
@@ -205,8 +184,34 @@ def image(request, dataset_id, index):
 
     return JsonResponse({
         'image': image,
-        'has_next_image': has_next_image
     })
+
+@require_GET
+@ajax_aware_login_required
+def images_pack(request, dataset_id):
+    if not request.user.datasets.filter(pk=dataset_id).exists():
+        raise PermissionDenied
+    
+    images = Image.objects.raw("""
+        SELECT image.id AS id, COUNT(DISTINCT tag.user_id) AS c1, -1 as c2, MAX(tag.user_id = %s) AS from_user
+        FROM image_tagger_image AS image
+        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+        WHERE image.dataset_id = %s
+        GROUP BY image.id
+        HAVING c1 < 3
+        UNION
+        SELECT image.id AS id, -1 as c1, COUNT(DISTINCT tag.user_id) AS c2, MAX(tag.user_id = %s) AS from_user
+        FROM image_tagger_image AS image
+        LEFT JOIN image_tagger_tag AS tag ON tag.image_id = image.id
+        WHERE image.dataset_id = %s
+        GROUP BY image.id
+        HAVING c2 >= 3
+        ORDER BY from_user ASC, c1 DESC, c2 ASC
+        LIMIT %s""", [request.user.id, 39, request.user.id, 39, 15])
+    
+    ids = [image.id for image in images]
+    
+    return JsonResponse({'images': ids})
 
 @require_GET
 @login_required
