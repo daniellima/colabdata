@@ -8,7 +8,7 @@
   </button>
     
   <div style="overflow: auto; height: 500px" class="container-fluid">
-    <div ng-repeat="relation in $ctrl.relations()">
+    <div ng-repeat="relation in $ctrl.relations() | orderBy: 'name' ">
       <div class="row" style="margin-top: 1em; margin-bottom: 1em">
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" style="cursor: initial">

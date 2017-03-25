@@ -36,7 +36,7 @@
       <div 
         ng-click="$ctrl.relationItemClickHandler(relation)"
         style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
-        ng-repeat="relation in $ctrl.relations()" 
+        ng-repeat="relation in $ctrl.relations() | orderBy: 'name'" 
         ng-mouseenter="$ctrl.showRelation(relation)" 
         ng-mouseleave="$ctrl.hideRelation(relation)">
           {{ relation.originTag.object || "(sem nome)" }} {{ relation.name }} {{ relation.targetTag.object || "(sem nome)" }}
