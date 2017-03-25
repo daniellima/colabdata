@@ -15,10 +15,11 @@ var MainComponent = function($rootScope, $http, $q){
         return this.currentImageIndex != 0;
     };
     this.isLoadingImage = false;
+    this.datasetId = this.getDatasetIdFromURL();
     
     this.requestImages()
     .then(function(){
-        this.requestImage(this.currentImageId());
+        this.requestOnthologyAndFirstImage();
     }.bind(this));
 }
 
@@ -54,12 +55,32 @@ MainComponent.prototype = {
         }.bind(this))
     },
     
+    requestOnthologyAndFirstImage: function(){
+        showLoadingOverlay(true, "Carregando ontologia...");
+        
+        return this.$http({
+            method: 'get', 
+            url: urls.datasetOnthology(this.datasetId)
+        })
+        .then(function(response){
+            
+            store.setOnthology(response.data);
+            this.requestImage(this.currentImageId());
+            
+        }.bind(this), function(response){
+            
+            showLoadingOverlay(false);
+            showAndLogErrorThatOcurredDuringAction("carregar ontologia", response, this.$rootScope);
+            
+        }.bind(this));
+    },
+    
     requestImage: function(imageId){
         showLoadingOverlay(true, "Carregando dados da imagem...");
         this.isLoadingImage = true;
         
         var response = null;
-        return this.$http({
+        this.$http({
             method: 'get', 
             url: urls.image(this.datasetId, imageId)
         })

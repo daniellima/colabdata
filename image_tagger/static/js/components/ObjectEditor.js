@@ -17,12 +17,20 @@ var component = ObjectEditorComponent = function($rootScope, $http){
         
         for(var i = 0; i < this.attributes.length; i++) {
             var attribute = this.attributes[i];
-            if(attribute.name.trim() == "" || attribute.value.trim() == "") {
+            if(attribute.name == null || attribute.value == null || attribute.name.trim() == "" || attribute.value.trim() == "") {
                 return false;
             }
         }
         
         return true;
+    }
+    
+    this.possibleAttributeTypeNames = function(){
+        return store.getAttributeTypes();
+    }
+    
+    this.possibleValuesOfAttributeType = function(attributeTypeName){
+        return store.getValuesForAttributeType(attributeTypeName);
     }
     
     $rootScope.$on('tag-editor-requested', function(event, data){
@@ -118,7 +126,7 @@ component.prototype = {
         });
     },
     addAttributeButtonClickHandler: function(){
-        this.attributes.push({'name': '', 'value': ''});
+        this.attributes.push({'name': null, 'value': null});
     },
     removeAttributeButtonClickHandler: function(attribute){
         var attrs = this.attributes;

@@ -229,6 +229,23 @@ def images_pack(request, dataset_id):
     return JsonResponse({'images': image_ids})
 
 @require_GET
+@ajax_aware_login_required
+def dataset_onthology(request, dataset_id):
+    objects = ['objeto 1', 'objeto 2', 'objeto 3'];
+    relations = ['relacao 1', 'relacao 2', 'relacao 3', 'relacao 4']
+    attributes = [
+        {'name': 'A1', 'values': ['V11', 'V12', 'V13']},
+        {'name': 'A2', 'values': ['V21', 'V22', 'V23']},
+        {'name': 'A3', 'values': ['V31', 'V32', 'V33']},
+    ];
+    onthology = {
+        'objects': objects,
+        'relations': relations,
+        'attributes': attributes
+    }
+    return JsonResponse(onthology)
+    
+@require_GET
 @login_required
 def dataset_image_tagger(request, dataset_id):
     if not request.user.datasets.filter(pk=dataset_id).exists():

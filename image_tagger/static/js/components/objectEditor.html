@@ -23,13 +23,30 @@
           </div>
           <div class="row object-attributes">
             <div class="col-md-12">
-              <div style="display: table;">
+              <!--<div style="display: table;">
                 <div style="display: table-row;" ng-repeat="attribute in $ctrl.attributes">
                   <div style="display: table-cell;">
                     <input type="text" class="form-control attribute-name" ng-model="attribute.name" placeholder="propriedade é...">
                   </div>
                   <div style="display: table-cell;">
                     <input type="text" class="form-control" ng-model="attribute.value" placeholder="esse valor">
+                  </div>
+                  <div style="display: table-cell;">
+                    <button class="btn btn-danger button-remove" ng-click="$ctrl.removeAttributeButtonClickHandler(attribute)">
+                      <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>-->
+              <div style="display: table; width: 100%">
+                <div style="display: table-row;" ng-repeat="attribute in $ctrl.attributes">
+                  <div style="display: table-cell; width: 50%">
+                    <select class="form-control attribute-name" ng-model="attribute.name" ng-options="type.name as type.name for type in $ctrl.possibleAttributeTypeNames()">
+                    </select>
+                  </div>
+                  <div style="display: table-cell; width: 50%">
+                    <select class="form-control" ng-model="attribute.value" ng-disabled="!attribute.name" ng-options="value for value in $ctrl.possibleValuesOfAttributeType(attribute.name)">
+                    </select>
                   </div>
                   <div style="display: table-cell;">
                     <button class="btn btn-danger button-remove" ng-click="$ctrl.removeAttributeButtonClickHandler(attribute)">

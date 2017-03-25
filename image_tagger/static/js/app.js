@@ -56,7 +56,24 @@ store = {
     getImage: function() {
         return this.image;
     },
-    
+    onthology: {objects:[], attributes:[], relations:[]},
+    setOnthology: function(onthology){
+        this.onthology = onthology;
+    },
+    getOnthology: function(){
+        return this.onthology;
+    },
+    getAttributeTypes: function() {
+        return this.onthology.attributes;
+    },
+    getValuesForAttributeType: function(attributeTypeName) {
+        for(var i = 0; i < this.onthology.attributes.length; i++) {
+            var attributeType = this.onthology.attributes[i];
+            if(attributeType.name == attributeTypeName) {
+                return attributeType.values;
+            }
+        }
+    },
     saveRelation: function($http, relationToSave, newName, newOriginTag, newTargetTag){
         return $http({
             method: 'POST',
