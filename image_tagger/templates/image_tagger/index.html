@@ -67,23 +67,10 @@
                         <h2 style="text-align: center;">Hello, {{ request.user.username }}!</h2>
                     </div>
                     
-                    <p>What you want to do?</p>
+                    <p>You are already logged in.</p>
                     
-                    <p>
-                        <a class="btn btn-primary btn-block" href="{% url 'private_datasets' %}" title="My private datasets">
-                            Contribute
-                            <span class="glyphicon glyphicon-thumbs-up"></span>
-                        </a>
-                    </p>
+                    <p>Use the navigation bar at the top to navigate between the sections.</p>
                     
-                    <p>
-                        <form method="POST" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-block">
-                                Logout
-                            </button>
-                        </form>
-                    </p>
                 </div>
             {% endif %}
         </div>

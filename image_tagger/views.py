@@ -144,7 +144,7 @@ def index(request):
             if user is not None:
                 auth.login(request, user)
                 
-                return redirect('index')
+                return redirect('private_datasets')
             
             form.add_error(None, "Your credentials are not valid.")
     else:
