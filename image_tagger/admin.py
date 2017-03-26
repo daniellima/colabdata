@@ -461,8 +461,7 @@ class PublicationAdmin(admin.ModelAdmin):
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
 class CustomAdminSite(admin.AdminSite):
-    site_header = 'Colabdata Administration'
-    site_title = 'Colabdata Admin'
+    site_title = 'Colabdata Administration'
     index_title = 'Home'
     
     def has_permission(self, request):
