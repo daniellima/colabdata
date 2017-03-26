@@ -8,6 +8,9 @@ Configure o Django com o servidor web que preferir.
 
 O projeto foi desenvolvido com python 3.4.3
 
+Para importação e exportação de datasets, o modulo zlib deve estar funcionando.
+Se `import zlib` funcionar no interpretador python, deve estar tudo ok.
+
 Uma vez configurado com o servidor, é necessário rodar esses tres comandos, na pasta do projeto:
 
 `python manage.py migrate` para criar as tabelas no banco
