@@ -78,7 +78,8 @@
         <div class="col-md-6">
           <button class="btn btn-default btn-block" ng-click="$ctrl.editMarkerButtonClickHandler()">
             <span class="glyphicon glyphicon-pencil"></span>
-            Editar marcação
+            <span ng-if="!$ctrl.marker">Fazer marcação</span>
+            <span ng-if="$ctrl.marker">Editar marcação</span>
           </button>
         </div>
         <div class="col-md-6">

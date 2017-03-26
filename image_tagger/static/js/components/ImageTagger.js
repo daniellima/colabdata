@@ -77,10 +77,14 @@ var component = ImageTaggerComponent = function($rootScope, $http, $document){
         this.editingMarker = true;
         this.pageToReturn = this.currentPage;
         this.currentPage = this.pages.IMAGE;
-        this.markerX = data.marker.x;
-        this.markerY = data.marker.y;
-        this.markerWidth = data.marker.width;
-        this.markerHeight = data.marker.height;
+        
+        var marker = data.marker || this.makeDefaultMarker();
+        
+        this.markerX = marker.x;
+        this.markerY = marker.y;
+        this.markerWidth = marker.width;
+        this.markerHeight = marker.height;
+        
         this.markerVisible = true;
         
         this.newMarkerCallback = data.callback;
@@ -133,6 +137,20 @@ component.prototype = {
         return pos;
     },
     
+    makeDefaultMarker: function() {
+        
+        var width = this.image.width / 2;
+        var height = this.image.height / 2;
+        var x = width - (width / 2);
+        var y = height - (height / 2);
+        
+        return {
+            x: x,
+            y: y,
+            width: width,
+            height: height
+        }
+    },
     
     setMarkerEnterKeypressHandler: function(event){
         if(event.keyCode !== 13) return;
@@ -166,11 +184,9 @@ component.prototype = {
     },
     
     newObjectButtonClickHandler: function(){
-        this.markerX = 0;
-        this.markerY = 0;
-        this.markerWidth = 100;
-        this.markerHeight = 100;
-        this.markerVisible = true;
+        this.$rootScope.$emit("tag-editor-requested", {
+            callback: function(){}.bind(this)
+        });
     },
     
     showObjectListButtonClickHandler: function(){

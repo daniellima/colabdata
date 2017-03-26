@@ -10,7 +10,7 @@ var component = ObjectEditorComponent = function($rootScope, $http){
     this.tagBeingEdited = null;
     this.object = null;
     this.attributes = [];
-    this.marker = {x:0, y:0, width:0, height:0}
+    this.marker = null;
     
     this.useOnthology = function() {
         return serverData.use_onthology;
@@ -49,7 +49,11 @@ var component = ObjectEditorComponent = function($rootScope, $http){
             
             this.object = "";
             this.attributes = [];
-            this.marker = {x:data.marker.x, y:data.marker.y, width:data.marker.width, height:data.marker.height};
+            if(data.marker) {
+                this.marker = {x:data.marker.x, y:data.marker.y, width:data.marker.width, height:data.marker.height};
+            } else {
+                this.marker = null;
+            }
         }
         
         this.setOpen(true);
@@ -73,6 +77,9 @@ component.prototype = {
     
     checkValid: function() {
         this.errors = [];
+        if(this.hasEmptyMarker()) {
+            this.errors.push("Click on 'make tag' to define the tagged area.");
+        }
         if(this.hasEmptyAttributes()) {
             this.errors.push("There is at least one empty attribute.");
         }
@@ -92,6 +99,10 @@ component.prototype = {
         }
         
         return false;
+    },
+    
+    hasEmptyMarker: function() {
+        return this.marker == null;  
     },
     
     hasRepeatedAttributes: function() {
@@ -131,6 +142,7 @@ component.prototype = {
             }.bind(this)
         });
     },
+    
     saveButtonClickHandler: function() {
         var isValid = this.checkValid();
         
@@ -165,6 +177,7 @@ component.prototype = {
             showLoadingOverlay(false);
         });
     },
+    
     addAttributeButtonClickHandler: function(){
         this.attributes.push({'name': null, 'value': null});
     },
