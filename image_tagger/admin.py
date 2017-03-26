@@ -66,12 +66,18 @@ class DatasetAdmin(admin.ModelAdmin):
     
     readonly_fields = ['link']
     
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return []
+        else:
+            return ['link']
+    
     def link(self, dataset):
         if dataset.has_no_publications():
             return "(não possui link pois não possui publicações)"
             
         link = reverse('dataset_publications', args=(dataset.id,))
-        return mark_safe('<a href="{0}">{0}</a>'.format(link))
+        return mark_safe('<a href="{0}" target="_blank">Clique para ver as publicações</a>'.format(link))
         
     link.short_description = "Link para publicações"
     
