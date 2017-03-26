@@ -101,10 +101,12 @@ component.prototype = {
             callback: function(tag){
                 this.setOpen(true);
                 
-                if(whichTag == 'origin') {
-                    this.originTag = tag;
-                } else {
-                    this.targetTag = tag;
+                if(tag != null) {
+                    if(whichTag == 'origin') {
+                        this.originTag = tag;
+                    } else {
+                        this.targetTag = tag;
+                    }
                 }
             }.bind(this)
         });
