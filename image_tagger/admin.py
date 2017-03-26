@@ -191,6 +191,11 @@ class CustomUserAdmin(UserAdmin):
             obj.is_staff = True
         
         super(CustomUserAdmin, self).save_model(request, obj, form, change)
+        
+        # add delete permissions because the delete confirmation page
+        # ignores the has_delete_permission methods
+        delete_permissions = Permission.objects.filter(codename__in=['delete_image', 'delete_attributetype', 'delete_objecttype', 'delete_relationtype', 'delete_publication'])
+        obj.user_permissions.set(delete_permissions)
     
     def has_module_permission(self, request):
         return True
