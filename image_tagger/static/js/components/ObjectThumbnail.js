@@ -6,7 +6,7 @@ component.definition = {
     bindings: {
         image: '<',
         block: '<',
-        size: '@'
+        size: '<'
     }
 },
 
