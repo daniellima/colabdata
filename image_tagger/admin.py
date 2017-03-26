@@ -463,8 +463,7 @@ class PublicationAdmin(admin.ModelAdmin):
 class CustomAdminSite(admin.AdminSite):
     site_header = 'Colabdata Administration'
     site_title = 'Colabdata Admin'
-    index_title = ''
-    index_template = 'admin/clean_index.html'
+    index_title = 'Home'
     
     def has_permission(self, request):
         if request.user.is_superuser: 
