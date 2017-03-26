@@ -147,7 +147,6 @@ store = {
             var attribute = newAttributes[i];
             tagJSON.object.attributes.push({name: attribute.name, value: attribute.value});
         }
-        
         return $http({
             method: 'POST',
             url: urls.saveTag,

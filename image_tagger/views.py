@@ -41,7 +41,7 @@ def save_tag(request):
     try:
         object_type = ObjectType.objects.get(name=sent['tag']['object']['name'], dataset=image.dataset)
     except ObjectType.DoesNotExist:
-        if image.dataset.fixed_onthology:
+        if image.dataset.fixed_onthology and not sent['tag']['object']['name'].strip() == "":
             return HttpResponseBadRequest()
         else:
             object_type = ObjectType(name=sent['tag']['object']['name'], dataset=image.dataset)

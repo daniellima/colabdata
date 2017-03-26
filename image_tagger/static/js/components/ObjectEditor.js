@@ -47,7 +47,7 @@ var component = ObjectEditorComponent = function($rootScope, $http){
         } else {
             this.tagBeingEdited = null;
             
-            this.object = "";
+            this.object = null;
             this.attributes = [];
             if(data.marker) {
                 this.marker = {x:data.marker.x, y:data.marker.y, width:data.marker.width, height:data.marker.height};
@@ -150,7 +150,7 @@ component.prototype = {
         
         if(isValid) {
             showLoadingOverlay(true, "Salvando...");
-            var object = this.object == null ? "" : this.object;
+            var object = this.object === null ? "" : this.object;
             store.saveTag(this.$http, this.tagBeingEdited, object, this.attributes, this.marker)
             .then(function() {
                 this.setOpen(false);
