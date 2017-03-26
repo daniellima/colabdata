@@ -212,7 +212,7 @@ class CustomUserAdmin(UserAdmin):
         
         return False
     
-class ImageDataAdmin(admin.ModelAdmin):
+class ImageAdmin(admin.ModelAdmin):
     
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
     actions = None
@@ -221,10 +221,10 @@ class ImageDataAdmin(admin.ModelAdmin):
         if db_field.name == "dataset" and not request.user.is_superuser:
             kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
             
-        return super(ImageDataAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(ImageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     def get_queryset(self, request):
-        qs = super(ImageDataAdmin, self).get_queryset(request)
+        qs = super(ImageAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
         return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
@@ -250,14 +250,14 @@ class ImageDataAdmin(admin.ModelAdmin):
         else:
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
-class ObjetoAdmin(admin.ModelAdmin):
+class ObjectTypeAdmin(admin.ModelAdmin):
     
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
     actions = None
     readonly_fields = ['dataset']
     
     def get_queryset(self, request):
-        qs = super(ObjetoAdmin, self).get_queryset(request)
+        qs = super(ObjectTypeAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
         return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
@@ -266,7 +266,7 @@ class ObjetoAdmin(admin.ModelAdmin):
         if db_field.name == "dataset" and not request.user.is_superuser:
             kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
             
-        return super(ObjetoAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(ObjectTypeAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     def has_module_permission(self, request):
         return True
@@ -289,7 +289,7 @@ class ObjetoAdmin(admin.ModelAdmin):
         else:
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
-class AttributeAdmin(admin.ModelAdmin):
+class AttributeTypeAdmin(admin.ModelAdmin):
     
     inlines = [AttributeValueInline]
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
@@ -298,7 +298,7 @@ class AttributeAdmin(admin.ModelAdmin):
     actions = None
     
     def get_queryset(self, request):
-        qs = super(AttributeAdmin, self).get_queryset(request)
+        qs = super(AttributeTypeAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
         return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
@@ -307,7 +307,7 @@ class AttributeAdmin(admin.ModelAdmin):
         if db_field.name == "dataset" and not request.user.is_superuser:
             kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
             
-        return super(AttributeAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(AttributeTypeAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     def has_module_permission(self, request):
         return True
@@ -330,14 +330,14 @@ class AttributeAdmin(admin.ModelAdmin):
         else:
             return obj.dataset in request.user.datasets.filter(datasetmembership__group__name="Administrador")
 
-class RelationAdmin(admin.ModelAdmin):
+class RelationTypeAdmin(admin.ModelAdmin):
     
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
     readonly_fields = ['dataset']
     actions = None
     
     def get_queryset(self, request):
-        qs = super(RelationAdmin, self).get_queryset(request)
+        qs = super(RelationTypeAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
         return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
@@ -346,7 +346,7 @@ class RelationAdmin(admin.ModelAdmin):
         if db_field.name == "dataset" and not request.user.is_superuser:
             kwargs["queryset"] = request.user.datasets.filter(datasetmembership__group__name="Administrador")
             
-        return super(RelationAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(RelationTypeAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     def has_module_permission(self, request):
         return True
@@ -373,6 +373,7 @@ class PublicationAdmin(admin.ModelAdmin):
     
     list_display = ['name', 'get_short_description', 'export_date']
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
+    # see here http://stackoverflow.com/questions/1471909/django-model-delete-not-triggered?noredirect=1&lq=1
     actions = None
     
     readonly_fields = ('export_date',)
@@ -386,12 +387,6 @@ class PublicationAdmin(admin.ModelAdmin):
     get_short_description.short_description = 'Description'
     
     publication_directory = "{0}publications/".format(settings.MEDIA_ROOT)
-    
-    # see here http://stackoverflow.com/questions/1471909/django-model-delete-not-triggered?noredirect=1&lq=1
-    # def get_actions(self, request):
-    #     actions = super(PublicationAdmin, self).get_actions(request)
-    #     del actions['delete_selected']
-    #     return actions
     
     def get_fields(self, request, obj=None):
         fields = super(PublicationAdmin, self).get_fields(request, obj)
@@ -422,7 +417,7 @@ class PublicationAdmin(admin.ModelAdmin):
                 
                 obj.publish(temp_directory, self.publication_directory)
             except:
-                # show message to user that something exploded
+                # TODO show message to user that something exploded
                 raise
             finally:
                 shutil.rmtree(temp_directory)
@@ -478,7 +473,7 @@ custom_admin_site = CustomAdminSite(name="custom_admin")
 custom_admin_site.register(User, CustomUserAdmin)
 custom_admin_site.register(Dataset, DatasetAdmin)
 custom_admin_site.register(Publication, PublicationAdmin)
-custom_admin_site.register(Image, ImageDataAdmin)
-custom_admin_site.register(ObjectType, ObjetoAdmin)
-custom_admin_site.register(RelationType, RelationAdmin)
-custom_admin_site.register(AttributeType, AttributeAdmin)
+custom_admin_site.register(Image, ImageAdmin)
+custom_admin_site.register(ObjectType, ObjectTypeAdmin)
+custom_admin_site.register(RelationType, RelationTypeAdmin)
+custom_admin_site.register(AttributeType, AttributeTypeAdmin)
