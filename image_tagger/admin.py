@@ -64,8 +64,6 @@ class DatasetAdmin(admin.ModelAdmin):
     inlines = (DatasetMembershipInline,)
     actions = None
     
-    readonly_fields = ['link']
-    
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return []
@@ -265,7 +263,12 @@ class ObjectTypeAdmin(admin.ModelAdmin):
     
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
     actions = None
-    readonly_fields = ['dataset']
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return []
+        else:
+            return ['dataset']
     
     def get_queryset(self, request):
         qs = super(ObjectTypeAdmin, self).get_queryset(request)
@@ -305,8 +308,13 @@ class AttributeTypeAdmin(admin.ModelAdmin):
     inlines = [AttributeValueInline]
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
     
-    readonly_fields = ['dataset']
     actions = None
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return []
+        else:
+            return ['dataset']
     
     def get_queryset(self, request):
         qs = super(AttributeTypeAdmin, self).get_queryset(request)
@@ -344,8 +352,13 @@ class AttributeTypeAdmin(admin.ModelAdmin):
 class RelationTypeAdmin(admin.ModelAdmin):
     
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
-    readonly_fields = ['dataset']
     actions = None
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return []
+        else:
+            return ['dataset']
     
     def get_queryset(self, request):
         qs = super(RelationTypeAdmin, self).get_queryset(request)
