@@ -1,7 +1,7 @@
 # encoding: utf-8
 from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership, Dataset
 from django.utils import timezone
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -33,21 +33,41 @@ def save_tag(request):
 
     if Tag.objects.filter(pk=sent['tag']['id']).exists():
         tag = Tag.objects.get(pk=sent['tag']['id'])
-        # TODO não precisar deletar tudo antes
         tag.attributes.all().delete()
     else:
         tag = Tag()
         tag.user = request.user
     
-    object_type, _ = ObjectType.objects.get_or_create(name = sent['tag']['object']['name'], dataset=image.dataset)
+    try:
+        object_type = ObjectType.objects.get(name=sent['tag']['object']['name'], dataset=image.dataset)
+    except ObjectType.DoesNotExist:
+        if image.dataset.fixed_onthology:
+            return HttpResponseBadRequest()
+        else:
+            object_type = ObjectType(name=sent['tag']['object']['name'], dataset=image.dataset)
+            object_type.save()
     
     attributes_to_save = []
     for attribute in sent['tag']['object']['attributes']:
-        attribute_type, _ = AttributeType.objects.get_or_create(name=attribute['name'], dataset=image.dataset)
-        attribute_type_value, _ = AttributeTypeValue.objects.get_or_create(
-            name=attribute['value'], 
-            attribute_type=attribute_type
-        )
+        
+        try:
+            attribute_type = AttributeType.objects.get(name=attribute['name'], dataset=image.dataset)
+        except AttributeType.DoesNotExist:
+            if image.dataset.fixed_onthology:
+                return HttpResponseBadRequest()
+            else:
+                attribute_type = AttributeType(name=attribute['name'], dataset=image.dataset)
+                attribute_type.save()
+        
+        try:
+            attribute_type_value = AttributeTypeValue.objects.get(name=attribute['value'], attribute_type=attribute_type)
+        except AttributeTypeValue.DoesNotExist:
+            if image.dataset.fixed_onthology:
+                return HttpResponseBadRequest()
+            else:
+                attribute_type_value = AttributeTypeValue(name=attribute['value'], attribute_type=attribute_type)
+                attribute_type_value.save()
+        
         attributes_to_save.append(Attribute(value=attribute_type_value))
     
     tag.x = sent['tag']['x']
@@ -66,18 +86,24 @@ def save_tag(request):
 @ajax_aware_login_required
 def save_relation(request):
     sent = get_json(request)
+    originTag = Tag.objects.get(pk=sent['originTagId'])
+    targetTag = Tag.objects.get(pk=sent['targetTagId'])
     
-    relation_type, _ = RelationType.objects.get_or_create(
-        name=sent['name'], 
-        dataset=Tag.objects.get(pk=sent['originTagId']).image.dataset
-    )
-
+    try:
+        relation_type = RelationType.objects.get(name=sent['name'], dataset=originTag.image.dataset)
+    except RelationType.DoesNotExist:
+        if originTag.image.dataset.fixed_onthology:
+            return HttpResponseBadRequest()
+        else:
+            relation_type = RelationType(name=sent['name'], dataset=originTag.image.dataset)
+            relation_type.save()
+    
     relation, _ = Relation.objects.update_or_create(
         id=sent['id'], # id será None quando uma nova Relation for criada
         defaults={
             'relation_type': relation_type,
-            'originTag': Tag.objects.get(pk=sent['originTagId']),
-            'targetTag': Tag.objects.get(pk=sent['targetTagId'])
+            'originTag': originTag,
+            'targetTag': targetTag
         })
     
     return JsonResponse({'id': relation.id})
