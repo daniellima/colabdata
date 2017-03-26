@@ -1,4 +1,4 @@
-<div class="toolbar">
+<div class="toolbar" ng-show="!$ctrl.markerVisible">
     <div class="container">
       <div class="toolbar-add pull-left">
         <button class="btn btn-default" ng-click="$ctrl.newObjectButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
@@ -53,7 +53,13 @@
       </div>
     </div>
 </div>
-
+<div class="alert alert-info" style="position: fixed; top: 48px; left: 0; width: 100%; padding: 0.5em 0.5em; z-index: 9999; border-radius: 0; line-height: 34px" ng-show="$ctrl.markerVisible">
+  Use the mouse to drag the corners of the green rectangle to define which area of the image will be tagged.
+  <div class="pull-right">
+    <button class="btn btn-primary" ng-click="$ctrl.finishMarkerButtonClickHandler()">Finish</button>
+    <button class="btn btn-default" ng-click="$ctrl.cancelMarkerButtonClickHandler()">Cancel</button>
+  </div>
+</div>
 <div
     class="image-container"
     ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW"

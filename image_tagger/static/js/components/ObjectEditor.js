@@ -136,7 +136,9 @@ component.prototype = {
         this.$rootScope.$emit('new-marker-requested', {
             marker: this.marker,
             callback: function(newMarker) {
-                this.marker = newMarker;
+                if(newMarker != null) {// user canceled
+                    this.marker = newMarker;
+                }
                 
                 this.setOpen(true);
             }.bind(this)

@@ -152,13 +152,7 @@ component.prototype = {
         }
     },
     
-    setMarkerEnterKeypressHandler: function(event){
-        if(event.keyCode !== 13) return;
-        if(!this.markerVisible) return;
-        if(this.dialogOpen) return;
-        if(this.currentPage != this.pages.IMAGE) return;
-        event.preventDefault();
-        
+    finishMarker: function() {
         this.markerVisible = false;
         
         if(this.editingMarker) {
@@ -171,6 +165,17 @@ component.prototype = {
                 callback: function(){}.bind(this)
             });
         }
+    },
+    
+    
+    setMarkerEnterKeypressHandler: function(event){
+        if(event.keyCode !== 13) return;
+        if(!this.markerVisible) return;
+        if(this.dialogOpen) return;
+        if(this.currentPage != this.pages.IMAGE) return;
+        event.preventDefault();
+        
+        this.finishMarker();
     },
     
     errorMessageOkButtonClickHandler: function(){
@@ -216,6 +221,20 @@ component.prototype = {
     
     resizeOverviewImageButtonClickHandler: function(resizeMethod) {
         this.overviewImageResizeMethod = resizeMethod;
+    },
+    
+    finishMarkerButtonClickHandler: function() {
+        this.finishMarker();
+    },
+    
+    cancelMarkerButtonClickHandler: function() {
+        this.markerVisible = false;
+        
+        if(this.editingMarker) {
+            this.editingMarker = false;
+            this.currentPage = this.pageToReturn;
+            this.newMarkerCallback(null)
+        }
     },
     
     // TODO remover isso
