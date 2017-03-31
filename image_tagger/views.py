@@ -296,7 +296,7 @@ def dataset_image_tagger(request, dataset_id):
         'use_onthology' : use_onthology
     })
 
-@require_GET
+@require_POST
 @ajax_aware_login_required
 def merge_tags(request):
     sent = get_json(request)
