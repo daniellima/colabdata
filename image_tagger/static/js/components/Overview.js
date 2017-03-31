@@ -54,8 +54,13 @@ component.prototype = {
         });
     },
     showRelation: function(relation){
-        this.showTag(relation.originTag);
-        this.showTag(relation.targetTag);
+        if(relation.originTag == relation.targetTag) {
+            this.showTag(relation.originTag);
+        }
+        else {
+            this.showTag(relation.originTag);
+            this.showTag(relation.targetTag);
+        }
     },
     
     hideTag: function(tag){
@@ -63,8 +68,13 @@ component.prototype = {
     },
     
     hideRelation: function(relation){
-        this.hideTag(relation.originTag);
-        this.hideTag(relation.targetTag);
+        if(relation.originTag == relation.targetTag) {
+            this.hideTag(relation.originTag);
+        }
+        else {
+            this.hideTag(relation.originTag);
+            this.hideTag(relation.targetTag);
+        }
     },
     
 };

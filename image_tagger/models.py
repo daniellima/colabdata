@@ -317,4 +317,5 @@ class Publication(models.Model):
     def __str__(self):
         return self.name
 
+# TODO consigo remover?
 from . import signals
