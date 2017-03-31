@@ -295,3 +295,86 @@ def dataset_image_tagger(request, dataset_id):
         'user_is_curator': user_is_curator,
         'use_onthology' : use_onthology
     })
+
+@require_GET
+@ajax_aware_login_required
+def merge_tags(request):
+    sent = get_json(request)
+    
+    idsOfTagsToBeMerged = [int(id) for id in sent['idsOfTagsToBeMerged']]
+    
+    mergedTag = Tag(user=request.user)
+    image = Tag.objects.get(pk=idsOfTagsToBeMerged[0]).image
+    
+    # fix attributes
+    try:
+        object_type = ObjectType.objects.get(name=sent['mergedTagData']['object']['name'], dataset=image.dataset)
+    except ObjectType.DoesNotExist:
+        if image.dataset.fixed_onthology and not sent['mergedTagData']['object']['name'].strip() == "":
+            return HttpResponseBadRequest()
+        else:
+            object_type = ObjectType(name=sent['mergedTagData']['object']['name'], dataset=image.dataset)
+            object_type.save()
+    
+    attributes_to_save = []
+    for attribute in sent['mergedTagData']['object']['attributes']:
+        
+        try:
+            attribute_type = AttributeType.objects.get(name=attribute['name'], dataset=image.dataset)
+        except AttributeType.DoesNotExist:
+            if image.dataset.fixed_onthology:
+                return HttpResponseBadRequest()
+            else:
+                attribute_type = AttributeType(name=attribute['name'], dataset=image.dataset)
+                attribute_type.save()
+        
+        try:
+            attribute_type_value = AttributeTypeValue.objects.get(name=attribute['value'], attribute_type=attribute_type)
+        except AttributeTypeValue.DoesNotExist:
+            if image.dataset.fixed_onthology:
+                return HttpResponseBadRequest()
+            else:
+                attribute_type_value = AttributeTypeValue(name=attribute['value'], attribute_type=attribute_type)
+                attribute_type_value.save()
+        
+        attributes_to_save.append(Attribute(value=attribute_type_value))
+    
+    mergedTag.x = sent['mergedTagData']['x']
+    mergedTag.y = sent['mergedTagData']['y']
+    mergedTag.width = sent['mergedTagData']['width']
+    mergedTag.height = sent['mergedTagData']['height']
+    mergedTag.image = image
+    mergedTag.date = timezone.now()
+    mergedTag.object_type = object_type
+    mergedTag.save()
+    mergedTag.attributes.add(*attributes_to_save, bulk=False)
+    
+    # fix relations
+    relations = Relation.objects.filter(originTag__id__in=idsOfTagsToBeMerged)
+    merged_relations = []
+    for relation in relations:
+        already_merged = False
+        for merged_relation in merged_relations:
+            if relation.relation_type.id == merged_relation.relation_type.id and relation.targetTag.id == merged_relation.targetTag.id:
+                already_merged = True
+                break
+        if not already_merged:
+            merged_relations.append(relation)
+    Relation.objects.filter(id__in=[r.id for r in merged_relations]).update(originTag=mergedTag)
+    
+    relations = Relation.objects.filter(targetTag__id__in=idsOfTagsToBeMerged)
+    merged_relations = []
+    for relation in relations:
+        already_merged = False
+        for merged_relation in merged_relations:
+            if relation.relation_type.id == merged_relation.relation_type.id and relation.originTag.id == merged_relation.originTag.id:
+                already_merged = True
+                break
+        if not already_merged:
+            merged_relations.append(relation)
+    Relation.objects.filter(id__in=[r.id for r in merged_relations]).update(targetTag=mergedTag)
+    
+    # delete old
+    Tag.objects.filter(id__in=idsOfTagsToBeMerged).delete()
+    
+    return JsonResponse({'id': mergedTag.id})

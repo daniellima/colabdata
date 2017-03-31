@@ -226,6 +226,7 @@ class Attribute(models.Model):
 
 class Relation(models.Model):
     relation_type = models.ForeignKey(RelationType, related_name="relations", on_delete=models.CASCADE)
+    # TODO padrão python...
     originTag = models.ForeignKey(Tag, related_name='relatedToRelations', on_delete=models.CASCADE)
     targetTag = models.ForeignKey(Tag, related_name='relatedFromRelations', on_delete=models.CASCADE)
     

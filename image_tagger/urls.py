@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^dataset/([0-9]+)/onthology$', views.dataset_onthology, name='dataset_onthology'),
     url(r'^save/tag$', views.save_tag, name='save_tag'),
     url(r'^delete/tag$', views.delete_tag, name='delete_tag'),
+    url(r'^merge/tags$', views.merge_tags, name='merge_tags'),
     url(r'^save/relation$', views.save_relation, name='save_relation'),
     url(r'^delete/relation$', views.delete_relation, name='delete_relation'),
 ]

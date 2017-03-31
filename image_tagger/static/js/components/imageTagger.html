@@ -9,6 +9,10 @@
           <span class="glyphicon glyphicon-plus"></span>
             Relações
         </button>
+        <button class="btn btn-default" ng-click="$ctrl.mergeTagsButtonClickHandler()" ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW">
+          <span class="glyphicon glyphicon-resize-small"></span>
+            Merge similar
+        </button>
       </div>
       <div class="toolbar-show pull-right">
         <button class="btn btn-default" ng-click="$ctrl.showOverviewButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
@@ -77,8 +81,9 @@
         style="width:{{ $ctrl.image.width * $ctrl.multiplier() }}px; height:{{ $ctrl.image.height * $ctrl.multiplier() }}px"
       >
       <div 
-        class="box" 
+        class="box"
         style="position: absolute; 
+               border-color: {{ $ctrl.color }};
                left: {{ $ctrl.markerX * $ctrl.multiplier() }}px; 
                top: {{ $ctrl.markerY * $ctrl.multiplier() }}px; 
                width: {{ $ctrl.markerWidth * $ctrl.multiplier() }}px; 
@@ -114,6 +119,10 @@
 <object-editor></object-editor>
 
 <object-viewer></object-viewer>
+
+<merge-viewer></merge-viewer>
+
+<merge-preview></merge-preview>
 
 <relation-editor></relation-editor>
 

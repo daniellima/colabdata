@@ -247,6 +247,12 @@ component.prototype = {
     },
     
     
+    mergeTagsButtonClickHandler: function() {
+        this.$rootScope.$emit('merge-requested', {
+            callback: function(){}.bind(this)
+        });
+    },
+    
     tagContainerMousemoveHandler: function($event){
         if(this.dragging){
             // since the user drag the selection, show it

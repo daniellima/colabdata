@@ -189,6 +189,101 @@ store = {
         }.bind(this));
     },
     
+    mergeTags: function($http, tagIds, mergedObject, mergedAttributes, mergedMarker) {
+        var tagJSON = {
+            id: null,
+            object: {name: mergedObject, attributes: []},
+            x: mergedMarker.x,
+            y: mergedMarker.y,
+            width: mergedMarker.width,
+            height: mergedMarker.height,
+        };
+        for(var i = 0; i < mergedAttributes.length; i++) {
+            var attribute = mergedAttributes[i];
+            tagJSON.object.attributes.push({name: attribute.name, value: attribute.value});
+        }
+        return $http({
+            method: 'POST',
+            url: urls.mergeTags,
+            data: {
+                'idsOfTagsToBeMerged': tagIds,
+                'mergedTagData': tagJSON
+            }
+        }).then(function(response){
+            
+            var mergedTag = {
+                id: response.data.id,
+                relations: [],
+            };
+            
+            mergedTag.object = mergedObject;
+            mergedTag.x = mergedMarker.x;
+            mergedTag.y = mergedMarker.y;
+            mergedTag.width = mergedMarker.width;
+            mergedTag.height = mergedMarker.height;
+            mergedTag.attributes = [];
+            for(var i = 0; i < mergedAttributes.length; i++) {
+                var attribute = mergedAttributes[i];
+                mergedTag.attributes.push({name: attribute.name, value: attribute.value, tag: mergedTag});
+            }
+            
+            var relations = this.getAllRelations();
+            var mergedRelations = [];
+            var j = 0;
+            var mergedRelation = null;
+            for(i = 0; i < relations.length; i++) {
+                var relation = relations[i]; 
+                var alreadyMerged = false;
+                
+                if(tagIds.indexOf(relation.originTag.id) != -1) {
+                    relation.originTag.relations.splice(relation.originTag.relations.indexOf(relation), 1);
+                    for(j = 0; j < mergedRelations.length; j++) {
+                        mergedRelation = mergedRelations[j];
+                        if(relation.name == mergedRelation.name && relation.targetTag == mergedRelation.targetTag) {
+                            alreadyMerged = true;
+                            break;
+                        }
+                    }
+                    if(!alreadyMerged) {
+                        mergedRelations.push(relation);
+                        mergedTag.relations.push(relation);
+                        relation.originTag = mergedTag;
+                    }
+                }
+            }
+            var mergedRelations = [];
+            for(i = 0; i < relations.length; i++) {
+                var relation = relations[i]; 
+                var alreadyMerged = false;
+                
+                if(tagIds.indexOf(relation.targetTag.id) != -1) {
+                    for(j = 0; j < mergedRelations.length; j++) {
+                        mergedRelation = mergedRelations[j];
+                        if(relation.name == mergedRelation.name && relation.originTag == mergedRelation.originTag) {
+                            alreadyMerged = true;
+                            break;
+                        }
+                    }
+                    if(!alreadyMerged) {
+                        mergedRelations.push(relation);
+                        relation.targetTag = mergedTag;
+                    }
+                    else {
+                        relation.originTag.relations.splice(relation.originTag.relations.indexOf(relation), 1);
+                    }
+                }
+            }
+            
+            this.image.tags.push(mergedTag);
+            for(var i = this.image.tags.length-1; i >= 0; i--) {
+                var tag = this.image.tags[i];
+                if(tagIds.indexOf(tag.id) != -1) {
+                    this.image.tags.splice(i, 1);
+                }
+            }
+        }.bind(this));
+    },
+    
     _attributes: [],
     getAllAttributes: function() {
         // limpa e repopula a array sempre. Se uma nova array fosse retornada, o ciclo de digest nunca pararia. Ver: https://docs.angularjs.org/error/$rootScope/infdig
@@ -225,6 +320,10 @@ ColabDataApp.component('objectEditor', ObjectEditorComponent.definition);
 
 ColabDataApp.component('objectViewer', ObjectViewerComponent.definition);
 
+ColabDataApp.component('mergeViewer', MergeViewerComponent.definition);
+
+ColabDataApp.component('mergePreview', MergePreviewComponent.definition);
+
 ColabDataApp.component('imageTagger', ImageTaggerComponent.definition);
 
 ColabDataApp.component('objectThumbnail', ObjectThumbnailComponent.definition);
@@ -236,6 +335,25 @@ ColabDataApp.component('relationList', RelationListComponent.definition);
 ColabDataApp.component('overview', OverviewComponent.definition);
 
 ColabDataApp.component('mainComponent', MainComponent.definition);
+
+tagsAreSimilar = function(tag1, tag2) {
+    if(tag1.object != tag2.object) return false;
+    
+    var xOverlap = Math.max(0, Math.min(tag1.x+tag1.width, tag2.x+tag2.width) - Math.max(tag1.x,tag2.x));
+    var yOverlap = Math.max(0, Math.min(tag1.y+tag1.height, tag2.y+tag2.height) - Math.max(tag1.y,tag2.y));
+    var overlapArea = Math.floor(xOverlap * yOverlap);
+    var tag1Area = Math.floor(tag1.width * tag1.height);
+    var tag2Area = Math.floor(tag2.width * tag2.height);
+    
+    if((overlapArea == tag1Area) || (overlapArea == tag2Area)) { // one inside another
+        return true;
+    }
+    var overlapPercent = 0.8;
+    if((overlapArea >= tag1Area * overlapPercent) && (overlapArea >= tag2Area * overlapPercent)) {
+        return true;
+    }
+    return false;
+}
 
 prefetchImage = function($q, url) {
     var promise = $q(function(resolve, reject) {

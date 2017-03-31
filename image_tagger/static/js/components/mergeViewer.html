@@ -1,0 +1,49 @@
+<div class="modal-panel all-objects-panel" ng-show="$ctrl.open">
+  <h3 class="edit-panel-title">
+    Merge Tags
+  </h3>
+  
+  <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
+    <span class="glyphicon glyphicon-remove"></span>
+  </button>
+  
+  <div ng-show="$ctrl.page == $ctrl.pages.MERGING">
+    <div style="overflow: auto; height: 500px">
+      <div style="float:left; margin: 25px; width: 200px; height: {{200 + 34 + 10}}px;" ng-repeat="tag in $ctrl.tags">
+        <div style="position:relative; height: 200px;">
+          <object-thumbnail class="centered-vh" image="$ctrl.image()" block="tag" size="200"></object-thumbnail>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin: 1em; overflow: auto">
+      <div style="padding: 0 0.5em; width:50%; float:left;">
+        <a 
+          class="btn btn-primary btn-block" 
+          href="javascript:void(0)" 
+          ng-click="$ctrl.confirmMergeButtonClickHandler()"
+          >
+          Merge
+        </a>
+      </div>
+      <div style="padding: 0 0.5em; width:50%; float:left;">
+        <a 
+          class="btn btn-default btn-block" 
+          href="javascript:void(0)" 
+          ng-click="$ctrl.skipAndShowNextMergeButtonClickHandler()"
+          >
+          Skip and show next
+          <span class="glyphicon glyphicon-chevron-right"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div ng-show="$ctrl.page == $ctrl.pages.NO_MERGE" style="text-align: center;">
+    <p>No tags that look similar have been found</p>
+    <button class="btn btn-primary" style="margin: 0.5em; width: 5em;" ng-click="$ctrl.noTagsToMergeButtonClickHandler()">Ok</button>
+  </div>
+  <div ng-show="$ctrl.page == $ctrl.pages.FINISHED_MERGE" style="text-align: center;">
+    <p>No more tags to merge</p>
+    <button class="btn btn-primary" style="margin: 0.5em; width: 5em;" ng-click="$ctrl.mergeFinishedButtonClickHandler()">Ok</button>
+  </div>
+</div>
