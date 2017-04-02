@@ -31,9 +31,19 @@
                         Public datasets
                     </a>
                 </li>
+                {% if user_is_admin %}
+                <li>
+                    <a href="{% url 'admin:index' %}" class="navbar-link">
+                        Admin
+                    </a>
+                </li>
+                {% endif %}
             </ul>
             {% if request.user.is_authenticated %}
                 <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <p class="navbar-text">Hello, {{ request.user.username }}</p>
+                    </li>
                     <li>
                         <form method="POST" action="{% url 'logout' %}">
                             {% csrf_token %}
