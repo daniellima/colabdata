@@ -7,6 +7,7 @@ import datetime
 from collections import OrderedDict
 import tarfile
 from django.db.models import Count
+from django.conf import settings
 # Create your models here.
 
 class Dataset(models.Model):
@@ -263,14 +264,16 @@ class Publication(models.Model):
     description = models.TextField(max_length=2000)
     export_date = models.DateTimeField()
     
+    STORAGE_DIRECTORY = os.path.join(settings.BASE_DIR, 'image_tagger', 'publications')
+    
     def publish(self, temp_directory, publication_directory):
-        self.export_to_json(temp_directory+"tags.jsonl", Tag.objects.filter(image__in=self.dataset.images.all()).all())
-        self.export_to_json(temp_directory+"object_types.jsonl", self.dataset.object_types.all())
-        self.export_to_json(temp_directory+"relation_types.jsonl", self.dataset.relation_types.all())
-        self.export_to_json(temp_directory+"relations.jsonl", Relation.objects.filter(relation_type__in=self.dataset.relation_types.all()).all())
-        self.export_to_json(temp_directory+"attribute_types.jsonl", self.dataset.attribute_types.all())
-        self.export_to_json(temp_directory+"attribute_type_values.jsonl", AttributeTypeValue.objects.filter(attribute_type__in=self.dataset.attribute_types.all()).all())
-        self.export_to_json(temp_directory+"attributes.jsonl", Attribute.objects.filter(tag__image__in=self.dataset.images.all()).all())
+        self.export_to_json(os.path.join(temp_directory, "tags.jsonl"), Tag.objects.filter(image__in=self.dataset.images.all()).all())
+        self.export_to_json(os.path.join(temp_directory, "object_types.jsonl"), self.dataset.object_types.all())
+        self.export_to_json(os.path.join(temp_directory, "relation_types.jsonl"), self.dataset.relation_types.all())
+        self.export_to_json(os.path.join(temp_directory, "relations.jsonl"), Relation.objects.filter(relation_type__in=self.dataset.relation_types.all()).all())
+        self.export_to_json(os.path.join(temp_directory, "attribute_types.jsonl"), self.dataset.attribute_types.all())
+        self.export_to_json(os.path.join(temp_directory, "attribute_type_values.jsonl"), AttributeTypeValue.objects.filter(attribute_type__in=self.dataset.attribute_types.all()).all())
+        self.export_to_json(os.path.join(temp_directory, "attributes.jsonl"), Attribute.objects.filter(tag__image__in=self.dataset.images.all()).all())
         self.create_compressed_file(temp_directory, publication_directory)
     
     def add_images_to_tar(self, tar):
@@ -296,7 +299,7 @@ class Publication(models.Model):
         def clean(tarinfo):
             # remove directory prefix from name.
             # temp_directory[1:] is used because the tarinfo name does not begin with "/" on it
-            tarinfo.name = tarinfo.name.replace(temp_directory[1:], "") 
+            tarinfo.name = tarinfo.name.replace(temp_directory[1:]+'/', "") 
             
             # remove info about the environment where the file has been created
             tarinfo.uid = tarinfo.gid = 0
@@ -304,10 +307,10 @@ class Publication(models.Model):
             
             return tarinfo
         
-        file_path = publication_directory + self.get_file_name()
+        file_path = os.path.join(publication_directory, self.get_file_name())
         with tarfile.open(file_path, "w:gz") as tar:
             for entry in os.listdir(temp_directory):
-                tar.add(temp_directory+entry, filter=clean)
+                tar.add(os.path.join(temp_directory, entry), filter=clean)
                 
             self.add_images_to_tar(tar)
     

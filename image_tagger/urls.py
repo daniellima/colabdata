@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^merge/tags$', views.merge_tags, name='merge_tags'),
     url(r'^save/relation$', views.save_relation, name='save_relation'),
     url(r'^delete/relation$', views.delete_relation, name='delete_relation'),
+    url(r'^download/publication/(\d+)$', views.download_publication, name='download_publication')
 ]

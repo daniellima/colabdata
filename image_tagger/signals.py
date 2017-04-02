@@ -20,13 +20,7 @@ def delete_file_from_image(sender, **kwargs):
 def delete_file_from_publication(sender, **kwargs):
     instance = kwargs['instance']
     try:
-        # TODO remove this hardcoded reference
-        publication_directory = "{0}publications/".format(settings.MEDIA_ROOT)
-        file_path = publication_directory + instance.get_file_name()
-        os.remove(file_path)
+        path = os.path.join(Publication.STORAGE_DIRECTORY, instance.get_file_name())
+        os.remove(path)
     except Exception as ex:
-        raise Exception("Error when deleting the file {} from publication {} of dataset {}(id: {}).".format(
-            instance.get_file_name(),
-            instance.id,
-            instance.dataset.name,
-            instance.dataset.id)) from ex
+        pass

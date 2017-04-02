@@ -442,8 +442,6 @@ class PublicationAdmin(admin.ModelAdmin):
         return  short_description
     get_short_description.short_description = 'Description'
     
-    publication_directory = "{0}publications/".format(settings.MEDIA_ROOT)
-    
     def get_fields(self, request, obj=None):
         fields = super(PublicationAdmin, self).get_fields(request, obj)
         
@@ -468,10 +466,10 @@ class PublicationAdmin(admin.ModelAdmin):
         
         if not change:
             try:
-                temp_directory = "{0}publications/temp_{1}/".format(settings.MEDIA_ROOT, obj.id)
+                temp_directory = os.path.join(Publication.STORAGE_DIRECTORY, "temp_{0}".format(obj.id))
                 os.mkdir(temp_directory)
                 
-                obj.publish(temp_directory, self.publication_directory)
+                obj.publish(temp_directory, Publication.STORAGE_DIRECTORY)
             except:
                 # TODO show message to user that something exploded
                 raise

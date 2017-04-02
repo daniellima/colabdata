@@ -1,8 +1,7 @@
 # encoding: utf-8
-from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership, Dataset
+from .models import Tag, ObjectType, AttributeType, AttributeTypeValue, Attribute, Image, Relation, RelationType, DatasetMembership, Dataset, Publication
 from django.utils import timezone
-from django.http import Http404, HttpResponseBadRequest
-from django.http import JsonResponse, HttpResponse
+from django.http import Http404, HttpResponseBadRequest, JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib import auth
@@ -17,6 +16,7 @@ import random
 from os import listdir
 from os.path import isfile, join
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.conf import settings
 
 def get_json(request):
     return json.loads(request.body.decode('utf-8'))
@@ -378,3 +378,15 @@ def merge_tags(request):
     Tag.objects.filter(id__in=idsOfTagsToBeMerged).delete()
     
     return JsonResponse({'id': mergedTag.id})
+    
+def download_publication(request, publication_id):
+    publication = Publication.objects.get(pk=publication_id)
+    if not publication.dataset in request.user.datasets.all():
+        raise Http404
+        
+    path = os.path.join(Publication.STORAGE_DIRECTORY, publication.get_file_name())
+    
+    response = FileResponse(open(path, 'rb'), content_type='application/gzip')
+    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(publication.get_file_name())
+    
+    return response

@@ -35,7 +35,7 @@
           <p>{{ publication.description|linebreaks }}</p>
           <p><a 
               class="btn btn-default" 
-              href="{% static 'tagged_images/publications/' %}{{ publication.get_file_name }}"
+              href="{% url 'download_publication' publication.id %}"
               title="Download publication '{{ publication.name }}'">
                   <span class="glyphicon glyphicon-download"></span>
                   Download
