@@ -23,6 +23,8 @@ class DatasetMembershipInline(admin.StackedInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         formfield = super(DatasetMembershipInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
         
+        if db_field.name == "user" and not request.user.is_superuser:
+            formfield.queryset = formfield.queryset.filter(is_superuser=False)     
         if db_field.name == "group" and not request.user.is_superuser:
             formfield.queryset = Group.objects.exclude(name="Administrador")
              
@@ -32,7 +34,7 @@ class DatasetMembershipInline(admin.StackedInline):
         qs = super(DatasetMembershipInline, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
-        return qs.exclude(group__name="Administrador")
+        return qs.exclude(Q(group__name="Administrador")|Q(user__is_superuser=True))
     
     def has_change_permission(self, request, obj=None):
         return True
@@ -183,6 +185,35 @@ class CustomUserAdmin(UserAdmin):
     
     readonly_fields = ['date_joined', 'last_login']
     
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(CustomUserAdmin, self).get_form(request, obj, **kwargs)
+        if obj == None or request.user.is_superuser:
+            return form
+        if obj.id == request.user.id: # is editing itself
+            return form
+        else:
+            form.media = forms.Media(css={'all':('css/remove_save_buttons.css',)}, js=())
+            return form
+    
+    def get_fieldsets(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return self.fieldsets
+        if obj.id == request.user.id: # is editing itself
+            return self.fieldsets
+        else:
+            return (
+                (None, {'fields': ('username',)}),
+                ('Personal info', {'fields': ('first_name', 'last_name', 'email')})
+            )
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj == None or request.user.is_superuser:
+            return self.readonly_fields
+        if obj.id == request.user.id: # is editing itself
+            return self.readonly_fields
+        else:
+            return self.readonly_fields + ['username', 'first_name', 'last_name', 'email']
+    
     def get_queryset(self, request):
         qs = super(CustomUserAdmin, self).get_queryset(request)
         if request.user.is_superuser:
@@ -205,12 +236,13 @@ class CustomUserAdmin(UserAdmin):
         return True
     
     def has_change_permission(self, request, obj=None):
-        if obj == None or request.user.is_superuser:
-            return True
-        if obj.id == request.user.id: # is editing itself
-            return True
+        # if obj == None or request.user.is_superuser:
+        #     return True
+        # if obj.id == request.user.id: # is editing itself
+        #     return True
         
-        return False
+        # return False
+        return True
     
     def has_add_permission(self, request, obj=None):
         return True
