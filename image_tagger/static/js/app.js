@@ -419,25 +419,23 @@ tagsAreSimilar = function(tag1, tag2) {
     return false;
 }
 
-prefetchImage = function($q, url) {
-    var promise = $q(function(resolve, reject) {
+prefetchImage = function($rootScope, url, successCallback, errorCallback) {
+    var imgElement = new Image();
 
-        var imgElement = new Image();
-
-        imgElement.addEventListener('load', function () {
-            resolve(this);
-        });
-
-        imgElement.addEventListener('error', function () {
-            console.log('image "'+url+'" not loaded');
-            reject();
-        })
-
-        imgElement.src = url;
-
+    imgElement.addEventListener('load', function () {
+        $rootScope.$apply(function(){
+            successCallback();
+        }.bind(this));
     });
-    
-    return promise;
+
+    imgElement.addEventListener('error', function () {
+        console.log('image "'+url+'" not loaded');
+        $rootScope.$apply(function(){
+            errorCallback();
+        }.bind(this));
+    })
+
+    imgElement.src = url;
 }
 
 showAndLogErrorThatOcurredDuringAction = function(action, response, $rootScope) {

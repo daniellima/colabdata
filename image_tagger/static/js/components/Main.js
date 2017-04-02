@@ -17,10 +17,17 @@ var MainComponent = function($rootScope, $http, $q){
     this.isLoadingImage = false;
     this.datasetId = this.getDatasetIdFromURL();
     
-    this.requestImages()
-    .then(function(){
-        this.requestOnthologyAndFirstImage();
-    }.bind(this));
+    if(serverData.use_onthology) {
+        this.requestOnthology(function() {
+            this.requestImages(function() {
+                this.requestCurrentImage();
+            }.bind(this));
+        }.bind(this));
+    } else {
+        this.requestImages(function() {
+            this.requestCurrentImage();
+        }.bind(this));
+    }
 }
 
 MainComponent.definition = {
@@ -30,85 +37,84 @@ MainComponent.definition = {
 
 MainComponent.prototype = {
     
-    requestImages: function() {
-        showLoadingOverlay(true, "Carregando imagens...");
-        
-        var response = null;
-        return this.$http({
-            method: 'get', 
-            url: urls.imagesPack(this.datasetId)
-        })
-        .then(function (response){
-            
-            this.imagePack = response.data.images;
-            
-        }.bind(this), function(response){
-            
-            showAndLogErrorThatOcurredDuringAction("carregando imagens", response, this.$rootScope);
-            // TODO retornar para datasets se for o primeiro loading
-            
-        }.bind(this))
-        .finally(function(){
-            
-            showLoadingOverlay(false);
-            
-        }.bind(this))
-    },
-    
-    requestOnthologyAndFirstImage: function(){
+    requestOnthology: function(successCallback){
         showLoadingOverlay(true, "Carregando ontologia...");
         
-        return this.$http({
+        this.$http({
             method: 'get', 
             url: urls.datasetOnthology(this.datasetId)
         })
         .then(function(response){
+            showLoadingOverlay(false);
             
             store.setOnthology(response.data);
-            this.requestImage(this.currentImageId());
+            successCallback();
             
         }.bind(this), function(response){
-            
             showLoadingOverlay(false);
+            
             showAndLogErrorThatOcurredDuringAction("carregar ontologia", response, this.$rootScope);
             
         }.bind(this));
     },
     
-    requestImage: function(imageId){
+    requestImages: function(successCallback) {
+        showLoadingOverlay(true, "Carregando imagens...");
+        
+        this.$http({
+            method: 'get', 
+            url: urls.imagesPack(this.datasetId)
+        })
+        .then(function(response){
+            showLoadingOverlay(false);
+            
+            this.imagePack = response.data.images;
+            successCallback();
+            
+        }.bind(this), function(response){
+            showLoadingOverlay(false);
+            
+            showAndLogErrorThatOcurredDuringAction("carregar imagens", response, this.$rootScope);
+            // TODO retornar para datasets se for o primeiro loading
+            
+        }.bind(this));
+    },
+    
+    requestCurrentImage: function(){
         showLoadingOverlay(true, "Carregando dados da imagem...");
         this.isLoadingImage = true;
         
-        var response = null;
         this.$http({
             method: 'get', 
-            url: urls.image(this.datasetId, imageId)
+            url: urls.image(this.datasetId, this.currentImageId())
         })
-        .then(function (_response){
-            response = _response;
-            
+        .then(function (response){
             showLoadingOverlay(true, "Carregando imagem...");
-            return prefetchImage(this.$q, response.data.image.url);
+            
+            prefetchImage(this.$rootScope, response.data.image.url, function(){
+                showLoadingOverlay(false);
+                
+                this.selectedImage = response.data.image;
+                this.hasNextImage = response.data.has_next_image;
+                
+                this.isLoadingImage = false;
+            }.bind(this), function(){
+                showLoadingOverlay(false);
+                
+                showAndLogErrorThatOcurredDuringAction("carregar imagem", null, this.$rootScope);
+                
+                this.isLoadingImage = false;
+            }.bind(this));
 
-        }.bind(this))
-        .then(function(){
-            
-            this.selectedImage = response.data.image;
-            this.hasNextImage = response.data.has_next_image;
-            
-        }.bind(this), function(response){
-            
-            showAndLogErrorThatOcurredDuringAction("carregar imagem", response, this.$rootScope);
-            // TODO retornar para datasets se for o primeiro loading
-            
-        }.bind(this))
-        .finally(function(){
-            
+        }.bind(this), 
+        function(response){
             showLoadingOverlay(false);
+            
+            showAndLogErrorThatOcurredDuringAction("carregar dados da imagem", response, this.$rootScope);
+            // TODO retornar para datasets se for o primeiro loading
             this.isLoadingImage = false;
             
-        }.bind(this))
-        
+        }.bind(this));
     },
     
     getDatasetIdFromURL: function() {
@@ -123,6 +129,7 @@ MainComponent.prototype = {
         document.activeElement.blur();
     },
     
+    
     backToDatasetsButtonClickHandler: function(){
         window.location = urls.privateDatasets;
     },
@@ -131,7 +138,7 @@ MainComponent.prototype = {
         if(this.isLoadingImage) return;
         
         this.currentImageIndex--;
-        this.requestImage(this.currentImageId());
+        this.requestCurrentImage();
         this.blurButton();
     },
     
@@ -140,13 +147,12 @@ MainComponent.prototype = {
         
         this.currentImageIndex++;
         if(this.currentImageIndex == this.imagePack.length) {
-            this.requestImages()
-            .then(function() {
+            this.requestImages(function(){
                 this.currentImageIndex = 0;
-                this.requestImage(this.currentImageId());
-            }.bind(this))
+                this.requestCurrentImage();
+            }.bind(this));
         } else {
-            this.requestImage(this.currentImageId());    
+            this.requestCurrentImage();
         }
         
         this.blurButton();
