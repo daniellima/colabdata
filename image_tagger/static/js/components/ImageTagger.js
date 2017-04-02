@@ -311,6 +311,7 @@ component.prototype = {
     },
     
     tagClickHandler: function($event, tag){
+        if(this.markerVisible) return false;
         if($event.ctrlKey){
             if(this.selectedTag === null){
                 this.selectedTag = tag;
