@@ -42,8 +42,8 @@ var component = MergePreviewComponent = function($rootScope, $http){
             this.tagIds.push(tag.id);
         }
         
-        this.object = tags[0].object;
-        this.marker = this.mergeMarkers(tags)
+        this.object = this.mergeObjects(tags);
+        this.marker = this.mergeMarkers(tags);
         this.attributes = this.mergeAttributes(tags);
 
         this.setOpen(true);
@@ -58,6 +58,21 @@ component.definition = {
 };
 
 component.prototype = {
+    
+    mergeObjects: function(tags) {
+        var ocurrenceCount = {};
+        var mostFrequentObject = null;
+        var max = -Infinity;
+        for(var i = 0; i < tags.length; i++) {
+            var object = tags[i].object;
+            ocurrenceCount[object] = ocurrenceCount[object] ? ocurrenceCount[object] + 1 : 1;
+            if(ocurrenceCount[object] > max) {
+                mostFrequentObject = object;
+                max = ocurrenceCount[mostFrequentObject]
+            }
+        }
+        return mostFrequentObject;
+    },
     
     mergeMarkers: function(tags) {
         var x = 0;

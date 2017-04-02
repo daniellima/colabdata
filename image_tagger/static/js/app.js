@@ -336,8 +336,61 @@ ColabDataApp.component('overview', OverviewComponent.definition);
 
 ColabDataApp.component('mainComponent', MainComponent.definition);
 
+deepFirstSearch = function(root) {
+    var listToExplore = [ root ];
+    var visited = [];
+    
+    root.visited = true;
+    visited.push(root);
+    
+    while ( listToExplore.length > 0 ) {
+        var node = listToExplore.shift();
+        for(var i = 0; i < node.links.length; i++) {
+            if ( !node.links[i].visited ) {
+                node.links[i].visited = true;
+                visited.push(node.links[i]);
+                listToExplore.push( node.links[i] );
+            }
+        };
+    }
+    
+    return visited
+}
+
+groupTags = function(tags, isRelated) {
+    // build a graph where each tag is a node and the function
+    // isRelated(node1, node2) is true when there is an edge beetween
+    // node1 and node2.
+    var nodes = [];
+    for(var i = 0; i < tags.length; i++) {
+        var node = {data: tags[i], visited: false, links: []};
+        nodes.push(node);
+    }
+    for(var i = 0; i < nodes.length; i++) {
+        for(var j = i + 1; j < nodes.length; j++) {
+            if(isRelated(nodes[i].data, nodes[j].data)) {
+                nodes[i].links.push(nodes[j]);
+                nodes[j].links.push(nodes[i]);
+            }
+        }
+    }
+    // finds the connected components of the graph
+    var connectedComponents = [];
+    for(var i = 0; i < nodes.length; i++) {
+        if(!nodes[i].visited) {
+            var visited = deepFirstSearch(nodes[i]);
+            var tags = [];
+            for(var j = 0; j < visited.length; j++) {
+                tags.push(visited[j].data);
+            }
+            connectedComponents.push(tags);
+        }
+    }
+    
+    return connectedComponents;
+}
+
 tagsAreSimilar = function(tag1, tag2) {
-    if(tag1.object != tag2.object) return false;
     
     var xOverlap = Math.max(0, Math.min(tag1.x+tag1.width, tag2.x+tag2.width) - Math.max(tag1.x,tag2.x));
     var yOverlap = Math.max(0, Math.min(tag1.y+tag1.height, tag2.y+tag2.height) - Math.max(tag1.y,tag2.y));
@@ -345,13 +398,24 @@ tagsAreSimilar = function(tag1, tag2) {
     var tag1Area = Math.floor(tag1.width * tag1.height);
     var tag2Area = Math.floor(tag2.width * tag2.height);
     
-    if((overlapArea == tag1Area) || (overlapArea == tag2Area)) { // one inside another
-        return true;
+    var overlapPercent = 0.7;
+    var overlapedMuchOfTag1Area = (overlapArea >= tag1Area * overlapPercent);
+    var overlapedMuchOfTag2Area = (overlapArea >= tag2Area * overlapPercent);
+    
+    if(tag1.object == tag2.object) {
+        if((overlapArea == tag1Area) || (overlapArea == tag2Area)) { // one inside another
+            return true;
+        }
+        if(overlapedMuchOfTag1Area || overlapedMuchOfTag2Area) {
+            return true;
+        }
     }
-    var overlapPercent = 0.8;
-    if((overlapArea >= tag1Area * overlapPercent) && (overlapArea >= tag2Area * overlapPercent)) {
-        return true;
+    else {
+        if(overlapedMuchOfTag1Area && overlapedMuchOfTag2Area) {
+            return true;
+        }
     }
+    
     return false;
 }
 

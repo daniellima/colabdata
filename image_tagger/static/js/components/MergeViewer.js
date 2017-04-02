@@ -12,25 +12,11 @@ var component = MergeViewerComponent = function($rootScope, $http){
     this.open = false;
     $rootScope.$on('merge-requested', function(event, data) {
         this.setOpen(true);
-        this.mergeGroups = [];
         var tags = this.image().tags;
         
-        for(var i = 0; i < tags.length; i++) {
-            var tag1 = tags[i];
-            for(var j = 0; j < this.mergeGroups.length; j++) {
-                var group = this.mergeGroups[j];
-                for(var k = 0; k < group.length; k++) {
-                    var tag2 = group[k];
-                    if(tagsAreSimilar(tag1, tag2)) {
-                        group.push(tag1);
-                        k = +Infinity;
-                        j = +Infinity;
-                    }
-                }
-            }
-            if(j != +Infinity) this.mergeGroups.push([tag1])
-        }
-        for(i = this.mergeGroups.length-1; i >= 0; i--) {
+        this.mergeGroups = groupTags(tags, tagsAreSimilar);
+        
+        for(var i = this.mergeGroups.length-1; i >= 0; i--) {
             if(this.mergeGroups[i].length == 1) {
                 this.mergeGroups.splice(i, 1);
             }
