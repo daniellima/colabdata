@@ -23,4 +23,8 @@ def delete_file_from_publication(sender, **kwargs):
         path = os.path.join(Publication.STORAGE_DIRECTORY, instance.get_file_name())
         os.remove(path)
     except Exception as ex:
-        pass
+        raise Exception("Error when deleting the file {} from image {} of dataset {}(id: {}).".format(
+            instance.get_file_name(),
+            instance.id,
+            instance.dataset.name,
+            instance.dataset.id)) from ex
