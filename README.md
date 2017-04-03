@@ -20,6 +20,7 @@ Uma vez configurado com o servidor, é necessário rodar esses tres comandos, na
 `python manage.py loaddata groups` para criar os dados fixos do banco
 
 Agora abra o arquivo `colabdata/settings.py` e na configuração `ALLOWED_HOSTS`, adicione o dominio de onde o sistema será servido na lista.
+Depois, no mesmo arquivo, mude a variavel `DEBUG` para `False`, caso esteja instalando em produção.
 
 O sistema já deve estar funcionando. 
 Para acessar a area administrativa, basta acessar `{url do site}/admin` e logar com o usuario criado anteriormente.
