@@ -45,6 +45,6 @@ Finalmente, mude a variavel `DEBUG` para `False`, caso esteja instalando em prod
 
 ## Testando o funcionamento
 
-O sistema já deve estar funcionando. 
-Para acessar a area administrativa, basta acessar `{url do site}/admin` e logar com o usuario criado anteriormente.
-Os colaboradores podem logar por `{url do site}` e clicar em "Start contributing" para ver os datasets que tem acesso.
+O sistema já deve estar funcionando. Para logar, acesse `{url do site}`.
+Para acessar a area administrativa, basta logar como um administrador ou superuser e clicar em Admin na navegação..
+Os colaboradores podem clicar em "My Datasets" para ver os datasets que tem acesso e clicar em "Start contributing" para começar a contribuir.
