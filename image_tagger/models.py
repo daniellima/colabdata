@@ -8,6 +8,7 @@ from collections import OrderedDict
 import tarfile
 from django.db.models import Count
 from django.conf import settings
+import uuid
 # Create your models here.
 
 class Dataset(models.Model):
@@ -128,8 +129,13 @@ class RelationType(models.Model):
     def __str__(self):
         return self.name
 
+def generate_unique_hard_to_guess_name(image, filename):
+    ext = filename.split('.')[-1]
+    filename = "{}.{}".format(uuid.uuid4(), ext)
+    return os.path.join('images/', filename)
+
 class Image(models.Model):
-    file = models.ImageField(upload_to='images/')
+    file = models.ImageField(upload_to=generate_unique_hard_to_guess_name)
     dataset = models.ForeignKey(Dataset, related_name="images", on_delete=models.CASCADE)
 
     def get_publication_name(self):
@@ -153,7 +159,7 @@ class Image(models.Model):
         }
         
     def __str__(self):
-        return self.file.name
+        return self.id
  
 class Tag(models.Model):
     object_type = models.ForeignKey(ObjectType, related_name="tags", on_delete=models.CASCADE)
