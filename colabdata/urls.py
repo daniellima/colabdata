@@ -19,8 +19,6 @@ from django.contrib.auth import views as auth_views
 from image_tagger.admin import custom_admin_site
 from django.conf import settings
 from django.conf.urls.static import static
-from . import views
-
 
 urlpatterns = [
     url(r'^admin/', custom_admin_site.urls),
