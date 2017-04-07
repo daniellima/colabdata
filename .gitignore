@@ -12,3 +12,4 @@ pip-log.txt
 nosetests.xml
 
 db.sqlite3
+database_in_c9.md
