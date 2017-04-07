@@ -129,7 +129,7 @@ class RelationType(models.Model):
         return self.name
 
 class Image(models.Model):
-    file = models.ImageField()
+    file = models.ImageField(upload_to='images/')
     dataset = models.ForeignKey(Dataset, related_name="images", on_delete=models.CASCADE)
 
     def get_publication_name(self):
@@ -264,7 +264,7 @@ class Publication(models.Model):
     description = models.TextField(max_length=2000)
     export_date = models.DateTimeField()
     
-    STORAGE_DIRECTORY = os.path.join(settings.BASE_DIR, 'image_tagger', 'publications')
+    STORAGE_DIRECTORY = os.path.join(settings.BASE_DIR, 'private_media', 'publications')
     
     def publish(self, temp_directory, publication_directory):
         self.export_to_json(os.path.join(temp_directory, "tags.jsonl"), Tag.objects.filter(image__in=self.dataset.images.all()).all())

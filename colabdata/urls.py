@@ -17,6 +17,8 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib.auth import views as auth_views
 from image_tagger.admin import custom_admin_site
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 
@@ -28,3 +30,5 @@ urlpatterns = [
     url(r'^reset/done/$', auth_views.password_reset_complete, name='password_reset_complete'),
     url(r'^', include('image_tagger.urls'))
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
