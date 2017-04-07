@@ -4,12 +4,12 @@
 <head>
   <meta charset="utf-8">
   <title>Image Tagger | COLABDATA</title>
-  <link rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
-  <link rel="stylesheet" href="{% static 'css/main.css' %}" type="text/css" />
+  <link rel="stylesheet" href="{% static 'image_tagger/libs/bootstrap/css/bootstrap.css' %}" type="text/css" />
+  <link rel="stylesheet" href="{% static 'image_tagger/css/main.css' %}" type="text/css" />
   <!-- aqui para fazer o angular usar o jQuery -->
-  <script type="text/javascript" src="{% static 'libs/jquery/jquery-2.2.3.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'image_tagger/libs/jquery/jquery-2.2.3.min.js' %}"></script>
   <!-- angular está qui para o ng-cloak funcionar -->
-  <script src="{% static 'libs/angular/angular-1.5.6.js' %}"></script>
+  <script src="{% static 'image_tagger/libs/angular/angular-1.5.6.js' %}"></script>
 </head>
 <body 
   ng-cloak
@@ -39,18 +39,18 @@
   serverData.user_is_curator = {{ user_is_curator }}; // TODO mudar o nome para padrão javascript
   serverData.use_onthology = {{ use_onthology }};
 </script>
-<script type="text/javascript" src="{% static 'js/urls.js' %}"></script> 
-<script type="text/javascript" src="{% static 'js/components/ImageTagger.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/ObjectEditor.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/ObjectViewer.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/MergeViewer.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/MergePreview.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/ObjectThumbnail.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/RelationEditor.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/RelationList.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/Main.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/components/Overview.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/app.js' %}"></script>
-<script type="text/javascript" src="{% static 'libs/bootstrap/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/urls.js' %}"></script> 
+<script type="text/javascript" src="{% static 'image_tagger/js/components/ImageTagger.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/ObjectEditor.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/ObjectViewer.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/MergeViewer.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/MergePreview.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/ObjectThumbnail.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/RelationEditor.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/RelationList.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/Main.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/components/Overview.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/js/app.js' %}"></script>
+<script type="text/javascript" src="{% static 'image_tagger/libs/bootstrap/js/bootstrap.min.js' %}"></script>
 </body>
 </html>

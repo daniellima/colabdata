@@ -192,7 +192,7 @@ class CustomUserAdmin(UserAdmin):
         if obj.id == request.user.id: # is editing itself
             return form
         else:
-            form.media = forms.Media(css={'all':('css/remove_save_buttons.css',)}, js=())
+            form.media = forms.Media(css={'all':('image_tagger/css/remove_save_buttons.css',)}, js=())
             return form
     
     def get_fieldsets(self, request, obj=None):
