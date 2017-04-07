@@ -2,7 +2,9 @@
 
 Repositório do Trabalho Final de Curso de Gabriel Freire e Daniel Lima
 
-# Instalação
+## Instalação
+
+### Configurando o servidor
 
 Configure o Django com o servidor web que preferir.
 
@@ -10,6 +12,18 @@ O projeto foi desenvolvido com python 3.4.3
 
 Para importação e exportação de datasets, o modulo zlib deve estar funcionando.
 Se `import zlib` funcionar no interpretador python, deve estar tudo ok.
+
+#### Arquivos estáticos
+
+Além de configurar a interação entre o servidor e o Django, é necessário configurar o servidor para servir os conteudos estáticos do projeto.
+
+As pastas `/static` e `/media` na raiz do repositorio devem ser liberadas para acesso via URL.
+
+Atenção, a pasta `/private_media` *NÃO* deve ser aberta para acesso via URL. O acesso para esses arquivos necessita de autenticação e por isso é gerenciado pelo proprio Django.
+
+Finalmente, as pastas `/media` e `/private_media` devem ser configuradas com permissões de escrita, já que o sistema criará conteúdo nelas.
+
+### Criando Banco de Dados
 
 Uma vez configurado com o servidor, é necessário rodar esses tres comandos, na pasta do projeto:
 
@@ -19,8 +33,17 @@ Uma vez configurado com o servidor, é necessário rodar esses tres comandos, na
 
 `python manage.py loaddata groups` para criar os dados fixos do banco
 
-Agora abra o arquivo `colabdata/settings.py` e na configuração `ALLOWED_HOSTS`, adicione o dominio de onde o sistema será servido na lista.
-Depois, no mesmo arquivo, mude a variavel `DEBUG` para `False`, caso esteja instalando em produção.
+### Configurando o Projeto
+
+Agora abra o arquivo `colabdata/settings.py`, que é o arquivo de configuração do Django.
+
+Na lista `ALLOWED_HOSTS`, adicione o dominio de onde o sistema será servido.
+
+Depois, altere a variavel `STATIC_URL` para a URL que aponta para o diretorio `/static` e a variavel `MEDIA_URL` para a URL que aponta para o diretorio `/media`.
+
+Finalmente, mude a variavel `DEBUG` para `False`, caso esteja instalando em produção.
+
+## Testando o funcionamento
 
 O sistema já deve estar funcionando. 
 Para acessar a area administrativa, basta acessar `{url do site}/admin` e logar com o usuario criado anteriormente.
