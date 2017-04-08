@@ -5,11 +5,8 @@ var MainComponent = function($rootScope, $http, $q){
     
     this.datasetId = this.getDatasetIdFromURL();
     
-    this.imagePack = [];
+    this.imagesIds = [];
     this.currentImageIndex = 0;
-    this.currentImageId = function(){
-        return this.imagePack[this.currentImageIndex];
-    }
     this.currentImage = null;
     this.hasPreviousImage = function(){
         return this.currentImageIndex != 0;
@@ -20,12 +17,12 @@ var MainComponent = function($rootScope, $http, $q){
     if(serverData.use_onthology) {
         this.requestOnthology(function() {
             this.requestImages(function() {
-                this.requestCurrentImage();
+                this.requestImage(this.currentImageIndex);
             }.bind(this));
         }.bind(this));
     } else {
         this.requestImages(function() {
-            this.requestCurrentImage();
+            this.requestImage(this.currentImageIndex);
         }.bind(this));
     }
 }
@@ -68,7 +65,7 @@ MainComponent.prototype = {
         .then(function(response){
             showLoadingOverlay(false);
             
-            this.imagePack = response.data.images;
+            this.imagesIds = response.data.images;
             successCallback();
             
         }.bind(this), function(response){
@@ -80,12 +77,15 @@ MainComponent.prototype = {
         }.bind(this));
     },
     
-    requestCurrentImage: function(){
+    requestImage: function(imageIndex, successCallback){
         showLoadingOverlay(true, "Carregando dados da imagem...");
+        
+        var successCallback = successCallback || function(){};
+        var imageId = this.imagesIds[imageIndex];
         
         this.$http({
             method: 'get', 
-            url: urls.image(this.datasetId, this.currentImageId())
+            url: urls.image(this.datasetId, imageId)
         })
         .then(function (response){
             showLoadingOverlay(true, "Carregando imagem...");
@@ -95,6 +95,7 @@ MainComponent.prototype = {
                 
                 this.selectedImage = response.data.image;
                 this.hasNextImage = response.data.has_next_image;
+                successCallback();
                 
             }.bind(this), function(){
                 showLoadingOverlay(false);
@@ -132,21 +133,24 @@ MainComponent.prototype = {
     
     previousImageButtonClickHandler: function(event) {
         
-        this.currentImageIndex--;
-        this.requestCurrentImage();
+        this.requestImage(this.currentImageIndex-1, function(){
+            this.currentImageIndex--;
+        }.bind(this));
         this.blurButton();
     },
     
     nextImageButtonClickHandler: function(event) {
         
-        this.currentImageIndex++;
-        if(this.currentImageIndex == this.imagePack.length) {
+        if(this.currentImageIndex+1 == this.imagesIds.length) {
             this.requestImages(function(){
-                this.currentImageIndex = 0;
-                this.requestCurrentImage();
+                this.requestImage(0, function(){
+                    this.currentImageIndex = 0;    
+                }.bind(this));
             }.bind(this));
         } else {
-            this.requestCurrentImage();
+            this.requestImage(this.currentImageIndex+1, function(){
+                this.currentImageIndex++;
+            }.bind(this));
         }
         
         this.blurButton();
