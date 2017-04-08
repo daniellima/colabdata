@@ -14,7 +14,7 @@ var MainComponent = function($rootScope, $http, $q){
     this.hasPreviousImage = function(){
         return this.currentImageIndex != 0;
     };
-    this.isLoadingImage = false;
+
     this.datasetId = this.getDatasetIdFromURL();
     
     if(serverData.use_onthology) {
@@ -82,7 +82,6 @@ MainComponent.prototype = {
     
     requestCurrentImage: function(){
         showLoadingOverlay(true, "Carregando dados da imagem...");
-        this.isLoadingImage = true;
         
         this.$http({
             method: 'get', 
@@ -97,13 +96,11 @@ MainComponent.prototype = {
                 this.selectedImage = response.data.image;
                 this.hasNextImage = response.data.has_next_image;
                 
-                this.isLoadingImage = false;
             }.bind(this), function(){
                 showLoadingOverlay(false);
                 
                 showAndLogErrorThatOcurredDuringAction("carregar imagem", null, this.$rootScope);
                 
-                this.isLoadingImage = false;
             }.bind(this));
 
         }.bind(this), 
@@ -112,7 +109,6 @@ MainComponent.prototype = {
             
             showAndLogErrorThatOcurredDuringAction("carregar dados da imagem", response, this.$rootScope);
             // TODO retornar para datasets se for o primeiro loading
-            this.isLoadingImage = false;
             
         }.bind(this));
     },
@@ -135,7 +131,6 @@ MainComponent.prototype = {
     },
     
     previousImageButtonClickHandler: function(event) {
-        if(this.isLoadingImage) return;
         
         this.currentImageIndex--;
         this.requestCurrentImage();
@@ -143,7 +138,6 @@ MainComponent.prototype = {
     },
     
     nextImageButtonClickHandler: function(event) {
-        if(this.isLoadingImage) return;
         
         this.currentImageIndex++;
         if(this.currentImageIndex == this.imagePack.length) {
