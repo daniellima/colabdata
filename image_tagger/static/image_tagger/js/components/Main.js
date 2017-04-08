@@ -85,7 +85,7 @@ MainComponent.prototype = {
         
         this.$http({
             method: 'get', 
-            url: urls.image(this.datasetId, imageId)
+            url: urls.image(imageId)
         })
         .then(function (response){
             showLoadingOverlay(true, "Carregando imagem...");

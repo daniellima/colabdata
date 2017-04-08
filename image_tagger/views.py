@@ -196,15 +196,13 @@ def private_datasets(request):
     
 @require_GET
 @login_required # TODO ajax_aware_login_required
-def image(request, dataset_id, image_id):
-    if not request.user.datasets.filter(pk=dataset_id).exists():
-        raise PermissionDenied
-
-    dataset = Dataset.objects.get(pk=dataset_id)
-    
+def image(request, image_id):
     image = Image.objects.get(pk=image_id)
     
-    if is_curator(request.user, dataset):
+    if not request.user.datasets.filter(pk=image.dataset.id).exists():
+        raise PermissionDenied
+
+    if is_curator(request.user, image.dataset):
         image = image.toJSONSerializable()
     else:
         image = image.toJSONSerializable(only_tags_from_user=request.user)
