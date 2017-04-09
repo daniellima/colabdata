@@ -27,6 +27,14 @@ Atenção, a pasta `/private_media` **NÃO** deve ser aberta para acesso via URL
 
 Finalmente, as pastas `/media` e `/private_media` devem ser configuradas com permissões de escrita, já que o sistema criará conteúdo nelas.
 
+### Email
+
+É preciso configurar o envio de email, que é feito via SMTP, para que a 
+funcionalidade de esquecer a senha funcione.
+
+Para isso, vá ao arquivo `colabdata/settings.py` e altere o valor das variaveis 
+que começam com "EMAIL" para os valores desejados.
+
 ### Criando Banco de Dados
 
 Uma vez configurado com o servidor, é necessário rodar esses tres comandos, na pasta do projeto:

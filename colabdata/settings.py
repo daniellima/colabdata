@@ -131,3 +131,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 LOGIN_URL = 'index'
 
 X_FRAME_OPTIONS = 'DENY'
+
+# Email
+# https://docs.djangoproject.com/en/1.10/topics/email/
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "mail@mail.com"
+EMAIL_HOST_PASSWORD = "password"
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
