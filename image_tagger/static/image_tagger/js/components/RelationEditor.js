@@ -97,7 +97,7 @@ component.prototype = {
         this.setOpen(false);
         
         this.$rootScope.$emit('tag-requested', {
-            action: 'Selecionar',
+            action: 'Select',
             callback: function(tag){
                 this.setOpen(true);
                 
@@ -123,7 +123,7 @@ component.prototype = {
         var isValid = this.checkValid();
         
         if(isValid) {
-            showLoadingOverlay(true, "Salvando...");
+            showLoadingOverlay(true, messages.saving);
             store.saveRelation(this.$http, this.relationBeingEdited, this.name, this.originTag, this.targetTag)
             .then(function(){
                 
@@ -131,7 +131,7 @@ component.prototype = {
                 
                 this.setOpen(false);
             }.bind(this), function(response) {
-                showAndLogErrorThatOcurredDuringAction("salvar a relação", response, this.$rootScope);
+                showAndLogErrorThatOcurredDuringAction(messages.saveTheRelation, response, this.$rootScope);
             }.bind(this))
             .finally(function(){
                 showLoadingOverlay(false);

@@ -195,14 +195,14 @@ component.prototype = {
         var isValid = this.checkValid();
         
         if(isValid) {
-            showLoadingOverlay(true, "Merging...");
+            showLoadingOverlay(true, messages.merging);
             
             store.mergeTags(this.$http, this.tagIds, this.object, this.attributes, this.marker)
             .then(function(response){
                 this.setOpen(false);
                 this.callback(true);
             }.bind(this), function(response){
-                showAndLogErrorThatOcurredDuringAction("mesclar tags", response, this.$rootScope);
+                showAndLogErrorThatOcurredDuringAction(messages.mergeTags, response, this.$rootScope);
             }.bind(this))
             .finally(function() {
                 showLoadingOverlay(false);

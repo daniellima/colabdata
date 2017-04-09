@@ -1,0 +1,20 @@
+messages = {
+    loadingOnthology: "Loading onthology...",
+    loadingImages: "Loading images...",
+    loadingImageData: "Loading image data...",
+    loadingImage: "Loading image...",
+    loggingOut: "logging out...",
+    merging: "Merging...",
+    saving: "Saving...",
+    deleting: "Deleting...",
+    loadOnthology: "load onthology",
+    loadImages: "load images",
+    loadImage: "load image",
+    loadImageData: "load image data",
+    logout: "logout",
+    mergeTags: "merge tags",
+    saveTheTag: "save the tag",
+    deleteTheTag: "delete the tag",
+    saveTheRelation: "save the relation",
+    deleteTheRelation: "delete the relation"
+}

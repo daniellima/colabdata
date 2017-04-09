@@ -196,7 +196,7 @@ component.prototype = {
     
     showObjectListButtonClickHandler: function(){
         this.$rootScope.$emit('tag-requested', {
-            action: 'Editar',
+            action: 'Edit',
             callback: function(){}.bind(this)
         });
     },

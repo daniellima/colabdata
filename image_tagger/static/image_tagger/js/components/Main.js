@@ -35,7 +35,7 @@ MainComponent.definition = {
 MainComponent.prototype = {
     
     requestOnthology: function(successCallback){
-        showLoadingOverlay(true, "Carregando ontologia...");
+        showLoadingOverlay(true, messages.loadingOnthology);
         
         this.$http({
             method: 'get', 
@@ -50,13 +50,13 @@ MainComponent.prototype = {
         }.bind(this), function(response){
             showLoadingOverlay(false);
             
-            showAndLogErrorThatOcurredDuringAction("carregar ontologia", response, this.$rootScope);
+            showAndLogErrorThatOcurredDuringAction(messages.loadOnthology, response, this.$rootScope);
             
         }.bind(this));
     },
     
     requestImages: function(successCallback) {
-        showLoadingOverlay(true, "Carregando imagens...");
+        showLoadingOverlay(true, messages.loadingImages);
         
         this.$http({
             method: 'get', 
@@ -71,14 +71,14 @@ MainComponent.prototype = {
         }.bind(this), function(response){
             showLoadingOverlay(false);
             
-            showAndLogErrorThatOcurredDuringAction("carregar imagens", response, this.$rootScope);
+            showAndLogErrorThatOcurredDuringAction(messages.loadImages, response, this.$rootScope);
             // TODO retornar para datasets se for o primeiro loading
             
         }.bind(this));
     },
     
     requestImage: function(imageIndex, successCallback){
-        showLoadingOverlay(true, "Carregando dados da imagem...");
+        showLoadingOverlay(true, messages.loadingImageData);
         
         var successCallback = successCallback || function(){};
         var imageId = this.imagesIds[imageIndex];
@@ -88,7 +88,7 @@ MainComponent.prototype = {
             url: urls.image(imageId)
         })
         .then(function (response){
-            showLoadingOverlay(true, "Carregando imagem...");
+            showLoadingOverlay(true, messages.loadingImage);
             
             prefetchImage(this.$rootScope, response.data.image.url, function(){
                 showLoadingOverlay(false);
@@ -100,7 +100,7 @@ MainComponent.prototype = {
             }.bind(this), function(){
                 showLoadingOverlay(false);
                 
-                showAndLogErrorThatOcurredDuringAction("carregar imagem", null, this.$rootScope);
+                showAndLogErrorThatOcurredDuringAction(messages.loadImage, null, this.$rootScope);
                 
             }.bind(this));
 
@@ -108,7 +108,7 @@ MainComponent.prototype = {
         function(response){
             showLoadingOverlay(false);
             
-            showAndLogErrorThatOcurredDuringAction("carregar dados da imagem", response, this.$rootScope);
+            showAndLogErrorThatOcurredDuringAction(messages.loadImageData, response, this.$rootScope);
             // TODO retornar para datasets se for o primeiro loading
             
         }.bind(this));
@@ -157,7 +157,7 @@ MainComponent.prototype = {
     },
     
     logoutButtonClickHandler: function(){
-        showLoadingOverlay(true, "Saindo...")
+        showLoadingOverlay(true, messages.loggingOut)
         this.$http({
             method: 'POST',
             url: urls.logout
@@ -166,7 +166,7 @@ MainComponent.prototype = {
             window.location = urls.index;
         }.bind(this), function(response){
             showLoadingOverlay(false);
-            showAndLogErrorThatOcurredDuringAction("sair", response, this.$rootScope)
+            showAndLogErrorThatOcurredDuringAction(messages.logout, response, this.$rootScope)
         }.bind(this))
     }
 

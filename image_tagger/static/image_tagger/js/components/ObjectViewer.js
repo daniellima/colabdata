@@ -45,7 +45,7 @@ component.prototype = {
     tagThumbnailButtonClickHandler: function(tag){
         this.setOpen(false);
         
-        if(this.action == "Editar") {
+        if(this.action == "Edit") {
             this.$rootScope.$emit('tag-editor-requested', {
                 tag: tag,
                 callback: function() {

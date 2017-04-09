@@ -3,11 +3,11 @@
       <div class="toolbar-add pull-left">
         <button class="btn btn-default" ng-click="$ctrl.newObjectButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-plus"></span>
-            Objeto
+            Tag
         </button>
         <button class="btn btn-default" ng-click="$ctrl.newRelationButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-plus"></span>
-            Relação
+            Relation
         </button>
         <button class="btn btn-default" ng-click="$ctrl.mergeTagsButtonClickHandler()" ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-resize-small"></span>
@@ -21,37 +21,37 @@
         </button>
         <button class="btn btn-default" ng-click="$ctrl.showImageButtonClickHandler()" ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-eye-open"></span>
-            Imagem
+            Image
         </button>
         <button class="btn btn-default" ng-click="$ctrl.showObjectListButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-record"></span>
-            Ver Objetos
+            Show Tags
         </button>
         <button class="btn btn-default" ng-click="$ctrl.showRelationListButtonClickHandler()" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <span class="glyphicon glyphicon-random"></span>
-            Ver Relações
+            Show Relations
         </button>
         <div class="btn-group" ng-show="$ctrl.currentPage != $ctrl.pages.OVERVIEW">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
             <span class="glyphicon glyphicon-resize-full"></span>
-            Tamanho
+            Adjust
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
             <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.ORIGINAL)">Original</a></li>
-            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.BY_WIDTH)">Ajustar largura</a></li>
-            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.BY_HEIGHT)">Ajustar altura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.BY_WIDTH)">Fit width</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeImageButtonClickHandler($ctrl.resizeMethods.BY_HEIGHT)">Fit height</a></li>
           </ul>
         </div>
         <div class="btn-group" ng-show="$ctrl.currentPage == $ctrl.pages.OVERVIEW">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
             <span class="glyphicon glyphicon-resize-full"></span>
-            Tamanho
+            Adjust
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler($ctrl.resizeMethods.BY_WIDTH)">Ajustar largura</a></li>
-            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler($ctrl.resizeMethods.BY_HEIGHT)">Ajustar altura</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler($ctrl.resizeMethods.BY_WIDTH)">Fit width</a></li>
+            <li><a href="#" ng-click="$ctrl.resizeOverviewImageButtonClickHandler($ctrl.resizeMethods.BY_HEIGHT)">Fit height</a></li>
           </ul>
         </div>
       </div>
@@ -136,9 +136,9 @@
 <div ng-show="$ctrl.error != null" style="position: fixed; background-color: rgba(255,255,255,0.8); width: 100%; height: 100%; top: 0; left: 0; z-index: 99999">
   <div class="error-overlay_content alert alert-danger">
     <span class="error-overlay_content_icon glyphicon glyphicon-remove-circle"></span>
-    <p>Ocorreu um erro ao tentar {{ $ctrl.error.actionThatFailed }}.</p>
-    <p>Por favor, verifique se sua internet está em boas condições e tente novamente.</p>
-    <p>Se o problema persistir, entre em contato com o administrador do sistema.</p>
+    <p>An error ocurred when trying to {{ $ctrl.error.actionThatFailed }}.</p>
+    <p>Please, check if your network connection is working properly and try again.</p>
+    <p>If the problem persists, contact the system administrator.</p>
     <button class="btn btn-default btn-block error-overlay_content_button" ng-click="$ctrl.errorMessageOkButtonClickHandler()">Ok</button>
   </div>
 </div>

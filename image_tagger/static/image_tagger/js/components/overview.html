@@ -5,7 +5,7 @@
   
   <div class="row">
     <div class="col-xs-2">
-      <h2>Objetos</h2>
+      <h2>Objects</h2>
       
       <div 
         ng-click="$ctrl.tagItemClickHandler(tag)" 
@@ -13,12 +13,12 @@
         ng-repeat="tag in $ctrl.image().tags" 
         ng-mouseenter="$ctrl.showTag(tag)" 
         ng-mouseleave="$ctrl.hideTag(tag)">
-        {{ tag.object || "(sem nome)" }}
+        {{ tag.object || "(not named)" }}
       </div>
       
     </div>
     <div class="col-xs-2">
-      <h2>Atributos</h2>
+      <h2>Attributes</h2>
       
       <div 
         ng-click="$ctrl.attributeItemClickHandler(attribute.tag)"
@@ -26,12 +26,12 @@
         ng-repeat="attribute in $ctrl.attributes()" 
         ng-mouseenter="$ctrl.showTag(attribute.tag)" 
         ng-mouseleave="$ctrl.hideTag(attribute.tag)">
-        {{ attribute.name }} de {{ attribute.tag.object || "(sem nome)" }} é {{ attribute.value }}
+        {{ attribute.name }} of {{ attribute.tag.object || "(not named)" }} is {{ attribute.value }}
       </div>
 
     </div>
     <div class="col-xs-3">
-      <h2>Relações</h2>
+      <h2>Relations</h2>
       
       <div 
         ng-click="$ctrl.relationItemClickHandler(relation)"
@@ -39,7 +39,7 @@
         ng-repeat="relation in $ctrl.relations() | orderBy: 'name'" 
         ng-mouseenter="$ctrl.showRelation(relation)" 
         ng-mouseleave="$ctrl.hideRelation(relation)">
-          {{ relation.originTag.object || "(sem nome)" }} {{ relation.name }} {{ relation.targetTag.object || "(sem nome)" }}
+          {{ relation.originTag.object || "(not named)" }} {{ relation.name }} {{ relation.targetTag.object || "(not named)" }}
       </div>
       
     </div>

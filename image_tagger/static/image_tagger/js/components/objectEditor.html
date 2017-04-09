@@ -3,7 +3,7 @@
     <div class="container-fluid">
       <div class="row">
         <h3 class="edit-panel-title">
-          Editar objeto
+          Edit Tag
         </h3>
         <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
           <span class="glyphicon glyphicon-remove"></span>
@@ -21,11 +21,11 @@
         <div class="col-md-6">
           <div class="row">
             <div class="col-md-12">
-              <label for="object-name">Nome</label>
+              <label for="object-name">Object Name</label>
               <input type="text" ng-if="!$ctrl.useOnthology()" id="object-name" class="form-control" ng-model="$ctrl.object" placeholder="nome do objeto">
               <select ng-if="$ctrl.useOnthology()" class="form-control" id="object-name" ng-model="$ctrl.object" ng-options="type for type in $ctrl.possibleObjectTypes()">
               </select>
-              <label for="">Atributos</label>
+              <label for="">Attributes</label>
             </div>
           </div>
           <div class="row object-attributes">
@@ -33,10 +33,10 @@
               <div ng-if="!$ctrl.useOnthology()" style="display: table;">
                 <div style="display: table-row;" ng-repeat="attribute in $ctrl.attributes">
                   <div style="display: table-cell;">
-                    <input type="text" class="form-control attribute-name" ng-model="attribute.name" placeholder="propriedade é...">
+                    <input type="text" class="form-control attribute-name" ng-model="attribute.name" placeholder="attribute is...">
                   </div>
                   <div style="display: table-cell;">
-                    <input type="text" class="form-control" ng-model="attribute.value" placeholder="esse valor">
+                    <input type="text" class="form-control" ng-model="attribute.value" placeholder="value">
                   </div>
                   <div style="display: table-cell;">
                     <button class="btn btn-danger button-remove" ng-click="$ctrl.removeAttributeButtonClickHandler(attribute)">
@@ -68,7 +68,7 @@
             <div class="col-md-12">
               <button class="btn-add-attribute btn btn-default btn-block" ng-click="$ctrl.addAttributeButtonClickHandler()">
                 <span class="glyphicon glyphicon-plus"></span>
-                Adicionar atributo
+                Add attribute
               </button>
             </div>
           </div>
@@ -78,15 +78,15 @@
         <div class="col-md-6">
           <button class="btn btn-default btn-block" ng-click="$ctrl.editMarkerButtonClickHandler()">
             <span class="glyphicon glyphicon-pencil"></span>
-            <span ng-if="!$ctrl.marker">Fazer marcação</span>
-            <span ng-if="$ctrl.marker">Editar marcação</span>
+            <span ng-if="!$ctrl.marker">Mark tag area</span>
+            <span ng-if="$ctrl.marker">Edit tag area</span>
           </button>
         </div>
         <div class="col-md-6">
           <div style="display: table; width: 100%;">
             <div style="display: table-cell">
               <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.saveButtonClickHandler()">
-                Salvar
+                Save
               </button>
             </div>
             <div style="display: table-cell; width: 40px;" ng-show="$ctrl.tagBeingEdited != null">

@@ -149,7 +149,7 @@ component.prototype = {
         var isValid = this.checkValid();
         
         if(isValid) {
-            showLoadingOverlay(true, "Salvando...");
+            showLoadingOverlay(true, messages.saving);
             var object = this.object === null ? "" : this.object;
             store.saveTag(this.$http, this.tagBeingEdited, object, this.attributes, this.marker)
             .then(function() {
@@ -157,7 +157,7 @@ component.prototype = {
                 
                 this.modalCallback();
             }.bind(this), function(response) { 
-                showAndLogErrorThatOcurredDuringAction("salvar o objeto", response, this.$rootScope);
+                showAndLogErrorThatOcurredDuringAction(messages.saveTheTag, response, this.$rootScope);
             }.bind(this))
             .finally(function() {
                 showLoadingOverlay(false);
@@ -165,7 +165,7 @@ component.prototype = {
         }
     },
     deleteButtonClickHandler: function() {
-        showLoadingOverlay(true, "Deletando...");
+        showLoadingOverlay(true, messages.deleting);
         
         store.deleteTag(this.$http, this.tagBeingEdited)
         .then(function(){
@@ -173,7 +173,7 @@ component.prototype = {
             
             this.modalCallback();
         }.bind(this), function(response){
-            showAndLogErrorThatOcurredDuringAction("deletar o objeto", response, this.$rootScope);
+            showAndLogErrorThatOcurredDuringAction(messages.deleteTheTag, response, this.$rootScope);
         }.bind(this))
         .finally(function(response) {
             showLoadingOverlay(false);
