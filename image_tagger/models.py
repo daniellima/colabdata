@@ -159,7 +159,7 @@ class Image(models.Model):
         }
         
     def __str__(self):
-        return self.id
+        return "{}".format(self.id)
  
 class Tag(models.Model):
     object_type = models.ForeignKey(ObjectType, related_name="tags", on_delete=models.CASCADE)
