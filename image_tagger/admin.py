@@ -186,6 +186,7 @@ class CustomUserAdmin(UserAdmin):
     readonly_fields = ['date_joined', 'last_login']
     
     def get_form(self, request, obj=None, **kwargs):
+        
         form = super(CustomUserAdmin, self).get_form(request, obj, **kwargs)
         if obj == None or request.user.is_superuser:
             return form
@@ -197,9 +198,9 @@ class CustomUserAdmin(UserAdmin):
     
     def get_fieldsets(self, request, obj=None):
         if obj == None or request.user.is_superuser:
-            return self.fieldsets
+            return super(CustomUserAdmin, self).get_fieldsets(request, obj)
         if obj.id == request.user.id: # is editing itself
-            return self.fieldsets
+            return super(CustomUserAdmin, self).get_fieldsets(request, obj)
         else:
             return (
                 (None, {'fields': ('username',)}),
@@ -208,11 +209,11 @@ class CustomUserAdmin(UserAdmin):
     
     def get_readonly_fields(self, request, obj=None):
         if obj == None or request.user.is_superuser:
-            return self.readonly_fields
+            return super(CustomUserAdmin, self).get_readonly_fields(request, obj)
         if obj.id == request.user.id: # is editing itself
-            return self.readonly_fields
+            return super(CustomUserAdmin, self).get_readonly_fields(request, obj)
         else:
-            return self.readonly_fields + ['username', 'first_name', 'last_name', 'email']
+            return super(CustomUserAdmin, self).get_readonly_fields(request, obj) + ['username', 'first_name', 'last_name', 'email']
     
     def get_queryset(self, request):
         qs = super(CustomUserAdmin, self).get_queryset(request)
