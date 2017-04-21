@@ -15,31 +15,31 @@
                   COLABDATA
                 </a>
             </div>
-            <ul class="nav navbar-nav">
-                <li>
-                    <a href="{% url 'index' %}" class="navbar-link">
-                        Home
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'private_datasets' %}" class="navbar-link">
-                        My Datasets
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'datasets' %}" class="navbar-link">
-                        Public datasets
-                    </a>
-                </li>
-                {% if user_is_admin %}
-                <li>
-                    <a href="{% url 'admin:index' %}" class="navbar-link">
-                        Admin
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
             {% if request.user.is_authenticated %}
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="{% url 'index' %}" class="navbar-link">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'private_datasets' %}" class="navbar-link">
+                            My Datasets
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'datasets' %}" class="navbar-link">
+                            Public datasets
+                        </a>
+                    </li>
+                    {% if user_is_admin %}
+                    <li>
+                        <a href="{% url 'admin:index' %}" class="navbar-link">
+                            Admin
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li>
                         <p class="navbar-text">Hello, {{ request.user.username }}</p>
