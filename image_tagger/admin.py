@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.db.models import Count
 import tarfile
 import os
 import shutil
@@ -172,7 +173,7 @@ class DatasetAdmin(admin.ModelAdmin):
 
 class CustomUserAdmin(UserAdmin):
     
-    list_display = ('username', 'email', 'first_name', 'last_name') #, 'is_staff')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'number_of_contributions') #, 'is_staff')
     list_filter = ('datasetmembership__group', 'datasetmembership__dataset', 'is_active')
     actions = None
     
@@ -184,6 +185,11 @@ class CustomUserAdmin(UserAdmin):
     )
     
     readonly_fields = ['date_joined', 'last_login']
+    
+    def number_of_contributions(self, obj):
+        return  obj.number_of_contributions
+    number_of_contributions.short_description = 'Contributions (# of Tags)'
+    number_of_contributions.admin_order_field = 'number_of_contributions'
     
     def get_form(self, request, obj=None, **kwargs):
         
@@ -217,6 +223,11 @@ class CustomUserAdmin(UserAdmin):
     
     def get_queryset(self, request):
         qs = super(CustomUserAdmin, self).get_queryset(request)
+        
+        # adiciona contagem de contibuições para que isso possa ser mostrado na 
+        # lista de usuarios do admin
+        qs = qs.annotate(number_of_contributions=Count('tags', distinct=True))
+        
         if request.user.is_superuser:
             return qs
         
