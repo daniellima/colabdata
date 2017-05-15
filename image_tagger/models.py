@@ -16,6 +16,7 @@ class Dataset(models.Model):
     description = models.TextField(max_length=5000)
     users = models.ManyToManyField(User, related_name='datasets', through='DatasetMembership')
     fixed_onthology = models.BooleanField(default=False)
+    public = models.BooleanField(default=False)
     
     @staticmethod
     def objects_with_publications():

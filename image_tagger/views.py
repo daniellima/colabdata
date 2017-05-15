@@ -142,7 +142,12 @@ def dataset_publications(request, dataset_id):
         publications = dataset.publications.order_by('-export_date')
     except ObjectDoesNotExist:
         raise Http404("Dataset does not exist or has no publications.")
-        
+    
+    user = request.user
+    if not dataset.public:
+        if user.is_anonymous or not dataset in user.datasets.all():
+            raise Http404("Dataset does not exist")
+    
     return render(request, 'image_tagger/dataset_publications.html', {
         'dataset':dataset, 
         'publications':publications,
@@ -151,7 +156,7 @@ def dataset_publications(request, dataset_id):
     
 @require_GET
 def datasets(request):
-    datasets = Dataset.objects_with_publications().order_by('name')
+    datasets = Dataset.objects_with_publications().filter(public=True).order_by('name')
     return render(request, 'image_tagger/datasets.html', {'datasets': datasets})
 
 class LoginForm(forms.Form):
@@ -379,8 +384,11 @@ def merge_tags(request):
     
 def download_publication(request, publication_id):
     publication = Publication.objects.get(pk=publication_id)
-    if not publication.dataset in request.user.datasets.all():
-        raise Http404
+    
+    user = request.user
+    if not publication.dataset.public:
+        if user.is_anonymous or not publication.dataset in user.datasets.all():
+            raise Http404
         
     path = os.path.join(Publication.STORAGE_DIRECTORY, publication.get_file_name())
     
