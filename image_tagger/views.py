@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect
 from django import forms
 from .decorators import ajax_aware_login_required
 from django.db.models import Count, Case, When, IntegerField, Max, Sum
+from django.db import transaction
 import json
 import os
 import random
@@ -26,6 +27,7 @@ def is_curator(user, dataset):
 
 @require_POST
 @ajax_aware_login_required
+@transaction.atomic
 def save_tag(request):
     
     sent = get_json(request)
@@ -84,6 +86,7 @@ def save_tag(request):
 
 @require_POST
 @ajax_aware_login_required
+@transaction.atomic
 def save_relation(request):
     sent = get_json(request)
     originTag = Tag.objects.get(pk=sent['originTagId'])
@@ -109,7 +112,8 @@ def save_relation(request):
     return JsonResponse({'id': relation.id})
   
 @require_POST
-@ajax_aware_login_required     
+@ajax_aware_login_required
+@transaction.atomic
 def delete_tag(request):
     sent = get_json(request)
     
@@ -124,6 +128,7 @@ def delete_tag(request):
 
 @require_POST
 @ajax_aware_login_required
+@transaction.atomic
 def delete_relation(request):
     sent = get_json(request)
     
@@ -301,6 +306,7 @@ def dataset_image_tagger(request, dataset_id):
 
 @require_POST
 @ajax_aware_login_required
+@transaction.atomic
 def merge_tags(request):
     sent = get_json(request)
     
