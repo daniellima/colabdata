@@ -205,7 +205,7 @@ def private_datasets(request):
     })
     
 @require_GET
-@login_required # TODO ajax_aware_login_required
+@ajax_aware_login_required
 def image(request, image_id):
     image = Image.objects.get(pk=image_id)
     

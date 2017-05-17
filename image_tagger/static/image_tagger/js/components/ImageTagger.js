@@ -237,15 +237,6 @@ component.prototype = {
         }
     },
     
-    // TODO remover isso
-    overviewOnObjectClickHandler: function(block) {
-        this.showObjectEditor(block);
-    },
-    
-    overviewOnRelationClickHandler: function(relation) {
-        this.showRelationEditor(relation);
-    },
-    
     
     mergeTagsButtonClickHandler: function() {
         this.$rootScope.$emit('merge-requested', {
