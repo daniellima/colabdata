@@ -33,10 +33,10 @@
               <div ng-if="!$ctrl.useOnthology()" style="display: table;">
                 <div style="display: table-row;" ng-repeat="attribute in $ctrl.attributes">
                   <div style="display: table-cell;">
-                    <input type="text" class="form-control attribute-name" ng-model="attribute.name" placeholder="attribute is...">
+                    <input type="text" class="form-control attribute-name" ng-model="attribute.name">
                   </div>
                   <div style="display: table-cell;">
-                    <input type="text" class="form-control" ng-model="attribute.value" placeholder="value">
+                    <input type="text" class="form-control" ng-model="attribute.value">
                   </div>
                   <div style="display: table-cell;">
                     <button class="btn btn-danger button-remove" ng-click="$ctrl.removeAttributeButtonClickHandler(attribute)">

@@ -26,7 +26,8 @@
         ng-repeat="attribute in $ctrl.attributes()" 
         ng-mouseenter="$ctrl.showTag(attribute.tag)" 
         ng-mouseleave="$ctrl.hideTag(attribute.tag)">
-        {{ attribute.name }} of {{ attribute.tag.object || "(not named)" }} is {{ attribute.value }}
+        <p style="text-align: center; margin-bottom:0">{{ attribute.tag.object || "(not named)" }}</p>
+        <p style="text-align: center; margin-bottom:0">{{ attribute.name }} &rarr; {{ attribute.value }}</p>
       </div>
 
     </div>
@@ -39,7 +40,9 @@
         ng-repeat="relation in $ctrl.relations() | orderBy: 'name'" 
         ng-mouseenter="$ctrl.showRelation(relation)" 
         ng-mouseleave="$ctrl.hideRelation(relation)">
-          {{ relation.originTag.object || "(not named)" }} {{ relation.name }} {{ relation.targetTag.object || "(not named)" }}
+          <p style="text-align: center; margin-bottom:0">{{ relation.originTag.object || "(not named)" }}</p>
+          <p style="text-align: center; margin-bottom:0">{{ relation.name }}</p>
+          <p style="text-align: center; margin-bottom:0">{{ relation.targetTag.object || "(not named)" }}</p>
       </div>
       
     </div>
