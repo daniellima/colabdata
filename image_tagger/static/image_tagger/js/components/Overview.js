@@ -5,8 +5,18 @@ var component = OverviewComponent = function($rootScope){
     /* TODO deveria ser uma computed property */
     this.visibleTags = [];
     
-    this.attributes = function(){
-        return store.getAllAttributes();
+    this._tagsWithAttributes = [];
+    this.tagsWithAttributes = function() {
+        this._tagsWithAttributes.splice(0, this._tagsWithAttributes.length);
+        
+        for(var i = 0; i < store.getImage().tags.length; i++) {
+            var tag = store.getImage().tags[i];
+            if(tag.attributes.length > 0) {
+                this._tagsWithAttributes.push(tag);
+            }
+        }
+
+        return this._tagsWithAttributes;
     },
     
     this.relations = function() {
@@ -75,6 +85,5 @@ component.prototype = {
             this.hideTag(relation.originTag);
             this.hideTag(relation.targetTag);
         }
-    },
-    
+    }
 };

@@ -21,13 +21,19 @@
       <h2>Attributes</h2>
       
       <div 
-        ng-click="$ctrl.attributeItemClickHandler(attribute.tag)"
+        ng-click="$ctrl.attributeItemClickHandler(tag)"
         style="cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid #ddd" 
-        ng-repeat="attribute in $ctrl.attributes()" 
-        ng-mouseenter="$ctrl.showTag(attribute.tag)" 
-        ng-mouseleave="$ctrl.hideTag(attribute.tag)">
-        <p style="text-align: center; margin-bottom:0">{{ attribute.tag.object || "(not named)" }}</p>
-        <p style="text-align: center; margin-bottom:0">{{ attribute.name }} &rarr; {{ attribute.value }}</p>
+        ng-repeat="tag in $ctrl.tagsWithAttributes()"
+        ng-mouseenter="$ctrl.showTag(tag)" 
+        ng-mouseleave="$ctrl.hideTag(tag)">
+        
+        <div style="text-align: center;">{{ tag.object || "(not named)" }}</div>
+        
+        <div
+          ng-repeat="attribute in tag.attributes"
+          style="text-align: center">
+          {{ attribute.name }} &rarr; {{ attribute.value }}
+        </div>
       </div>
 
     </div>
