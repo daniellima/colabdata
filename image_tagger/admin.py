@@ -267,8 +267,17 @@ class CustomUserAdmin(UserAdmin):
     
 class ImageAdmin(admin.ModelAdmin):
     
+    list_display = ('name', 'number_of_contributions')
     list_filter = [('dataset', admin.RelatedOnlyFieldListFilter)]
     actions = None
+    
+    def name(self, obj):
+        return obj.id
+    
+    def number_of_contributions(self, obj):
+        return  obj.number_of_contributions
+    number_of_contributions.short_description = 'Contributions (# of Users)'
+    number_of_contributions.admin_order_field = 'number_of_contributions'
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "dataset" and not request.user.is_superuser:
@@ -278,6 +287,11 @@ class ImageAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         qs = super(ImageAdmin, self).get_queryset(request)
+        
+        # adiciona contagem de contibuições para que isso possa ser mostrado na 
+        # lista de usuarios do admin
+        qs = qs.annotate(number_of_contributions=Count('tags__user', distinct=True))
+        
         if request.user.is_superuser:
             return qs
         return qs.filter(dataset__in=request.user.datasets.filter(datasetmembership__group__name="Administrador"))
