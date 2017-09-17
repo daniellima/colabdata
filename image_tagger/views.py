@@ -230,7 +230,6 @@ def images_pack(request, dataset_id):
         raise PermissionDenied
     
     dataset = Dataset.objects.get(pk=dataset_id)
-    
     if is_curator(request.user, dataset):
         ids = Image.objects.annotate(num_tags=Count('tags')).filter(num_tags__gt=0, dataset=dataset).order_by('id').values_list('id', flat=True)
         ids = list(ids)
@@ -249,7 +248,7 @@ def images_pack(request, dataset_id):
                 .annotate(contributions=Count('tags__user', distinct=True)) \
                 .annotate(user_contributed=Max(Case(When(tags__user=request.user, then=1), default=0, output_field=IntegerField()))) \
                 .filter(user_contributed=0, dataset=dataset) \
-                .order_by(Case(When(contributions__lte=3, then='contributions')).desc(), Case(When(contributions__gt=3, then='contributions')).asc()) \
+                .order_by(Case(When(contributions__lt=dataset.desired_number_of_contributions, then='contributions')).desc(), Case(When(contributions__gte=dataset.desired_number_of_contributions, then='contributions')).asc()) \
                 [:PACK_SIZE]
         else:
             ids = Image.objects.filter(dataset=dataset).order_by('id').values_list('id', flat=True)

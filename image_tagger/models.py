@@ -9,6 +9,7 @@ import tarfile
 from django.db.models import Count
 from django.conf import settings
 import uuid
+from django.core.validators import MinValueValidator
 # Create your models here.
 
 class Dataset(models.Model):
@@ -17,6 +18,7 @@ class Dataset(models.Model):
     users = models.ManyToManyField(User, related_name='datasets', through='DatasetMembership')
     fixed_onthology = models.BooleanField(default=False)
     public = models.BooleanField(default=False)
+    desired_number_of_contributions = models.IntegerField(default=3, validators=[MinValueValidator(2)], help_text="Please note that this value should not be greater than the number of contributors in this dataset. If you don't know what this value means, better to leave it at the default value of 3.")
     
     @staticmethod
     def objects_with_publications():
