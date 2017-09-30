@@ -43,7 +43,7 @@ def save_tag(request):
     try:
         object_type = ObjectType.objects.get(name=sent['tag']['object']['name'], dataset=image.dataset)
     except ObjectType.DoesNotExist:
-        if image.dataset.fixed_onthology and not sent['tag']['object']['name'].strip() == "":
+        if image.dataset.fixed_types and not sent['tag']['object']['name'].strip() == "":
             return HttpResponseBadRequest()
         else:
             object_type = ObjectType(name=sent['tag']['object']['name'], dataset=image.dataset)
@@ -55,7 +55,7 @@ def save_tag(request):
         try:
             attribute_type = AttributeType.objects.get(name=attribute['name'], dataset=image.dataset)
         except AttributeType.DoesNotExist:
-            if image.dataset.fixed_onthology:
+            if image.dataset.fixed_types:
                 return HttpResponseBadRequest()
             else:
                 attribute_type = AttributeType(name=attribute['name'], dataset=image.dataset)
@@ -64,7 +64,7 @@ def save_tag(request):
         try:
             attribute_type_value = AttributeTypeValue.objects.get(name=attribute['value'], attribute_type=attribute_type)
         except AttributeTypeValue.DoesNotExist:
-            if image.dataset.fixed_onthology:
+            if image.dataset.fixed_types:
                 return HttpResponseBadRequest()
             else:
                 attribute_type_value = AttributeTypeValue(name=attribute['value'], attribute_type=attribute_type)
@@ -95,7 +95,7 @@ def save_relation(request):
     try:
         relation_type = RelationType.objects.get(name=sent['name'], dataset=originTag.image.dataset)
     except RelationType.DoesNotExist:
-        if originTag.image.dataset.fixed_onthology:
+        if originTag.image.dataset.fixed_types:
             return HttpResponseBadRequest()
         else:
             relation_type = RelationType(name=sent['name'], dataset=originTag.image.dataset)
@@ -293,7 +293,7 @@ def dataset_image_tagger(request, dataset_id):
     else:
         user_is_curator = 'false'
     
-    if dataset.fixed_onthology:
+    if dataset.fixed_types:
         use_onthology = 'true'
     else:
         use_onthology = 'false'
@@ -318,7 +318,7 @@ def merge_tags(request):
     try:
         object_type = ObjectType.objects.get(name=sent['mergedTagData']['object']['name'], dataset=image.dataset)
     except ObjectType.DoesNotExist:
-        if image.dataset.fixed_onthology and not sent['mergedTagData']['object']['name'].strip() == "":
+        if image.dataset.fixed_types and not sent['mergedTagData']['object']['name'].strip() == "":
             return HttpResponseBadRequest()
         else:
             object_type = ObjectType(name=sent['mergedTagData']['object']['name'], dataset=image.dataset)
@@ -330,7 +330,7 @@ def merge_tags(request):
         try:
             attribute_type = AttributeType.objects.get(name=attribute['name'], dataset=image.dataset)
         except AttributeType.DoesNotExist:
-            if image.dataset.fixed_onthology:
+            if image.dataset.fixed_types:
                 return HttpResponseBadRequest()
             else:
                 attribute_type = AttributeType(name=attribute['name'], dataset=image.dataset)
@@ -339,7 +339,7 @@ def merge_tags(request):
         try:
             attribute_type_value = AttributeTypeValue.objects.get(name=attribute['value'], attribute_type=attribute_type)
         except AttributeTypeValue.DoesNotExist:
-            if image.dataset.fixed_onthology:
+            if image.dataset.fixed_types:
                 return HttpResponseBadRequest()
             else:
                 attribute_type_value = AttributeTypeValue(name=attribute['value'], attribute_type=attribute_type)
