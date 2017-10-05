@@ -37,6 +37,10 @@ var component = OverviewComponent = function($rootScope, $document, $window){
         }.bind(this));
     }.bind(this));
     
+    // TODO avisar através de um evento na store que a imagem mudou...
+    $rootScope.$on('image_changed', function(event, data){
+         this.visibleTags = [];
+    }.bind(this));
 }
 
 component.definition = {

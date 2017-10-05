@@ -112,6 +112,7 @@ component.prototype = {
         if(changes.image && changes.image.currentValue){
             this.imageResizeMethod = this.resizeMethods.BY_HEIGHT;
             store.setImage(changes.image.currentValue);
+            this.$rootScope.$emit('image_changed');
             this.markerVisible = false;
         }
     },
