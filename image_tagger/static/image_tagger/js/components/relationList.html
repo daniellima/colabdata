@@ -1,4 +1,4 @@
-<div class="modal-panel relations-list-panel" ng-show="$ctrl.open">
+<div class="modal-panel relations-list-panel" style="width: 800px" ng-show="$ctrl.open">
   <h3 class="edit-panel-title">
     Relations
   </h3>
@@ -6,40 +6,41 @@
   <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
     <span class="glyphicon glyphicon-remove"></span>
   </button>
-    
-  <div style="overflow: auto; height: 500px" class="container-fluid">
-    <div ng-repeat="relation in $ctrl.relations() | orderBy: 'name' ">
+  
+  <div style="overflow: auto; height: 400px;" class="container-fluid">
+    <div class="col-md-6" style="border: 1px solid #eee; border-radius: 1em" ng-repeat="relation in $ctrl.relations() | orderBy: 'name' ">
       <div class="row" style="margin-top: 1em; margin-bottom: 1em">
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" style="cursor: initial">
-            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="relation.originTag" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="relation.originTag" size="150"></object-thumbnail>
           </div>
         </div>
         <div class="col-md-6 text-center">
           <div class="relation-editor-thumbnail-container" style="cursor: initial">
-            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="relation.targetTag" size="200"></object-thumbnail>
+            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="relation.targetTag" size="150"></object-thumbnail>
           </div>
         </div>
       </div>
       <div class="row">
-        <span style="line-height: 34px;margin-left: 2em;">
-          <span style="font-weight: bold">{{ relation.originTag.object }}</span>
-          {{ relation.name }}
-          <span style="font-weight: bold">{{ relation.targetTag.object }}</span>
-        </span>
-        <a class="btn btn-danger pull-right"
-          href="javascript:void(0)" 
-          ng-click="$ctrl.deleteRelationButtonClickHandler(relation)"
-          >
-          Delete
-        </a>
-        <a class="btn btn-default pull-right"
-          href="javascript:void(0)" 
-          ng-click="$ctrl.editRelationButtonClickHandler(relation)"
-          >
-          Edit
-        </a>
-        <hr>
+        <div class="col-md-12">
+          <p style="line-height: 34px;">
+            <span style="font-weight: bold">{{ relation.originTag.object }}</span>
+            {{ relation.name }}
+            <span style="font-weight: bold">{{ relation.targetTag.object }}</span>
+          </p>
+          <div style="display: table; width: 100%;">
+            <div style="display: table-cell">
+              <button class="btn btn-default btn-block" ng-click="$ctrl.editRelationButtonClickHandler(relation)">
+                Edit
+              </button>
+            </div>
+            <div style="display: table-cell; width: 40px;">
+              <button class="btn btn-danger" ng-click="$ctrl.deleteRelationButtonClickHandler(relation)">
+                <span class="glyphicon glyphicon-trash"></span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -131,8 +131,8 @@ body {
 }
 .relation-editor-thumbnail-container {
   position: relative; 
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   display: inline-block;
   cursor: pointer;
 }
