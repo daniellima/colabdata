@@ -137,5 +137,21 @@ component.prototype = {
                 showLoadingOverlay(false);
             });
         }
-    }
+    },
+    
+    deleteButtonClickHandler: function() {
+        showLoadingOverlay(true, messages.deleting);
+        
+        store.deleteRelation(this.$http, this.relationBeingEdited)
+        .then(function(){
+            this.setOpen(false);
+            
+            this.modalCallback();
+        }.bind(this), function(response){
+            showAndLogErrorThatOcurredDuringAction(messages.deleteTheRelation, response, this.$rootScope);
+        }.bind(this))
+        .finally(function(response) {
+            showLoadingOverlay(false);
+        });
+    },
 };

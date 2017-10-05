@@ -1,37 +1,38 @@
 <div class="modal-panel relation-editor-panel" ng-show="$ctrl.open">
-    <div class="container-fluid">
-      <div class="row">
-          <h3 class="edit-panel-title">
-            Edit Relation
-          </h3>
-          <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
-            <span class="glyphicon glyphicon-remove"></span>
-          </button>
+  <div class="container-fluid">
+    <div class="row">
+        <h3 class="edit-panel-title">
+          Edit Relation
+        </h3>
+        <button class="btn btn-danger close-button" ng-click="$ctrl.closeButtonClickHandler()">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </div>
+    <div class="row">
+      <div class="alert alert-danger" ng-if="$ctrl.errors.length">
+        <p ng-repeat="error in $ctrl.errors">{{ error }}</p>
       </div>
-      <div class="row">
-        <div class="alert alert-danger" ng-if="$ctrl.errors.length">
-          <p ng-repeat="error in $ctrl.errors">{{ error }}</p>
+    </div>
+    <div class="row">
+      <div class="col-md-6 text-center">
+        <div 
+          class="relation-editor-thumbnail-container relation-editor-thumbnail-container__empty" 
+          ng-click="$ctrl.tagThumbnailButtonClickHandler('origin')"
+          >
+          <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.originTag" size="200"></object-thumbnail>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-6 text-center">
-          <div 
-            class="relation-editor-thumbnail-container relation-editor-thumbnail-container__empty" 
-            ng-click="$ctrl.tagThumbnailButtonClickHandler('origin')"
-            >
-            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.originTag" size="200"></object-thumbnail>
-          </div>
-        </div>
-        <div class="col-md-6 text-center">
-          <div 
-            class="relation-editor-thumbnail-container relation-editor-thumbnail-container__empty" 
-            ng-click="$ctrl.tagThumbnailButtonClickHandler('target')"
-            >
-            <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.targetTag" size="200"></object-thumbnail>
-          </div>
+      <div class="col-md-6 text-center">
+        <div 
+          class="relation-editor-thumbnail-container relation-editor-thumbnail-container__empty" 
+          ng-click="$ctrl.tagThumbnailButtonClickHandler('target')"
+          >
+          <object-thumbnail class="centered-vh" image="$ctrl.image()" block="$ctrl.targetTag" size="200"></object-thumbnail>
         </div>
       </div>
-      <div class="row">
+    </div>
+    <div class="row">
+      <div class="col-md-12">
         <input
           ng-if="!$ctrl.useOnthology()"
           type="text" 
@@ -46,13 +47,22 @@
           ng-options="type for type in $ctrl.possibleRelationTypes()">
         </select>
       </div>
-      <div class="row">
-        <button class="btn btn-primary btn-block" 
-          style="margin-top: 1em" 
-          ng-click="$ctrl.saveButtonClickHandler()"
-          >
-          Save
-        </button>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div style="display: table; width: 100%; margin-top: 1em">
+          <div style="display: table-cell">
+            <button class="btn btn-primary btn-block save-button" ng-click="$ctrl.saveButtonClickHandler()">
+              Save
+            </button>
+          </div>
+          <div style="display: table-cell; width: 40px;" ng-show="$ctrl.relationBeingEdited != null">
+            <button class="btn btn-danger" ng-click="$ctrl.deleteButtonClickHandler()">
+              <span class="glyphicon glyphicon-trash"></span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
 </div>
