@@ -9,10 +9,24 @@
   
   <div ng-show="$ctrl.page == $ctrl.pages.MERGING">
     <div style="overflow: auto; height: 500px">
-      <div style="float:left; margin: 25px; width: 200px; height: {{200 + 34 + 10}}px;" ng-repeat="tag in $ctrl.tags">
+      <div style="float:left; 
+                  margin: 25px; 
+                  width: 200px; 
+                  height: {{200 + 34 + 10}}px; 
+                  position: relative;" 
+           ng-repeat="tag in $ctrl.tags"
+      >
         <div style="position:relative; height: 200px;">
           <object-thumbnail class="centered-vh" image="$ctrl.image()" block="tag" size="200"></object-thumbnail>
         </div>
+        <button class="btn btn-danger close-button btn-xs" ng-click="$ctrl.removeTagFromMergeButtonClickHandler($index)">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <p
+          style="margin-top: 1em; text-align: center;"
+        >
+          {{ tag.object }}
+        </a>
       </div>
     </div>
     

@@ -70,6 +70,10 @@ component.prototype = {
         this.open = value;
     },
     
+    removeTagFromMergeButtonClickHandler: function(tagIndex) {
+        this.tags.splice(tagIndex, 1);
+    },
+    
     confirmMergeButtonClickHandler: function(){
         this.setOpen(false);
         
