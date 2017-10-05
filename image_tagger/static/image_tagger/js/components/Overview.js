@@ -1,5 +1,5 @@
 /* global angular */
-var component = OverviewComponent = function($rootScope){
+var component = OverviewComponent = function($rootScope, $document, $window){
     this.$rootScope = $rootScope;
     
     /* TODO deveria ser uma computed property */
@@ -27,10 +27,20 @@ var component = OverviewComponent = function($rootScope){
         return store.getImage();
     }
     
+    // TODO: descobrir como usar só um valor ao invés e um objeto inteiro
+    this.previewOffset = {'top': 0, 'transition': 'top 0.3s'};
+    
+    $document.on('scroll', function(event){
+        $rootScope.$apply(function(){
+            // TODO: Como fazer isso com angular?
+            this.previewOffset.top = $(window).scrollTop();
+        }.bind(this));
+    }.bind(this));
+    
 }
 
 component.definition = {
-    controller: ['$rootScope', component],
+    controller: ['$rootScope', '$document', '$window', component],
     templateUrl: urls.template("overview.html"),
     bindings: {
         // TODO receber via eventos
